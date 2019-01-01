@@ -6,7 +6,11 @@ A `clojure.test`-compatible version of the [classic Expectations testing library
 
 This library brings `expect`, `more`, `more-of`, etc from Expectations into the
 `clojure.test` world to be used instead of (or in addition to) the familiar `is`
-macro. You can either use `deftest` from `clojure.test`, or `defexpect` from
+macro. This library has no dependencies, other than `clojure.test` itself, and
+should be compatible with all existing `clojure.test`-based tooling in editors
+and command-line tools.
+
+You can either use `deftest` from `clojure.test`, or `defexpect` from
 this library to wrap your tests.
 
 ```clojure
@@ -144,6 +148,18 @@ the `defexpect` macro (mimicking `clojure.test`'s `deftest`
 macro). Whilst this goes against the [https://clojure-expectations.github.io/odds-ends.html](Test Names
 philosophy) that Expectations was created with, it buys us a lot in terms of
 tooling support!
+
+## Differences from Expectations
+
+Aside from the obvious difference of providing names for tests -- essential for
+compatibility with `clojure.test`-based tooling -- here are the other differences
+to be aware of:
+
+* You use standard `clojure.test`-based tooling -- `lein test`, `boot test`, and [Cognitect's `test-runner`](https://github.com/cognitect-labs/test-runner) -- instead of the Expectations-specific tooling.
+* Because of that, tests run when you decide, not at the end of the JVM (as happens with Expectations).
+* Instead of the `in-context`, `before-run`, `after-run` machinery of Expectations, you can just use `clojure.test`'s fixtures machinery (`use-fixtures`).
+* Instead of Expectations' concept of "focused" test, you can use metadata on tests and tell your test runner to "select" tests as needed (e.g., Leiningen's "test selectors", Boot's "filters").
+* `freeze-time` and `redef-state` are not (yet) implemented.
 
 ## Test & Development
 
