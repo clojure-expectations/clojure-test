@@ -2,9 +2,156 @@
 
 A `clojure.test`-compatible version of the [classic Expectations testing library](https://clojure-expectations.github.io/).
 
+## What?
+
+This library brings `expect`, `more`, `more-of`, etc from Expectations into the
+`clojure.test` world to be used instead of (or in addition to) the familiar `is`
+macro. You can either use `deftest` from `clojure.test`, or `defexpect` from
+this library to wrap your tests.
+
+```clojure
+(ns my.cool.project-test
+  (:require [clojure.test :refer [deftest is]]
+            [expectations.clojure.test :refer :all]))
+
+;; mix'n'match libraries:
+
+(deftest mixed
+  (is 2 (+ 1 1))
+  (expect even? (+ 1 1)))
+
+;; simple equality tests:
+
+(defexpect equality
+  (expect 1 (* 1 1))
+  (expect "foo" (str "f" "oo")))
+
+;; the expected outcome can be a regular expression:
+
+(defexpect regex-1
+  (expect #"foo" "It's foobar!"))
+
+;; since that has only a single expectation, it can be written more succinctly:
+
+(defexpect regex-2 #"foo" "It's foobar!")
+
+;; the expected outcome can be an exception type:
+
+(defexpect divide-by-zero ArithmeticException (/ 12 0))
+
+;; the expected outcome can be a predicate:
+
+(defexpect no-elements empty? (list))
+
+;; the expected outcome can be a type:
+
+(defexpect named String (name :foo))
+
+;; if the actual value is a collection, the expected outcome can be an element or subset "in" that collection:
+
+(defexpect collections
+  (expect {:foo 1} (in {:foo 1 :cat 4}))
+  (expect :foo (in #{:foo :bar}))
+  (expect :foo (in [:bar :foo])))
+```
+
+Just like `deftest`, the `defexpect` macro creates a function that contains the test\(s\). You can run each function individually:
+
+```clojure
+user=> (equality)
+nil
+```
+
+If the test passes, nothing is printed, and `nil` is returned. Let's look at a failing test:
+
+```clojure
+user=> (defexpect inequality (* 2 21) (+ 13 13 13))
+#'user/inequality
+user=> (inequality)
+
+FAIL in (inequality) (.../README.md:67)
+expected: (=? (* 2 21) (+ 13 13 13))
+  actual: 39
+nil
+```
+
+The output is produced by `clojure.test`'s standard reporting functionality.
+The `=?` operator is an extension to `clojure.test`'s `assert-expr` multimethod
+that allows for Expectations style of predicate-or-equality testing (based on
+whether the "expected" expression resolves to a function or some other value):
+
+```clojure
+user=> (defexpect indivisible odd? (+ 1 1))
+#'user/indivisible
+user=> (indivisible)
+
+FAIL in (indivisible) (.../README.md:83)
+expected: (=? odd? (+ 1 1))
+  actual: (not (odd? 2))
+nil
+```
+
+Here we see the predicate (`odd?`) being applied in the "actual" result from
+`clojure.test`.
+
+`expectations.clojure.test` supports the following features from Expectations so far:
+* simple equality test
+* simple predicate test
+* class test -- see `named` above
+* exception test -- see `divide-by-zero` above
+* regex test -- see `regex-1` and `regex-2` above
+* `(expect expected-expr (from-each [a values] (actual-expr a)))`
+* `(expect expected-expr (in actual-expr))` -- see `collections` above
+* `(expect (more-of destructuring e1 a1 e2 a2 ...) actual-expr)`
+* `(expect (more-> e1 a1 e2 a2 ...) actual-expr)` -- where `actual-expr` is threaded into each `a1`, `a2`, ... expression
+* `(expect (more e1 e2 ...) actual-expr)`
+* `(expect expected-expr (side-effects [fn1 fn2 ...] actual-expr))`
+
+Read [the Expectations documentation](https://clojure-expectations.github.io/)
+for more details of these features.
+
+Tests defined with `defexpect` behave just like tests defined with `deftest` and
+all of the existing `clojure.test`-based tooling will work with them, including
+fixtures, test runners, and other libraries that patch `clojure.test` to improve
+its error reporting and other features.
+
+## Why?
+
+Given the streamlined simplicity of Expectations, you might wonder why you
+would want to migrate your Expectations test suite to `clojure.test`-style
+named tests? The short answer is **tooling**! Whilst Expectations has
+well-maintained, stable plugins for Leiningen and Boot, as well as an Emacs mode,
+the reality is that Clojure tooling is constantly evolving and most of those
+tools -- such as the excellent [https://cider.readthedocs.io/en/latest/](CIDER),
+[https://cursive-ide.com/](Cursive),
+and the more recent [https://atom.io/packages/proto-repl](ProtoREPL)
+and [Chlorine](https://atom.io/packages/chlorine) (both for Atom) --
+are going to focus on Clojure's built-in testing library first.
+Support for the original form of Expectations, using unnamed tests, is
+non-existent in Cursive, and can be problematic in other editors.
+
+A whole ecosystem
+of tooling has grown up around `clojure.test` and to take advantage of
+that with Expectations, we either need to develop compatible extensions to each
+and every tool or we need Expectations to be compatible with `clojure.test`.
+
+One of the big obstacles for that compatibility is that, by default, Expectations
+generates "random" function names for test code (the function names are based on the
+hashcode of the text form of the `expect` body), which means the test
+name changes whenever the text of the test changes. To address that, the new
+`expectations.clojure.test` namespace introduces named expectations via
+the `defexpect` macro (mimicking `clojure.test`'s `deftest`
+macro). Whilst this goes against the [https://clojure-expectations.github.io/odds-ends.html](Test Names
+philosophy) that Expectations was created with, it buys us a lot in terms of
+tooling support!
+
 ## Test & Development
 
 To test, run `clj -A:test:runner`.
+
+## TODO
+
+Add tests(!) and more examples.
 
 ## License & Copyright
 
