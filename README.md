@@ -2,6 +2,16 @@
 
 A `clojure.test`-compatible version of the [classic Expectations testing library](https://clojure-expectations.github.io/).
 
+## Where?
+
+[![Clojars Project](https://clojars.org/expectations/clojure-test/latest-version.svg)](https://clojars.org/expectations/clojure-test)
+
+Try it out:
+
+```
+clj -Sdeps '{:deps {expectations/clojure-test {:mvn/version "RELEASE"}}}'
+```
+
 ## What?
 
 This library brings `expect`, `more`, `more-of`, etc from Expectations into the
