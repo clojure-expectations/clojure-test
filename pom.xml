@@ -25,7 +25,7 @@
     <connection>scm:git:git@github.com:clojure-expectations/clojure-test.git</connection>
     <developerConnection>scm:git:git@github.com:clojure-expectations/clojure-test.git</developerConnection>
     <url>https://github.com/clojure-expectations/clojure-test</url>
-    <tag>51bb898840d7b2b6985b2876618b82e895f5fcfe</tag>
+    <tag>acbd6e7dbc4d4c8868be9a4b3b0ddfcceceb3588</tag>
   </scm>
 
   <dependencies>
