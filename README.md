@@ -156,10 +156,11 @@ compatibility with `clojure.test`-based tooling -- here are the other difference
 to be aware of:
 
 * You use standard `clojure.test`-based tooling -- `lein test`, `boot test`, and [Cognitect's `test-runner`](https://github.com/cognitect-labs/test-runner) -- instead of the Expectations-specific tooling.
-* Because of that, tests run when you decide, not at the end of the JVM (as happens with Expectations).
+* Because of that, tests run when you decide, not at JVM shutdown (which is the default with Expectations).
 * Instead of the `in-context`, `before-run`, `after-run` machinery of Expectations, you can just use `clojure.test`'s fixtures machinery (`use-fixtures`).
 * Instead of Expectations' concept of "focused" test, you can use metadata on tests and tell your test runner to "select" tests as needed (e.g., Leiningen's "test selectors", Boot's "filters").
 * `freeze-time` and `redef-state` are not (yet) implemented.
+* The undocumented `CustomPred` protocol is not implemented -- you can use plain `is` and extend `clojure.test`'s `assert-expr` multimethod if you need that level of control.
 
 ## Test & Development
 
