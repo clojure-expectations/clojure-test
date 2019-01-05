@@ -8,7 +8,8 @@
   to clojure.test functionality.
 
   We do not support ClojureScript in clojure.test mode, sorry."
-  (:require [clojure.string :as str]
+  (:require [clojure.data :as data]
+            [clojure.string :as str]
             [clojure.test :as t]))
 
 ;; stub functions for :refer compatibility:
@@ -37,9 +38,9 @@
                                                    (list '~e a#)
                                                    a#)})
          (t/do-report {:type :fail, :message ~msg,
-                       :expected '~form, :actual (if (fn? e#)
-                                                   (list '~'not (list '~e a#))
-                                                   a#)}))
+                       :diffs (if (fn? e#) [] [[a# (take 2 (data/diff e# a#))]])
+                       :expected (if (fn? e#) '~form e#) 
+                       :actual (if (fn? e#) (list '~'not (list '~e a#)) [a#])}))
        r#)))
 
 (defmacro ?
