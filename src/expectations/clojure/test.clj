@@ -39,7 +39,7 @@
          (t/do-report {:type :fail, :message ~msg,
                        :expected '~form, :actual (if (fn? e#)
                                                    (list '~'not (list '~e a#))
-                                                   a#)}))
+                                                   (list '~'not (list '~'=? e# a#)))}))
        r#)))
 
 (defmacro ?
