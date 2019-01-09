@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>expectations</groupId>
   <artifactId>clojure-test</artifactId>
-  <version>1.0.1</version>
+  <version>1.1.0</version>
   <name>exp-clojure-test</name>
 
   <description>A clojure.test-compatible version of the classic Expectations testing library.</description>
