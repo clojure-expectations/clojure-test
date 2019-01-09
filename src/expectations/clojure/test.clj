@@ -8,8 +8,18 @@
   to clojure.test functionality.
 
   We do not support ClojureScript in clojure.test mode, sorry."
-  (:require [clojure.string :as str]
+  (:require [clojure.data :as data]
+            [clojure.string :as str]
             [clojure.test :as t]))
+
+(def humane-test-output?
+  "If Humane Test Output is available, activate it, and enable compatibility
+  of our =? with it."
+  (try
+    (require 'pjstadig.humane-test-output)
+    ((resolve 'pjstadig.humane-test-output/activate!))
+    true
+    (catch Throwable _)))
 
 ;; stub functions for :refer compatibility:
 (defn- bad-usage [s]
@@ -30,16 +40,24 @@
   (let [[_ e a] form]
     `(let [e# ~e
            a# ~a
-           r# (if (fn? e#) (e# a#) (= e# a#))]
+           r# (if (fn? e#) (e# a#) (= e# a#))
+           humane?# (and humane-test-output? (not (fn? e#)))]
        (if r#
          (t/do-report {:type :pass, :message ~msg,
                        :expected '~form, :actual (if (fn? e#)
                                                    (list '~e a#)
                                                    a#)})
          (t/do-report {:type :fail, :message ~msg,
-                       :expected '~form, :actual (if (fn? e#)
-                                                   (list '~'not (list '~e a#))
-                                                   (list '~'not (list '~'=? e# a#)))}))
+                       :diffs (if humane?#
+                                [[a# (take 2 (data/diff e# a#))]]
+                                [])
+                       :expected (if humane?# e# '~form)
+                       :actual (cond (fn? e#)
+                                     (list '~'not (list '~e a#))
+                                     humane?#
+                                     [a#]
+                                     :else
+                                     (list '~'not (list '~'=? e# a#)))}))
        r#)))
 
 (defmacro ?

@@ -1,5 +1,6 @@
 {:aliases
  {:test {:extra-paths ["test"]}
+  :humane {:extra-deps {pjstadig/humane-test-output {:mvn/version "RELEASE"}}}
   :runner
   {:extra-deps {com.cognitect/test-runner
                 {:git/url "https://github.com/cognitect-labs/test-runner"
