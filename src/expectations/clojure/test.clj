@@ -31,23 +31,41 @@
 (defmacro more->       [& _] (bad-usage "more->"))
 (defmacro more         [& _] (bad-usage "more"))
 
+(defn spec? [e]
+  (and (keyword? e)
+       (try
+         (require 'clojure.spec.alpha)
+         (when-let [get-spec (resolve 'clojure.spec.alpha/get-spec)]
+           (boolean (get-spec e)))
+         (catch Throwable _))))
+
 ;; smart equality extension to clojure.test assertion -- if the expected form
 ;; is a predicate (function) then the assertion is equivalent to (is (e a))
 ;; rather than (is (= e a)) and we need the type check done at runtime, not
 ;; as part of the macro translation layer
 (defmethod t/assert-expr '=? [msg form]
   ;; (is (=? val-or-pred expr))
-  (let [[_ e a] form]
+  (let [[_ e a] form
+        conform? (spec? e)
+        valid? (when conform? (resolve 'clojure.spec.alpha/valid?))
+        explain-str? (when conform? (resolve 'clojure.spec.alpha/explain-str))]
     `(let [e# ~e
            a# ~a
-           r# (if (fn? e#) (e# a#) (= e# a#))
-           humane?# (and humane-test-output? (not (fn? e#)))]
+           r# (cond ~conform?
+                    (~valid? e# a#)
+                    (fn? e#)
+                    (e# a#)
+                    :else
+                    (= e# a#))
+           humane?# (and humane-test-output? (not (fn? e#)) (not ~conform?))]
        (if r#
          (t/do-report {:type :pass, :message ~msg,
                        :expected '~form, :actual (if (fn? e#)
                                                    (list '~e a#)
                                                    a#)})
-         (t/do-report {:type :fail, :message ~msg,
+         (t/do-report {:type :fail, :message (if ~conform?
+                                               (~explain-str? e# a#)
+                                               ~msg)
                        :diffs (if humane?#
                                 [[a# (take 2 (data/diff e# a#))]]
                                 [])
@@ -64,10 +82,7 @@
   "Wrapper for forms that might throw an exception so exception class names
   can be used as predicates. This is only needed for more-> so that you can
   thread exceptions into code that can parse information out of them, to be
-  used with various expect predicates.
-
-  TODO: revisit this to see if wrapping the whole expect with try/catch will
-  allow this to be omitted."
+  used with various expect predicates."
   [form]
   `(try ~form (catch Throwable t# t#)))
 
@@ -82,25 +97,7 @@
     (swap! store update (:type m) (fnil conj []) m)))
 
 (defmacro expect
-  "Translate Expectations DSL to clojure.test language.
-
-  Things implemented so far:
-  * simple predicate test
-  * class test
-  * exception test
-  * regex test
-  * simple equality
-  * from-each actual
-  * in actual
-  * more-of expected
-  * more-> expected
-  * more expected
-  * side-effects (copied from Expectations)
-
-  Things to implement:
-  * redef-state ?
-  * freeze-time
-  * context / in-context ?"
+  "Translate Expectations DSL to clojure.test language."
   ([a] `(t/is ~a))
   ([e a] `(expect ~e ~a true ~e))
   ([e a ex?] `(expect ~e ~a ~ex? ~e))
