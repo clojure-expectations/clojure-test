@@ -46,13 +46,13 @@
 (defmethod t/assert-expr '=? [msg form]
   ;; (is (=? val-or-pred expr))
   (let [[_ e a] form
-        conform? (spec? e)
-        valid? (when conform? (resolve 'clojure.spec.alpha/valid?))
-        explain-str? (when conform? (resolve 'clojure.spec.alpha/explain-str))]
+        conform? (spec? e)]
     `(let [e# ~e
            a# ~a
+           valid?# (when ~conform? (resolve 'clojure.spec.alpha/valid?))
+           explain-str?# (when ~conform? (resolve 'clojure.spec.alpha/explain-str))
            r# (cond ~conform?
-                    (~valid? e# a#)
+                    (valid?# e# a#)
                     (fn? e#)
                     (e# a#)
                     :else
@@ -64,7 +64,7 @@
                                                    (list '~e a#)
                                                    a#)})
          (t/do-report {:type :fail, :message (if ~conform?
-                                               (~explain-str? e# a#)
+                                               (explain-str?# e# a#)
                                                ~msg)
                        :diffs (if humane?#
                                 [[a# (take 2 (data/diff e# a#))]]
