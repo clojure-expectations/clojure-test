@@ -137,9 +137,9 @@ would want to migrate your Expectations test suite to `clojure.test`-style
 named tests? The short answer is **tooling**! Whilst Expectations has
 well-maintained, stable plugins for Leiningen and Boot, as well as an Emacs mode,
 the reality is that Clojure tooling is constantly evolving and most of those
-tools -- such as the excellent [https://cider.readthedocs.io/en/latest/](CIDER),
-[https://cursive-ide.com/](Cursive),
-and the more recent [https://atom.io/packages/proto-repl](ProtoREPL)
+tools -- such as the excellent [CIDER](https://cider.readthedocs.io/en/latest/),
+[Cursive](https://cursive-ide.com/),
+and the more recent [ProtoREPL](https://atom.io/packages/proto-repl)
 and [Chlorine](https://atom.io/packages/chlorine) (both for Atom) --
 are going to focus on Clojure's built-in testing library first.
 Support for the original form of Expectations, using unnamed tests, is
@@ -156,8 +156,8 @@ hashcode of the text form of the `expect` body), which means the test
 name changes whenever the text of the test changes. To address that, the new
 `expectations.clojure.test` namespace introduces named expectations via
 the `defexpect` macro (mimicking `clojure.test`'s `deftest`
-macro). Whilst this goes against the [https://clojure-expectations.github.io/odds-ends.html](Test Names
-philosophy) that Expectations was created with, it buys us a lot in terms of
+macro). Whilst this goes against the [Test Names
+philosophy](https://clojure-expectations.github.io/odds-ends.html) that Expectations was created with, it buys us a lot in terms of
 tooling support!
 
 ## Differences from Expectations
