@@ -34,8 +34,8 @@
 (defn spec? [e]
   (and (keyword? e)
        (try
-         (require 'clojure.spec.alpha)
-         (when-let [get-spec (resolve 'clojure.spec.alpha/get-spec)]
+         (require 'clojure.spec-alpha2)
+         (when-let [get-spec (resolve 'clojure.spec-alpha2/get-spec)]
            (boolean (get-spec e)))
          (catch Throwable _))))
 
@@ -49,8 +49,8 @@
         conform? (spec? e)]
     `(let [e# ~e
            a# ~a
-           valid?# (when ~conform? (resolve 'clojure.spec.alpha/valid?))
-           explain-str?# (when ~conform? (resolve 'clojure.spec.alpha/explain-str))
+           valid?# (when ~conform? (resolve 'clojure.spec-alpha2/valid?))
+           explain-str?# (when ~conform? (resolve 'clojure.spec-alpha2/explain-str))
            r# (cond ~conform?
                     (valid?# e# a#)
                     (fn? e#)

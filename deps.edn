@@ -1,4 +1,7 @@
-{:aliases
+{:deps
+ {org.clojure/spec-alpha2 {:git/url "https://github.com/clojure/spec-alpha2"
+                           :sha "0456614f111b419b54f6fa75114cf428a3cfbe06"}}
+ :aliases
  {:test {:extra-paths ["test"]}
   :humane {:extra-deps {pjstadig/humane-test-output {:mvn/version "RELEASE"}}}
   :runner
