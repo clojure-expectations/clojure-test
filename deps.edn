@@ -1,12 +1,12 @@
 {:deps
  {org.clojure/spec-alpha2 {:git/url "https://github.com/clojure/spec-alpha2"
-                           :sha "0456614f111b419b54f6fa75114cf428a3cfbe06"}}
+                           :sha "f4c2f6785222dd52e16741d9d0d9ae26bdbb1703"}}
  :aliases
  {:test {:extra-paths ["test"]}
   :humane {:extra-deps {pjstadig/humane-test-output {:mvn/version "RELEASE"}}}
   :runner
   {:extra-deps {com.cognitect/test-runner
                 {:git/url "https://github.com/cognitect-labs/test-runner"
-                 :sha "76568540e7f40268ad2b646110f237a60295fa3c"}}
+                 :sha "cb96e80f6f3d3b307c59cbeb49bb0dcb3a2a780b"}}
    :main-opts ["-m" "cognitect.test-runner"
                "-d" "test"]}}}
