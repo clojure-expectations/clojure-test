@@ -61,12 +61,37 @@ this library to wrap your tests.
 
 (defexpect named String (name :foo))
 
+;; the expected outcome can be a Spec:
+
+;; assumes (require '[clojure.spec.alpha :as s])
+(s/def ::value (s/and pos-int? #(< % 100)))
+(defexpect small-value
+  (expect ::value (* 13 4)))
+
 ;; if the actual value is a collection, the expected outcome can be an element or subset "in" that collection:
 
 (defexpect collections
   (expect {:foo 1} (in {:foo 1 :cat 4}))
   (expect :foo (in #{:foo :bar}))
   (expect :foo (in [:bar :foo])))
+
+;; just like clojure.test's testing macro to label groups of tests
+;; you can use expecting to label groups of expectations (this uses
+;; some of more advanced features listed below):
+
+(defexpect grouped-behavior
+  (expecting "numeric behavior"
+    (expect (more-of {:keys [a b]}
+                     even? a
+                     odd?  b)
+            {:a (* 2 13) :b (* 3 13)})
+    (expect pos? (* -3 -5)))
+  (expecting "string behavior"
+    (expect (more #"foo" "foobar" #(clojure.string/starts-with? % "f"))
+            (str "f" "oobar"))
+    (expect #"foo"
+            (from-each [s ["l" "d" "bar"]]
+              (str "foo" s)))))
 ```
 
 Just like `deftest`, the `defexpect` macro creates a function that contains the test\(s\). You can run each function individually:
