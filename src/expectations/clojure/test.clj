@@ -64,7 +64,10 @@
                                                    (list '~e a#)
                                                    a#)})
          (t/do-report {:type :fail, :message (if ~conform?
-                                               (explain-str?# e# a#)
+                                               (if ~msg
+                                                 (str ~msg "\n"
+                                                      (explain-str?# e# a#))
+                                                 (explain-str?# e# a#))
                                                ~msg)
                        :diffs (if humane?#
                                 [[a# (take 2 (data/diff e# a#))]]
@@ -115,6 +118,9 @@
 
   `(expect spec actual)`          => `(is (s/valid? spec actual))`
 
+  An optional third argument can be provided: a message to be included
+  in the output if the test fails.
+
   In addition, `actual` can be `(from-each [x coll] (computation-of x))`
   or `(in set-of-results)` or `(in larger-hash-map)`.
 
@@ -126,32 +132,38 @@
   is used to check each `valX` -- expressions based on symbols in the
   `binding`."
   ([a] `(t/is ~a))
-  ([e a] `(expect ~e ~a true ~e))
-  ([e a ex?] `(expect ~e ~a ~ex? ~e))
-  ([e a ex? e']
-   (let [msg (when-not (= e e')
-               (str "  within: "
-                    (pr-str (if (and (sequential? e') (= 'expect (first e')))
-                              e'
-                              (list 'expect e' a)))))]
+  ([e a] `(expect ~e ~a nil true ~e))
+  ([e a msg] `(expect ~e ~a ~msg true ~e))
+  ([e a msg ex? e']
+   (let [msg' (str/join
+               "\n"
+               (cond-> []
+                 msg
+                 (conj msg)
+                 (when-not (= e e'))
+                 (conj
+                  (str "  within: "
+                       (pr-str (if (and (sequential? e') (= 'expect (first e')))
+                                 e'
+                                 (list 'expect e' a)))))))]
     (cond
      (and (sequential? a) (= 'from-each (first a)))
      (let [[_ bindings & body] a]
        (if (= 1 (count body))
          `(doseq ~bindings
-            (expect ~e ~(first body) ~ex?))
+            (expect ~e ~(first body) ~msg ~ex? ~e))
          `(doseq ~bindings
-            (expect ~e (do ~@body) ~ex?))))
+            (expect ~e (do ~@body) ~msg ~ex? ~e))))
 
      (and (sequential? a) (= 'in (first a)))
-     (let [form `(~'expect ~e ~a)]
+     (let [form `(~'expect ~e ~a ~msg)]
        `(let [a# ~(second a)]
           (cond (or (sequential? a#) (set? a#))
                 (let [all-reports# (atom nil)]
                   (with-redefs [t/do-report (all-report all-reports#)]
                     (doseq [~'x a#]
-                      ;; TODO: really want x evaluated here!
-                      (expect ~'x ~e ~ex? ~form)))
+                      ;; TODO: really want x evaluated here! (not sure about msg)
+                      (expect ~'x ~e nil ~ex? ~form)))
                   (if (contains? @all-reports# :pass)
                     ;; report all the passes (and no failures or errors)
                     (doseq [r# (:pass @all-reports#)] (t/do-report r#))
@@ -161,12 +173,12 @@
                       (doseq [r# (:fail @all-reports#)] (t/do-report r#)))))
                 (map? a#)
                 (let [e# ~e]
-                  (expect e# (select-keys a# (keys e#)) ~ex? ~form))
+                  (expect e# (select-keys a# (keys e#)) ~msg ~ex? ~form))
                 :else
                 (throw (IllegalArgumentException. "'in' requires map or sequence")))))
 
      (and (sequential? e) (= 'more (first e)))
-     (let [es (mapv (fn [e] `(expect ~e ~a ~ex? ~e')) (rest e))]
+     (let [es (mapv (fn [e] `(expect ~e ~a ~msg ~ex? ~e')) (rest e))]
        `(do ~@es))
 
      (and (sequential? e) (= 'more-> (first e)))
@@ -176,33 +188,33 @@
                                (let [s (name (first a->))]
                                  (or (str/ends-with? s "->")
                                      (str/ends-with? s "->>"))))
-                        `(expect ~e (~(first a->) (? ~a) ~@(rest a->)) false ~e')
-                        `(expect ~e (-> (? ~a) ~a->) false ~e')))
+                        `(expect ~e (~(first a->) (? ~a) ~@(rest a->)) ~msg false ~e')
+                        `(expect ~e (-> (? ~a) ~a->) ~msg false ~e')))
                     (partition 2 (rest e)))]
        `(do ~@es))
 
      (and (sequential? e) (= 'more-of (first e)))
-     (let [es (mapv (fn [[e a]] `(expect ~e ~a ~ex? ~e'))
+     (let [es (mapv (fn [[e a]] `(expect ~e ~a ~msg ~ex? ~e'))
                     (partition 2 (rest (rest e))))]
        `(let [~(second e) ~a] ~@es))
 
      (and ex? (symbol? e) (resolve e) (class? (resolve e)))
-     (if msg
+     (if msg'
        (if (isa? (resolve e) Throwable)
-         `(t/is (~'thrown? ~e ~a) ~msg)
-         `(t/is (~'instance? ~e ~a) ~msg))
+         `(t/is (~'thrown? ~e ~a) ~msg')
+         `(t/is (~'instance? ~e ~a) ~msg'))
        (if (isa? (resolve e) Throwable)
          `(t/is (~'thrown? ~e ~a))
          `(t/is (~'instance? ~e ~a))))
 
      (isa? (type e) java.util.regex.Pattern)
-     (if msg
-       `(t/is (re-find ~e ~a) ~msg)
+     (if msg'
+       `(t/is (re-find ~e ~a) ~msg')
        `(t/is (re-find ~e ~a)))
 
      :else
-     (if msg
-       `(t/is (~'=? ~e ~a) ~msg)
+     (if msg'
+       `(t/is (~'=? ~e ~a) ~msg')
        `(t/is (~'=? ~e ~a)))))))
 
 (comment

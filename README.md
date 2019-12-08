@@ -118,7 +118,7 @@ user=> (defexpect inequality (* 2 21) (+ 13 13 13))
 #'user/inequality
 user=> (inequality)
 
-FAIL in (inequality) (.../README.md:113)
+FAIL in (inequality) (.../README.md:117)
 expected: (=? (* 2 21) (+ 13 13 13))
   actual: (not (=? 42 39))
 nil
@@ -130,11 +130,11 @@ that allows for Expectations style of predicate-or-equality testing (based on
 whether the "expected" expression resolves to a function or some other value):
 
 ```clojure
-user=> (defexpect indivisible odd? (+ 1 1))
-#'user/indivisible
-user=> (indivisible)
+user=> (defexpect not-at-all-odd odd? (+ 1 1))
+#'user/not-at-all-odd
+user=> (not-at-all-odd)
 
-FAIL in (indivisible) (.../README.md:129)
+FAIL in (not-at-all-odd) (.../README.md:133)
 expected: (=? odd? (+ 1 1))
   actual: (not (odd? 2))
 nil
@@ -143,7 +143,25 @@ nil
 Here we see the predicate (`odd?`) being applied in the "actual" result from
 `clojure.test`.
 
+Just like the `is` macro, `expect` can take an optional failure message as the third argument:
+
+```clojure
+user=> (defexpect failure-msg
+         (expect even? (+ 1 1 1) "It's uneven!"))
+#'user/failure-msg
+user=> (failure-msg)
+
+FAIL in (failure-msg) (.../README.md:149)
+It's uneven!
+expected: (=? even? (+ 1 1 1))
+  actual: (not (even? 3))
+nil
+```
+
+## Compatibility with Expectations
+
 `expectations.clojure.test` supports the following features from Expectations so far:
+
 * simple equality test
 * simple predicate test
 * spec test (using a keyword that identifies a spec)
@@ -159,11 +177,6 @@ Here we see the predicate (`odd?`) being applied in the "actual" result from
 
 Read [the Expectations documentation](https://clojure-expectations.github.io/)
 for more details of these features.
-
-Tests defined with `defexpect` behave just like tests defined with `deftest` and
-all of the existing `clojure.test`-based tooling will work with them, including
-fixtures, test runners, and other libraries that patch `clojure.test` to improve
-its error reporting and other features.
 
 ## Why?
 
@@ -206,7 +219,7 @@ to be aware of:
 * If you have [Paul Stadig's Humane Test Output](https://github.com/pjstadig/humane-test-output) on your classpath, it will be activated and failures reported by `=?` will be compatible with it, providing better reporting.
 * Instead of the `in-context`, `before-run`, `after-run` machinery of Expectations, you can just use `clojure.test`'s fixtures machinery (`use-fixtures`).
 * Instead of Expectations' concept of "focused" test, you can use metadata on tests and tell your test runner to "select" tests as needed (e.g., Leiningen's "test selectors", Boot's "filters", and `test-runner`'s `-i`/`-e` options).
-* `freeze-time` and `redef-state` are not (yet) implemented.
+* `freeze-time`, `redef-state`, and `warn-on-iref-updates` are not (yet) implemented.
 * The undocumented `CustomPred` protocol is not implemented -- you can use plain `is` and extend `clojure.test`'s `assert-expr` multimethod if you need that level of control.
 
 ## Test & Development
@@ -221,10 +234,6 @@ do
   clojure -A:test:runner:$v
 done
 ```
-
-## TODO
-
-Add proper documentation for cljdoc.org.
 
 ## License & Copyright
 

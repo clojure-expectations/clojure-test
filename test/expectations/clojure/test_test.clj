@@ -9,23 +9,31 @@
 
 (defmacro is-not'
   "Construct a negative test for an expectation with a symbolic failure."
-  [expectation failure]
+  [expectation failure & [msg]]
   `(let [results# (atom nil)]
      (with-redefs [do-report (sut/all-report results#)]
        ~expectation)
      (is (some (fn [fail#]
                  (= '~failure (:actual fail#)))
-               (:fail @results#)))))
+               (:fail @results#)))
+     (when ~msg
+       (is (some (fn [fail#]
+                   (re-find ~msg (:message fail#)))
+                 (:fail @results#))))))
 
 (defmacro is-not
   "Construct a negative test for an expectation with a value-based failure."
-  [expectation failure]
+  [expectation failure & [msg]]
   `(let [results# (atom nil)]
      (with-redefs [do-report (sut/all-report results#)]
        ~expectation)
      (is (some (fn [fail#]
                  (= ~failure (:actual fail#)))
-               (:fail @results#)))))
+               (:fail @results#)))
+     (when ~msg
+       (is (some (fn [fail#]
+                   (re-find ~msg (:message fail#)))
+                 (:fail @results#))))))
 
 (defmacro passes
   "Construct a positive test for an expectation with a predicate-based success.
@@ -51,6 +59,20 @@
   (is (sut/expect "foo" (str "f" "oo")))
   (is-not' (sut/expect 2 (* 1 1)) (not (=? 2 1)))
   (is-not' (sut/expect "fool" (str "f" "oo")) (not (=? "fool" "foo"))))
+
+(deftest message-test
+  (is-not' (sut/expect even? (+ 1 1 1) "It's uneven!")
+           (not (even? 3))
+           #"uneven")
+  (is-not' (sut/expect empty? [1] "It's partly full!")
+           (not (empty? [1]))
+           #"full")
+  (is-not' (sut/expect 2 (* 1 1) "One times one isn't two?")
+           (not (=? 2 1))
+           #"isn't two")
+  (is-not' (sut/expect "fool" (str "f" "oo") "No fooling around!")
+           (not (=? "fool" "foo"))
+           #"fooling"))
 
 (deftest regex-test
   (is (sut/expect #"foo" "It's foobar!"))

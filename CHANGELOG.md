@@ -1,3 +1,8 @@
+# Unreleased changes on **master**:
+
+* Add support for optional message argument in `expect`. #9
+* Added article-style documentation for cljdoc.org.
+
 # Version 1.1.2 -- 2019-12-07
 
 * Adds `between` and `between'` for inclusive and exclusive range checking.
@@ -5,7 +10,7 @@
 * Add a first round of tests (finally!). Verified support for Clojure 1.8 (without Spec expectations). Verified full support for Clojure 1.9 and 1.10.1.
 * Clean up `:require` .. `:refer` in README to list all public symbols. #4
 * Fixes links in README. PR #3 (@marekjeszka)
-* Add/improve docstrings. Add `^:no-doc` metadata for when cljdoc.org supports it.
+* Add/improve docstrings. Add `^:no-doc` metadata for cljdoc.org.
 
 # Version 1.1.1 -- 2019-01-14
 

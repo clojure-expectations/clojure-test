@@ -89,6 +89,65 @@ expected: (=? :small/value (* 14 30))
 
 > The `=?` operator appearing here is an Expectations extension to `clojure.test` that provides an "intelligent equality" that supports predicates and Specs, as well as regular value equality.
 
+## Failure Messages
+
+Just like the `is` macro, the `expect` macro can take an additional (third) argument that is a message to display if the expectation fails:
+
+```clojure
+user=> (defexpect failure-msg
+         (expect even? (+ 1 1 1) "It's uneven!"))
+#'user/failure-msg
+user=> (failure-msg)
+
+FAIL in (failure-msg) (...:...)
+It's uneven!
+expected: (=? even? (+ 1 1 1))
+  actual: (not (even? 3))
+nil
+
+;; messages are combined in a Spec failure:
+
+user=> (defexpect spec-failure-msg
+         (expect :small/value (* 14 30) "Too big!"))
+#'user/spec-failure-msg
+user=> (spec-failure-msg)
+
+FAIL in (spec-failure) (...:...)
+Too big!
+420 - failed: (< % 100) spec: :small/value
+
+expected: (=? :small/value (* 14 30))
+  actual: (not (=? :small/value 420))
+nil
+
+;; expecting adds its message too:
+
+user=> (defexpect another-spec-failure-msg
+         (expecting "Large number should fail"
+          (expect :small/value (* 14 30) "Too big!"))
+         (expecting "Negative number should fail"
+          (expect :small/value (* -14 30) "Too small!")))
+#'user/another-spec-failure-msg
+user=> (another-spec-failure-msg)
+
+FAIL in (another-spec-failure-msg) (...:...)
+Large number should fail
+Too big!
+420 - failed: (< % 100) spec: :small/value
+
+expected: (=? :small/value (* 14 30))
+  actual: (not (=? :small/value 420))
+
+FAIL in (another-spec-failure-msg) (...:...)
+Negative number should fail
+Too small!
+-420 - failed: pos-int? spec: :small/value
+
+expected: (=? :small/value (* -14 30))
+  actual: (not (=? :small/value -420))
+nil
+```
+
 # Useful Predicates, Collections, Expecting More, Expecting Side Effects
 
 While the above can already get you further than `clojure.test`, Expectations provides a lot more:
