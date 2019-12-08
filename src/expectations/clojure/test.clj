@@ -102,11 +102,17 @@
   These are approximate translations for the most basic forms:
 
   `(expect actual)`               => `(is actual)`
+
   `(expect expected actual)`      => `(is (= expected actual))`
+
   `(expect predicate actual)`     => `(is (predicate actual))`
+
   `(expect regex actual)`         => `(is (re-find regex actual))`
+
   `(expect ClassName actual)`     => `(is (instance? ClassName actual))`
+
   `(expect ExceptionType actual)` => `(is (thrown? ExceptionType actual))`
+
   `(expect spec actual)`          => `(is (s/valid? spec actual))`
 
   In addition, `actual` can be `(from-each [x coll] (computation-of x))`
