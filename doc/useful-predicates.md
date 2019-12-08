@@ -1,6 +1,6 @@
 # Useful Predicates
 
-Since Expectations leans heavily on predicates in `expect` tests, it is common to want to check that values are close to some expected value or are within an expected range. The following predicates are provided to help with that:
+Expectations leans heavily on predicates: you can `expect` any predicate to be true on the (actual) test value. You can use any predicate -- built into Clojure, user-defined, even Specs -- but Expectations also provides a few of its own that can be helpful when checking values are close to some expected result or within an expected range, etc.
 
 ## `approximately`
 
@@ -33,11 +33,16 @@ Instead of expecting a result to be close to a value, you may expect a result to
 
 Sometimes you have two functions that you expect to be "functionally equivalent". In other words, when they are given the same argument, they should produce the same value perhaps via different computations. This can also emerge when you have a data structure and a function under test where the result of that function can also be computed via a simple test function for a given set of input data.
 
-_EXAMPLE NEEDS TO GO HERE_
+Here's a simple example showing that two way to compute the square of a number are "functionally equivalent" (for the given test values):
 
-# Getting Started, Collections, Expecting More, Expecting Side Effects
+```clojure
+  (expect (functionally (fn [n] (reduce + (repeat n n)))
+                        (fn [n] (* n n)))
+          (from-each [i (range 100)]
+            i))
+```
 
-Further reading:
+# Further Reading
 
 * [Getting Started](/doc/getting-started.md)
 * [Collections](/doc/collections.md)
