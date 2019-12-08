@@ -66,9 +66,7 @@ A simpler `from-each` example:
 
 `from-each` also supports `:let` and `:when` syntax just like `for` and `doseq`.
 
-# Getting Started, Useful Predicates, Expecting More, Expecting Side Effects
-
-Further reading:
+# Further Reading
 
 * [Getting Started](/doc/getting-started.md)
 * [Useful Predicates](/doc/useful-predicates.md)

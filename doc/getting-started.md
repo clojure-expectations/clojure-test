@@ -148,7 +148,7 @@ expected: (=? :small/value (* -14 30))
 nil
 ```
 
-# Useful Predicates, Collections, Expecting More, Expecting Side Effects
+# Further Reading
 
 While the above can already get you further than `clojure.test`, Expectations provides a lot more:
 

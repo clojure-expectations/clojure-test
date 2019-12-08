@@ -82,9 +82,7 @@ Some simpler examples (taken from Expectations' original documentation):
           [1 2 3])
 ```
 
-# Getting Started, Useful Predicates, Collections, Expecting Side Effects
-
-Further reading:
+# Further Reading
 
 * [Getting Started](/doc/getting-started.md)
 * [Useful Predicates](/doc/useful-predicates.md)

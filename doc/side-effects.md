@@ -90,9 +90,7 @@ of values, it often helps to combine `side-effects` with `more-of`:
           (side-effects [[my-pred true] println] (my-code 42))))
 ```
 
-# Getting Started, Useful Predicates, Collections, Expecting More
-
-Further reading:
+# Further Reading
 
 * [Getting Started](/doc/getting-started.md)
 * [Useful Predicates](/doc/useful-predicates.md)
