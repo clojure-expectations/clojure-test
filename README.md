@@ -4,7 +4,7 @@ A `clojure.test`-compatible version of the [classic Expectations testing library
 
 ## Where?
 
-[![Clojars Project](https://clojars.org/expectations/clojure-test/latest-version.svg)](https://clojars.org/expectations/clojure-test)
+[![Clojars Project](https://clojars.org/expectations/clojure-test/latest-version.svg)](https://clojars.org/expectations/clojure-test) [![cljdoc badge](https://cljdoc.org/badge/expectations/clojure-test)](https://cljdoc.org/d/expectations/clojure-test/CURRENT)
 
 Try it out:
 
@@ -20,18 +20,25 @@ macro. This library has no dependencies, other than `clojure.test` itself, and
 should be compatible with all existing `clojure.test`-based tooling in editors
 and command-line tools.
 
+Works with Clojure 1.8 and later. Spec expectations are only available on
+Clojure 1.9 and later.
+
 You can either use `deftest` from `clojure.test`, or `defexpect` from
 this library to wrap your tests.
 
 ```clojure
 (ns my.cool.project-test
-  (:require [clojure.test :refer [deftest is]]
-            [expectations.clojure.test :refer :all]))
+  (:require [clojure.spec.alpha :as s]
+            [clojure.test :refer [deftest is]]
+            [expectations.clojure.test
+             :refer [defexpect expect expecting
+                     approximately between between' functionally
+                     side-effects]]))
 
 ;; mix'n'match libraries:
 
 (deftest mixed
-  (is 2 (+ 1 1))
+  (is (= 2 (+ 1 1)))
   (expect even? (+ 1 1)))
 
 ;; simple equality tests:
@@ -61,9 +68,8 @@ this library to wrap your tests.
 
 (defexpect named String (name :foo))
 
-;; the expected outcome can be a Spec:
+;; the expected outcome can be a Spec (require Clojure 1.9 or later):
 
-;; assumes (require '[clojure.spec.alpha :as s])
 (s/def ::value (s/and pos-int? #(< % 100)))
 (defexpect small-value
   (expect ::value (* 13 4)))
@@ -108,9 +114,9 @@ user=> (defexpect inequality (* 2 21) (+ 13 13 13))
 #'user/inequality
 user=> (inequality)
 
-FAIL in (inequality) (.../README.md:67)
+FAIL in (inequality) (.../README.md:113)
 expected: (=? (* 2 21) (+ 13 13 13))
-  actual: 39
+  actual: (not (=? 42 39))
 nil
 ```
 
@@ -124,7 +130,7 @@ user=> (defexpect indivisible odd? (+ 1 1))
 #'user/indivisible
 user=> (indivisible)
 
-FAIL in (indivisible) (.../README.md:83)
+FAIL in (indivisible) (.../README.md:129)
 expected: (=? odd? (+ 1 1))
   actual: (not (odd? 2))
 nil
@@ -164,11 +170,11 @@ well-maintained, stable plugins for Leiningen and Boot, as well as an Emacs mode
 the reality is that Clojure tooling is constantly evolving and most of those
 tools -- such as the excellent [CIDER](https://cider.readthedocs.io/en/latest/),
 [Cursive](https://cursive-ide.com/),
-and the more recent [ProtoREPL](https://atom.io/packages/proto-repl)
-and [Chlorine](https://atom.io/packages/chlorine) (both for Atom) --
+[Chlorine](https://atom.io/packages/chlorine) (for Atom),
+and [Cognitect's `test-runner`](https://github.com/cognitect-labs/test-runner) --
 are going to focus on Clojure's built-in testing library first.
 Support for the original form of Expectations, using unnamed tests, is
-non-existent in Cursive, and can be problematic in other editors.
+non-existent in Cursive, and can be problematic in other editors and tooling.
 
 A whole ecosystem
 of tooling has grown up around `clojure.test` and to take advantage of
@@ -195,17 +201,26 @@ to be aware of:
 * Because of that, tests run when you decide, not at JVM shutdown (which is the default with Expectations).
 * If you have [Paul Stadig's Humane Test Output](https://github.com/pjstadig/humane-test-output) on your classpath, it will be activated and failures reported by `=?` will be compatible with it, providing better reporting.
 * Instead of the `in-context`, `before-run`, `after-run` machinery of Expectations, you can just use `clojure.test`'s fixtures machinery (`use-fixtures`).
-* Instead of Expectations' concept of "focused" test, you can use metadata on tests and tell your test runner to "select" tests as needed (e.g., Leiningen's "test selectors", Boot's "filters").
+* Instead of Expectations' concept of "focused" test, you can use metadata on tests and tell your test runner to "select" tests as needed (e.g., Leiningen's "test selectors", Boot's "filters", and `test-runner`'s `-i`/`-e` options).
 * `freeze-time` and `redef-state` are not (yet) implemented.
 * The undocumented `CustomPred` protocol is not implemented -- you can use plain `is` and extend `clojure.test`'s `assert-expr` multimethod if you need that level of control.
 
 ## Test & Development
 
-To test, run `clj -A:test:runner`.
+To test, run `clj -A:test:runner` (tests against Clojure 1.8).
+
+Multi-version testing:
+
+```
+for v in 1.8 1.9 1.10
+do
+  clojure -A:test:runner:$v
+done
+```
 
 ## TODO
 
-Add tests(!) and more examples.
+Add proper documentation for cljdoc.org.
 
 ## License & Copyright
 

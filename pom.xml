@@ -3,9 +3,8 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>expectations</groupId>
   <artifactId>clojure-test</artifactId>
-  <version>1.1.1</version>
+  <version>1.1.2</version>
   <name>exp-clojure-test</name>
-
   <description>A clojure.test-compatible version of the classic Expectations testing library.</description>
   <url>https://github.com/clojure-expectations/clojure-test</url>
   <licenses>
@@ -14,32 +13,27 @@
       <url>http://www.eclipse.org/legal/epl-v10.html</url>
     </license>
   </licenses>
-
   <developers>
     <developer>
       <name>Sean Corfield</name>
     </developer>
   </developers>
-
   <scm>
     <connection>scm:git:git@github.com:clojure-expectations/clojure-test.git</connection>
     <developerConnection>scm:git:git@github.com:clojure-expectations/clojure-test.git</developerConnection>
     <url>https://github.com/clojure-expectations/clojure-test</url>
     <tag>5f0c9139245fbd320cbe787fcd76ef96007b29a4</tag>
   </scm>
-
   <dependencies>
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
-      <version>1.10.0</version>
+      <version>1.8.0</version>
     </dependency>
   </dependencies>
-
   <build>
     <sourceDirectory>src</sourceDirectory>
   </build>
-
   <repositories>
     <repository>
       <id>clojars</id>
@@ -50,7 +44,6 @@
       <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
     </repository>
   </repositories>
-
   <distributionManagement>
     <repository>
       <id>clojars</id>
@@ -58,5 +51,4 @@
       <url>https://clojars.org/repo</url>
     </repository>
   </distributionManagement>
-
 </project>

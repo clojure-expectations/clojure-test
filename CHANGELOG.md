@@ -1,3 +1,12 @@
+# Version 1.1.2 -- 2019-12-07
+
+* Adds `between` and `between'` for inclusive and exclusive range checking.
+* Fix `in` with a hash map to correctly detect failing cases.
+* Add a first round of tests (finally!). Verified support for Clojure 1.8 (without Spec expectations). Verified full support for Clojure 1.9 and 1.10.1.
+* Clean up `:require` .. `:refer` in README to list all public symbols. #4
+* Fixes links in README. PR #3 (@marekjeszka)
+* Add/improve docstrings. Add `^:no-doc` metadata for when cljdoc.org supports it.
+
 # Version 1.1.1 -- 2019-01-14
 
 * An expectation can now use a qualified keyword spec to test conformance of the actual value. Failures are reported with the spec explanation. #2

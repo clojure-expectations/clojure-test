@@ -25,13 +25,13 @@
 (defn- bad-usage [s]
   `(throw (IllegalArgumentException.
            (str ~s " should only be used inside expect"))))
-(defmacro in           [& _] (bad-usage "in"))
-(defmacro from-each    [& _] (bad-usage "from-each"))
-(defmacro more-of      [& _] (bad-usage "more-of"))
-(defmacro more->       [& _] (bad-usage "more->"))
-(defmacro more         [& _] (bad-usage "more"))
+(defmacro ^:no-doc in           [& _] (bad-usage "in"))
+(defmacro ^:no-doc from-each    [& _] (bad-usage "from-each"))
+(defmacro ^:no-doc more-of      [& _] (bad-usage "more-of"))
+(defmacro ^:no-doc more->       [& _] (bad-usage "more->"))
+(defmacro ^:no-doc more         [& _] (bad-usage "more"))
 
-(defn spec? [e]
+(defn ^:no-doc spec? [e]
   (and (keyword? e)
        (try
          (require 'clojure.spec.alpha)
@@ -78,7 +78,7 @@
                                      (list '~'not (list '~'=? e# a#)))}))
        r#)))
 
-(defmacro ?
+(defmacro ^:no-doc ?
   "Wrapper for forms that might throw an exception so exception class names
   can be used as predicates. This is only needed for more-> so that you can
   thread exceptions into code that can parse information out of them, to be
@@ -86,7 +86,7 @@
   [form]
   `(try ~form (catch Throwable t# t#)))
 
-(defn all-report
+(defn ^:no-doc all-report
   "Given an atom in which to accumulate results, return a function that
   can be used in place of clojure.test/do-report, which simply remembers
   all the reported results.
@@ -97,7 +97,28 @@
     (swap! store update (:type m) (fnil conj []) m)))
 
 (defmacro expect
-  "Translate Expectations DSL to clojure.test language."
+  "Translate Expectations DSL to clojure.test language.
+
+  These are approximate translations for the most basic forms:
+
+  `(expect actual)`               => `(is actual)`
+  `(expect expected actual)`      => `(is (= expected actual))`
+  `(expect predicate actual)`     => `(is (predicate actual))`
+  `(expect regex actual)`         => `(is (re-find regex actual))`
+  `(expect ClassName actual)`     => `(is (instance? ClassName actual))`
+  `(expect ExceptionType actual)` => `(is (thrown? ExceptionType actual))`
+  `(expect spec actual)`          => `(is (s/valid? spec actual))`
+
+  In addition, `actual` can be `(from-each [x coll] (computation-of x))`
+  or `(in set-of-results)` or `(in larger-hash-map)`.
+
+  Also, `expect` can be one of `(more predicate1 .. predicateN)`,
+  `(more-> exp1 expr1 .. expN exprN)` where `actual` is threaded through
+  each expression `exprX` and checked with the expected value `expX`,
+  or `(more-of binding exp1 val1 .. expN valN)` where `actual` is
+  destructured using the `binding` and then each expected value `expX`
+  is used to check each `valX` -- expressions based on symbols in the
+  `binding`."
   ([a] `(t/is ~a))
   ([e a] `(expect ~e ~a true ~e))
   ([e a ex?] `(expect ~e ~a ~ex? ~e))
@@ -120,8 +141,7 @@
      (let [form `(~'expect ~e ~a)]
        `(let [a# ~(second a)]
           (cond (or (sequential? a#) (set? a#))
-                (let [report#      t/do-report
-                      all-reports# (atom nil)]
+                (let [all-reports# (atom nil)]
                   (with-redefs [t/do-report (all-report all-reports#)]
                     (doseq [~'x a#]
                       ;; TODO: really want x evaluated here!
@@ -135,7 +155,7 @@
                       (doseq [r# (:fail @all-reports#)] (t/do-report r#)))))
                 (map? a#)
                 (let [e# ~e]
-                  (expect e# (select-keys e# (keys a#)) ~ex? ~form))
+                  (expect e# (select-keys a# (keys e#)) ~ex? ~form))
                 :else
                 (throw (IllegalArgumentException. "'in' requires map or sequence")))))
 
@@ -195,8 +215,8 @@
   "Given a name (a symbol that may include metadata) and a test body,
   produce a standard 'clojure.test' test var (using 'deftest').
 
-  (defexpect name expected actual) is a special case shorthand for
-  (defexpect name (expect expected actual)) provided as an easy way to migrate
+  `(defexpect name expected actual)` is a special case shorthand for
+  `(defexpect name (expect expected actual))` provided as an easy way to migrate
   legacy Expectation tests to the 'clojure.test' compatibility version."
   [n & body]
   (if (and (>= 2 (count body))
@@ -205,12 +225,20 @@
     `(t/deftest ~n ~@body)))
 
 (defmacro expecting
-  "The Expectations version of clojure.test/testing."
+  "The Expectations version of `clojure.test/testing`."
   [string & body]
   `(t/testing ~string ~@body))
 
 ;; DSL functions copied from Expectations:
-(defmacro side-effects [fn-vec & forms]
+(defmacro side-effects
+  "Given a vector of functions to track calls to, execute the body.
+
+  Returns a vector of each set of arguments used in calls to those
+  functions. The specified functions will not actually be called:
+  only their arguments will be tracked, and the tracking versions of
+  those functions will not return useful values (so they should be
+  purely side-effecting functions, whose results are not used!)."
+  [fn-vec & forms]
   (when-not (vector? fn-vec)
     (throw (IllegalArgumentException.
             "side-effects requires a vector as its first argument")))
@@ -226,6 +254,18 @@
   ([^double v] (approximately v 0.001))
   ([^double v ^double d]
    (fn [x] (<= (- v (Math/abs d)) x (+ v (Math/abs d))))))
+
+(defn between
+  "Given a pair of (numeric) values, return a predicate that expects its
+  argument to be be those values or between them -- inclusively."
+  [a b]
+  (fn [x] (<= a x b)))
+
+(defn between'
+  "Given a pair of (numeric) values, return a predicate that expects its
+  argument to be (strictly) between those values -- exclusively."
+  [a b]
+  (fn [x] (< a x b)))
 
 (defn functionally
   "Given a pair of functions, return a custom predicate that checks that they
