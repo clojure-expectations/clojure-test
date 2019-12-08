@@ -247,24 +247,37 @@
   [string & body]
   `(t/testing ~string ~@body))
 
-;; DSL functions copied from Expectations:
 (defmacro side-effects
   "Given a vector of functions to track calls to, execute the body.
 
   Returns a vector of each set of arguments used in calls to those
   functions. The specified functions will not actually be called:
-  only their arguments will be tracked, and the tracking versions of
-  those functions will not return useful values (so they should be
-  purely side-effecting functions, whose results are not used!)."
+  only their arguments will be tracked. If you need the call to return
+  a specific value, the function can be given as a pair of its name
+  and the value you want its call(s) to return. Functions given just
+  by name will return `nil`."
   [fn-vec & forms]
   (when-not (vector? fn-vec)
     (throw (IllegalArgumentException.
             "side-effects requires a vector as its first argument")))
-  (let [side-effects-sym (gensym "conf-fn")]
-    `(let [~side-effects-sym (atom [])]
-       (with-redefs ~(vec (interleave fn-vec (repeat `(fn [& args#] (swap! ~side-effects-sym conj args#)))))
+  (let [mocks (reduce (fn [m f-spec]
+                        (if (vector? f-spec)
+                          (assoc m (first f-spec) (second f-spec))
+                          (assoc m f-spec nil)))
+                      {}
+                      fn-vec)
+        called-args (gensym "called-args")]
+    `(let [~called-args (atom [])]
+       (with-redefs ~(reduce-kv (fn [defs f v]
+                                  (conj defs
+                                        f
+                                        `(fn [& args#]
+                                           (swap! ~called-args conj args#)
+                                           ~v)))
+                                []
+                                mocks)
          ~@forms)
-       @~side-effects-sym)))
+       @~called-args)))
 
 (defn approximately
   "Given a value and an optional delta (default 0.001), return a predicate

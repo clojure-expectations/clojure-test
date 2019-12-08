@@ -1,5 +1,6 @@
 # Unreleased changes on **master**:
 
+* Add support for mocking return values in `side-effects`.
 * Add support for optional message argument in `expect`. #9
 * Added article-style documentation for cljdoc.org.
 

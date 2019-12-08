@@ -2,7 +2,7 @@
 
 (ns expectations.clojure.test-test
   "Test the testing framework -- this is sometimes harder than you might think!"
-  (:require [clojure.test :refer [deftest is do-report]]
+  (:require [clojure.test :refer [deftest is do-report testing]]
             [expectations.clojure.test :as sut]))
 
 ;; TODO: need tests for (defexpect test-name expected actual)
@@ -122,3 +122,20 @@
                  (sut/expect #"foo"
                              (from-each [s ["l" "d" "bar"]]
                                         (str "foo" s)))))
+
+(defn- dummy1 [x] (throw (ex-info "called dummy1" {:x x})))
+(defn- dummy2 [x] (throw (ex-info "called dummy2" {:x x})))
+
+(deftest side-effect-testing
+  (testing "No side effects"
+    (is (= [] (sut/side-effects [dummy1 [dummy2 42]] (+ 1 1)))))
+  (testing "Basic side effects"
+    (is (= [[2]]
+           (sut/side-effects [dummy1 [dummy2 42]] (dummy1 (+ 1 1)))))
+    (is (= [[2]]
+           (sut/side-effects [dummy1 [dummy2 42]] (dummy2 (+ 1 1))))))
+  (testing "Mocked return values"
+    (is (= [[2] [42]]
+           (sut/side-effects [dummy1 [dummy2 42]] (dummy1 (dummy2 (+ 1 1))))))
+    (is (= [[2] [nil]]
+           (sut/side-effects [dummy1 [dummy2 42]] (dummy2 (dummy1 (+ 1 1))))))))
