@@ -26,6 +26,10 @@ Clojure 1.9 and later.
 You can either use `deftest` from `clojure.test`, or `defexpect` from
 this library to wrap your tests.
 
+## Example REPL Session
+
+What follows is an example REPL session showing some of what this library provides. For more detailed documentation, start with [Getting Started](/doc/getting-started.md) and work your way through the sections listed there.
+
 ```clojure
 (ns my.cool.project-test
   (:require [clojure.spec.alpha :as s]
