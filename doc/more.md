@@ -40,6 +40,15 @@ Going back to our `lookup-membership` example, we might want to expect:
 
 Since the test value is threaded-first into the expressions, we can use `->` to further thread the value into additional processing steps, such as getting the sequence of `keys` and turning that into a `set` for the expectation of which keys should be returned in a membership hash map. In addition, we expect that `(-> actual :membership/id)` is positive `pos?` and that certain other keys have specific values.
 
+`clojure.test` provides `thrown-with-msg?` as a way to assert both the type of exception thrown and a regular expression that should apply to the message in that exception. `more->` allows us to do that in a more general way:
+
+```clojure
+  (is (thrown-with-msg? ArithmeticException #"Divide by zero" (/ 1 0)))
+  (expect (more-> ArithmeticException type
+                  #"Divide by zero"   ex-message)
+          (/ 1 0))
+```
+
 ## `expect more-of`
 
 Sometimes destructuring an (actual) test value is the easiest way to apply your expectations:
