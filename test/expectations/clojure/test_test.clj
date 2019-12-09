@@ -5,7 +5,7 @@
 
   Tests marked `^:negative` will not pass with Humane Test Output enabled
   because it manipulates the report data which my `is-not` macros rely on."
-  (:require [clojure.test :refer [deftest is do-report testing]]
+  (:require [clojure.test :refer [deftest is do-report testing with-test]]
             [expectations.clojure.test :as sut]))
 
 ;; TODO: need tests for (defexpect test-name expected actual)
@@ -146,3 +146,18 @@
            (sut/side-effects [dummy1 [dummy2 42]] (dummy1 (dummy2 (+ 1 1))))))
     (is (= [[2] [nil]]
            (sut/side-effects [dummy1 [dummy2 42]] (dummy2 (dummy1 (+ 1 1))))))))
+
+(def d-t-counter (atom 0))
+
+(with-test
+  (defn definition-test
+    "Make sure expectations work with clojure.test/with-test."
+    [a b c]
+    (swap! d-t-counter inc)
+    (* a b c))
+  (println "\nRunning inline tests")
+  (reset! d-t-counter 0)
+  (is (= 0 @d-t-counter))
+  (sut/expect 1 (definition-test 1 1 1))
+  (sut/expect 6 (definition-test 1 2 3))
+  (is (= 2 @d-t-counter)))
