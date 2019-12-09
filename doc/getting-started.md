@@ -7,12 +7,16 @@ This library provides an expressive alternative to [`clojure.test`](http://cloju
 You can add `expectations/clojure-test` to your project with either:
 
 ```clojure
+;; add this to :extra-deps under a :test alias:
 {expectations/clojure-test {:mvn/version "1.1.2"}}
 ```
 for `deps.edn` or:
 
 ```clojure
+;; add this to :dev-dependencies (Leiningen)
 [expectations/clojure-test "1.1.2"]
+;; or add this to :dependencies (Boot)
+[expectations/clojure-test "1.1.2" :scope "test"]
 ```
 for `project.clj` or `build.boot`.
 
@@ -88,7 +92,7 @@ user=> (clojure.test/test-vars [#'simple-test])
 nil
 ```
 
-As you might imagine, you can run more than one test using `test-vars`. You can also run all the tests in the current namespace:
+As you might imagine, you can run more than one test using `test-vars`. You can also run all the tests in the current namespace, which produces more informative output:
 
 ```clojure
 user=> (clojure.test/run-tests)
@@ -125,6 +129,74 @@ The following is usually sufficient to run tests via Boot, assuming your `build.
 ```bash
 > boot test
 ```
+
+### Test Placement
+
+While not directly related to how to run your tests, it's a common question asked by folks new to Clojure: where should I put my tests?
+
+#### Standard Conventions
+
+Most of the `clojure.test`-based tooling assumes that for each source file `src/path/to/my_code.clj` (which represents the namespace `path.to.my-code`), you will have a test file `test/path/to/my_code_test.clj` with the namespace `path.to.my-code-test`.
+
+That test file will generally start out with:
+
+```clojure
+(ns path.to.my-code-test
+  (:require [expectations.clojure.test :refer [defexpect expect expecting ,,,]
+            [path.to.my-code :refer [the-functions you-want to-test]]]))
+```
+
+Following his convention means that all the tooling and IDE/editor integrations should work with no configuration: it's what everyone "expects".
+
+#### Tests with Source Code
+
+`clojure.test` has a macro called `with-test` that allows you to define tests inline following your function definition. Given that `clojure.test` ships directly with Clojure, this is reasonable because putting test code in your function definition's metadata doesn't add any dependencies and it has the benefit of being able to see the source of the function and the source of its test right next to each other. You can do that with Expectations too, since it is `clojure.test`-compatible, although it does mean your source code has an additional dependency -- but Expectations is fairly small (~300 lines) and has no additional dependencies.
+
+However, if you put tests in your source files, using `with-test`, then most tooling won't know how to find those tests by default. Here's an example of an inline test and how to run it with Leiningen and the CLI (`deps.edn`):
+
+```clojure
+(ns my.cool.project
+  (:require [clojure.test :refer [with-test]]
+            [expectations.clojure.test :refer [expect]]))
+
+(with-test
+  (defn square [x] (* x x))
+  (expect 1 (square 1))
+  (expect 1 (square -1))
+  (expect 100 (square 10)))
+```
+
+For Leiningen, you'll need to tell it to look for tests in `src` (as well as `test`) so add this to `project.clj`:
+
+```clojure
+  :test-paths ["src" "test"]
+```
+
+then you can just run `lein test` and it will check for tests inside the `src` test, find `my.cool.project/square` test metadata and run it as a test.
+
+For the `clojure` CLI, you'll need to tell Cognitect's `test-runner` to look for tests in `src` _and_ you'll have to override it's default regex pattern for matching test namespaces:
+
+```bash
+clojure -A:test -d src -r ".*"
+```
+
+Of course, you can also update the `:test` alias to add those new options into `:main-opts` so that you don't need them on the command line:
+
+```clojure
+{:aliases
+ {:test
+  {:extra-paths ["test"]
+   :extra-deps
+   {expectations/clojure-test {:mvn/version "1.1.2"}
+    com.cognitect/test-runner
+    {:git/url "https://github.com/cognitect-labs/test-runner.git"
+     ;; as at the time of writing -- check the test-runner repo for the latest:
+     :sha "209b64504cb3bd3b99ecfec7937b358a879f55c1"}}
+     :main-opts ["-m" "cognitect.test-runner"
+                 "-d" "src" "-d" "test" "-r" ".*"]}}}
+```
+
+Note that you'll need both `src` _and_ `test` directories if you want `test-runner` to look in both places.
 
 ## Expecting Specs
 
