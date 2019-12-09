@@ -33,6 +33,9 @@ If you have `pjstadig/humane-test-output` as a dependency (i.e., it is on your c
 This example provides a quick comparison with `clojure.test` (the tests match those in the [`clojure.test` documentation](http://clojure.github.io/clojure/clojure.test-api.html)):
 
 ```clojure
+(require '[expectations.clojure.test
+           :refer [defexpect expect expecting]])
+
 (defexpect simple-test                  ; (deftest simple-test
   (expect 4 (+ 2 2))                    ;   (is (= 4 (+ 2 2)))
   (expect Long 256)                     ;   (is (instance? Long 256))
@@ -60,6 +63,68 @@ Or like this, since `expect` allows a regular expression in the "expected" posit
 ```
 
 Both of these more accurately reflect an expectation on the actual value `"abcde"`, that the string begins with `"ab"`, than the `is` equivalent which has the actual value embedded in the test expression. Separating the "expectation" (value or predicate) from the "actual" expression being tested often makes the test much clearer.
+
+### Running Tests
+
+How you run tests will depend a lot on the tooling and/or IDE/editor that you use in your day-to-day workflow.
+
+#### Editor Integration
+
+While you are developing tests, it's probably best to run them via your editor (using the REPL connected to it). Most Clojure integrations for editors allow you run an individual test, all tests in a given namespace, or all tests in the project. You'll have to consult the documentation for your chosen editor/integration for the ways to do that. _[In Chlorine for Atom, it's `ctrl-; t` to run a single test and `ctrl-; x` to run all the tests in the current namespace.]_
+
+#### REPL
+
+If you are working directly in the REPL (not recommended but, hey...) you can run an individual test simply by calling it, as if it were a function:
+
+```clojure
+user=> (simple-test)
+nil
+```
+
+It will return `nil` and print nothing if the test succeeds. It will print out failure messages otherwise (and still return `nil`). While this is the simplest way to run a test, it is not always the best, since it won't run any test fixtures -- see [Fixtures](/doc/fixtures-focus.md) for more details. You can run a test (with fixtures) like this:
+
+```clojure
+user=> (clojure.test/test-vars [#'simple-test])
+nil
+```
+
+As you might imagine, you can run more than one test using `test-vars`. You can also run all the tests in the current namespace:
+
+```clojure
+user=> (clojure.test/run-tests *ns*)
+
+Testing user
+
+Ran 1 tests containing 8 assertions.
+0 failures, 0 errors.
+{:test 1, :pass 8, :fail 0, :error 0, :type :summary}
+```
+
+#### Cognitect's `test-runner`
+
+This assumes you are using the [CLI and `deps.edn`](https://clojure.org/guides/deps_and_cli) for your project, and that you have set up a `:test` alias per [`test-runner`'s README](https://github.com/cognitect-labs/test-runner/blob/master/readme.md):
+
+```bash
+> clojure -A:test
+```
+
+> I recommend having separate `:test` and `:runner` aliases -- the former with `:extra-paths` for your `test` folder tree and any `:extra-deps` needed by your tests themselves; the latter with `:extra-deps` for the test runner and `:main-opts` to actually invoke it. That makes it easier to work with other tooling and be able to use `-A:test` to bring in your tests and dependencies without actually running them (and `-A:test:runner` to actually run them). The alternative is remembering to use `-R:test` to bring in tests and dependencies without running them (and either add `-M:test` to run them or switch to `-A:test`).
+
+#### Leiningen
+
+The following is usually sufficient to run tests via Leiningen, assuming your `project.clj` file is set up correctly:
+
+```bash
+> lein test
+```
+
+#### Boot
+
+The following is usually sufficient to run tests via Boot, assuming your `build.boot` file is set up correctly (including [Adzerk's `boot-test`](https://github.com/adzerk-oss/boot-test)):
+
+```bash
+> boot test
+```
 
 ## Expecting Specs
 
@@ -156,3 +221,4 @@ While the above can already get you further than `clojure.test`, Expectations pr
 * [Collections](/doc/collections.md)
 * [Expecting More](/doc/more.md)
 * [Expecting Side Effects](/doc/side-effects.md)
+* [Fixtures & Focused Test Execution](/doc/fixtures-focus.md)
