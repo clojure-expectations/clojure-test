@@ -91,7 +91,7 @@ nil
 As you might imagine, you can run more than one test using `test-vars`. You can also run all the tests in the current namespace:
 
 ```clojure
-user=> (clojure.test/run-tests *ns*)
+user=> (clojure.test/run-tests)
 
 Testing user
 
