@@ -1,3 +1,7 @@
+# Version 1.2.1 -- 2019-12-09
+
+* Fix cljdoc.org index (Collections was missing).
+
 # Version 1.2.0 -- 2019-12-09
 
 * Improve failure reporting for `in`; allow it to be combined with `more` etc. #11
