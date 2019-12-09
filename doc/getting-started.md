@@ -64,15 +64,15 @@ Or like this, since `expect` allows a regular expression in the "expected" posit
 
 Both of these more accurately reflect an expectation on the actual value `"abcde"`, that the string begins with `"ab"`, than the `is` equivalent which has the actual value embedded in the test expression. Separating the "expectation" (value or predicate) from the "actual" expression being tested often makes the test much clearer.
 
-### Running Tests
+## Running Tests
 
 How you run tests will depend a lot on the tooling and/or IDE/editor that you use in your day-to-day workflow.
 
-#### Editor Integration
+### Editor Integration
 
 While you are developing tests, it's probably best to run them via your editor (using the REPL connected to it). Most Clojure integrations for editors allow you run an individual test, all tests in a given namespace, or all tests in the project. You'll have to consult the documentation for your chosen editor/integration for the ways to do that. _[In Chlorine for Atom, it's `ctrl-; t` to run a single test and `ctrl-; x` to run all the tests in the current namespace.]_
 
-#### REPL
+### REPL
 
 If you are working directly in the REPL (not recommended but, hey...) you can run an individual test simply by calling it, as if it were a function:
 
@@ -100,7 +100,7 @@ Ran 1 tests containing 8 assertions.
 {:test 1, :pass 8, :fail 0, :error 0, :type :summary}
 ```
 
-#### Cognitect's `test-runner`
+### Cognitect's `test-runner`
 
 This assumes you are using the [CLI and `deps.edn`](https://clojure.org/guides/deps_and_cli) for your project, and that you have set up a `:test` alias per [`test-runner`'s README](https://github.com/cognitect-labs/test-runner/blob/master/readme.md):
 
@@ -110,7 +110,7 @@ This assumes you are using the [CLI and `deps.edn`](https://clojure.org/guides/d
 
 > I recommend having separate `:test` and `:runner` aliases -- the former with `:extra-paths` for your `test` folder tree and any `:extra-deps` needed by your tests themselves; the latter with `:extra-deps` for the test runner and `:main-opts` to actually invoke it. That makes it easier to work with other tooling and be able to use `-A:test` to bring in your tests and dependencies without actually running them (and `-A:test:runner` to actually run them). The alternative is remembering to use `-R:test` to bring in tests and dependencies without running them (and either add `-M:test` to run them or switch to `-A:test`).
 
-#### Leiningen
+### Leiningen
 
 The following is usually sufficient to run tests via Leiningen, assuming your `project.clj` file is set up correctly:
 
@@ -118,7 +118,7 @@ The following is usually sufficient to run tests via Leiningen, assuming your `p
 > lein test
 ```
 
-#### Boot
+### Boot
 
 The following is usually sufficient to run tests via Boot, assuming your `build.boot` file is set up correctly (including [Adzerk's `boot-test`](https://github.com/adzerk-oss/boot-test)):
 
