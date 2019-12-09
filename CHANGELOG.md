@@ -1,4 +1,4 @@
-# Unreleased changes on **master**:
+# Version 1.2.0 -- 2019-12-09
 
 * Improve failure reporting for `in`; allow it to be combined with `more` etc. #11
 * Add support for mocking return values in `side-effects`.
