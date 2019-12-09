@@ -1,5 +1,6 @@
 # Unreleased changes on **master**:
 
+* Improve failure reporting for `in`; allow it to be combined with `more` etc. #11
 * Add support for mocking return values in `side-effects`.
 * Add support for optional message argument in `expect`. #9
 * Added article-style documentation for cljdoc.org. #6, #7, #8, #10

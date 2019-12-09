@@ -135,87 +135,106 @@
   ([e a] `(expect ~e ~a nil true ~e))
   ([e a msg] `(expect ~e ~a ~msg true ~e))
   ([e a msg ex? e']
-   (let [msg' (str/join
-               "\n"
-               (cond-> []
-                 msg
-                 (conj msg)
-                 (when-not (= e e'))
-                 (conj
-                  (str "  within: "
-                       (pr-str (if (and (sequential? e') (= 'expect (first e')))
-                                 e'
-                                 (list 'expect e' a)))))))]
-    (cond
-     (and (sequential? a) (= 'from-each (first a)))
-     (let [[_ bindings & body] a]
-       (if (= 1 (count body))
-         `(doseq ~bindings
-            (expect ~e ~(first body) ~msg ~ex? ~e))
-         `(doseq ~bindings
-            (expect ~e (do ~@body) ~msg ~ex? ~e))))
+   (let [within (if (and (sequential? e') (= 'expect (first e')))
+                  `(pr-str '~e')
+                  `(pr-str (list '~'expect '~e' '~a)))
+         msg' `(str/join
+                "\n"
+                (cond-> []
+                  ~msg
+                  (conj ~msg)
+                  ~(not= e e')
+                  (conj (str "  within: " ~within))))]
+     (cond
+      (and (sequential? a) (= 'from-each (first a)))
+      (let [[_ bindings & body] a]
+        (if (= 1 (count body))
+          `(doseq ~bindings
+             (expect ~e ~(first body) ~msg ~ex? ~e))
+          `(doseq ~bindings
+             (expect ~e (do ~@body) ~msg ~ex? ~e))))
 
-     (and (sequential? a) (= 'in (first a)))
-     (let [form `(~'expect ~e ~a ~msg)]
-       `(let [a# ~(second a)]
-          (cond (or (sequential? a#) (set? a#))
-                (let [all-reports# (atom nil)]
-                  (with-redefs [t/do-report (all-report all-reports#)]
-                    (doseq [~'x a#]
-                      ;; TODO: really want x evaluated here! (not sure about msg)
-                      (expect ~'x ~e nil ~ex? ~form)))
-                  (if (contains? @all-reports# :pass)
-                    ;; report all the passes (and no failures or errors)
-                    (doseq [r# (:pass @all-reports#)] (t/do-report r#))
-                    (do
-                      ;; report all the errors and all the failures
-                      (doseq [r# (:error @all-reports#)] (t/do-report r#))
-                      (doseq [r# (:fail @all-reports#)] (t/do-report r#)))))
-                (map? a#)
-                (let [e# ~e]
-                  (expect e# (select-keys a# (keys e#)) ~msg ~ex? ~form))
-                :else
-                (throw (IllegalArgumentException. "'in' requires map or sequence")))))
+      (and (sequential? a) (= 'in (first a)))
+      (let [form `(~'expect ~e ~a)]
+        `(let [a#     ~(second a)
+               not-in# (str '~e " not found in " a#)
+               msg#    (if (seq ~msg') (str ~msg' "\n" not-in#) not-in#)]
+           (cond (or (sequential? a#) (set? a#))
+                 (let [all-reports# (atom nil)
+                       one-report# (atom nil)]
+                   ;; we accumulate any and all failures and errors but we
+                   ;; only accumulate passes if each sequential expectation
+                   ;; fully passes (i.e., no failures or errors)
+                   (with-redefs [t/do-report (all-report one-report#)]
+                     (doseq [a'# a#]
+                       (expect ~e a'# msg# ~ex? ~form)
+                       (if (or (contains? @one-report# :error)
+                               (contains? @one-report# :fail))
+                         (do
+                           (when (contains? @one-report# :fail)
+                             (swap! all-reports#
+                                    update :fail into (:fail @one-report#)))
+                           (when (contains? @one-report# :error)
+                             (swap! all-reports#
+                                    update :error into (:error @one-report#))))
+                         (when (contains? @one-report# :pass)
+                           (swap! all-reports#
+                                  update :pass into (:pass @one-report#))))
+                       (reset! one-report# nil)))
 
-     (and (sequential? e) (= 'more (first e)))
-     (let [es (mapv (fn [e] `(expect ~e ~a ~msg ~ex? ~e')) (rest e))]
-       `(do ~@es))
+                   (if (contains? @all-reports# :pass)
+                     ;; report all the passes (and no failures or errors)
+                     (doseq [r# (:pass @all-reports#)] (t/do-report r#))
+                     (do
+                       (when-let [r# (first (:error @all-reports#))]
+                         (t/do-report r#))
+                       (when-let [r# (first (:fail @all-reports#))]
+                         (t/do-report r#)))))
+                 (map? a#)
+                 (let [e# ~e]
+                   (expect e# (select-keys a# (keys e#)) ~msg ~ex? ~form))
+                 :else
+                 (throw (IllegalArgumentException. "'in' requires map or sequence")))))
 
-     (and (sequential? e) (= 'more-> (first e)))
-     (let [es (mapv (fn [[e a->]]
-                      (if (and (sequential? a->)
-                               (symbol? (first a->))
-                               (let [s (name (first a->))]
-                                 (or (str/ends-with? s "->")
-                                     (str/ends-with? s "->>"))))
-                        `(expect ~e (~(first a->) (? ~a) ~@(rest a->)) ~msg false ~e')
-                        `(expect ~e (-> (? ~a) ~a->) ~msg false ~e')))
-                    (partition 2 (rest e)))]
-       `(do ~@es))
+      (and (sequential? e) (= 'more (first e)))
+      (let [es (mapv (fn [e] `(expect ~e ~a ~msg ~ex? ~e')) (rest e))]
+        `(do ~@es))
 
-     (and (sequential? e) (= 'more-of (first e)))
-     (let [es (mapv (fn [[e a]] `(expect ~e ~a ~msg ~ex? ~e'))
-                    (partition 2 (rest (rest e))))]
-       `(let [~(second e) ~a] ~@es))
+      (and (sequential? e) (= 'more-> (first e)))
+      (let [es (mapv (fn [[e a->]]
+                       (if (and (sequential? a->)
+                                (symbol? (first a->))
+                                (let [s (name (first a->))]
+                                  (or (str/ends-with? s "->")
+                                      (str/ends-with? s "->>"))))
+                         `(expect ~e (~(first a->) (? ~a) ~@(rest a->)) ~msg false ~e')
+                         `(expect ~e (-> (? ~a) ~a->) ~msg false ~e')))
+                     (partition 2 (rest e)))]
+        `(do ~@es))
 
-     (and ex? (symbol? e) (resolve e) (class? (resolve e)))
-     (if msg'
-       (if (isa? (resolve e) Throwable)
-         `(t/is (~'thrown? ~e ~a) ~msg')
-         `(t/is (~'instance? ~e ~a) ~msg'))
-       (if (isa? (resolve e) Throwable)
-         `(t/is (~'thrown? ~e ~a))
-         `(t/is (~'instance? ~e ~a))))
+      (and (sequential? e) (= 'more-of (first e)))
+      (let [es (mapv (fn [[e a]] `(expect ~e ~a ~msg ~ex? ~e'))
+                     (partition 2 (rest (rest e))))]
+        `(let [~(second e) ~a] ~@es))
 
-     (isa? (type e) java.util.regex.Pattern)
-     (if msg'
-       `(t/is (re-find ~e ~a) ~msg')
-       `(t/is (re-find ~e ~a)))
+      (and ex? (symbol? e) (resolve e) (class? (resolve e)))
+      (if (seq `~msg')
+        (if (isa? (resolve e) Throwable)
+          `(t/is (~'thrown? ~e ~a) ~msg')
+          `(t/is (~'instance? ~e ~a) ~msg'))
+        (if (isa? (resolve e) Throwable)
+          `(t/is (~'thrown? ~e ~a))
+          `(t/is (~'instance? ~e ~a))))
 
-     :else
-     (if msg'
-       `(t/is (~'=? ~e ~a) ~msg')
-       `(t/is (~'=? ~e ~a)))))))
+      (isa? (type e) java.util.regex.Pattern)
+      (if (seq `~msg')
+        `(t/is (re-find ~e ~a) ~msg')
+        `(t/is (re-find ~e ~a)))
+
+      :else
+      (if (seq `~msg')
+        `(t/is (~'=? ~e ~a) ~msg')
+        `(t/is (~'=? ~e ~a)))))))
 
 (comment
   (macroexpand '(expect (more-> 1 :a 2 :b 3 (-> :c :d)) {:a 1 :b 2 :c {:d 4}}))
