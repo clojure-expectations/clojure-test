@@ -2,7 +2,7 @@
 
 * Add support for mocking return values in `side-effects`.
 * Add support for optional message argument in `expect`. #9
-* Added article-style documentation for cljdoc.org. #6
+* Added article-style documentation for cljdoc.org. #6, #7
 * Add example of `more->` equivalent to `thrown-with-msg?`. #5
 
 # Version 1.1.2 -- 2019-12-07
