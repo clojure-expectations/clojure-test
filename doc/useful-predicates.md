@@ -48,3 +48,4 @@ Here's a simple example showing that two way to compute the square of a number a
 * [Collections](/doc/collections.md)
 * [Expecting More](/doc/more.md)
 * [Expecting Side Effects](/doc/side-effects.md)
+* [Fixtures & Focused Test Execution](/doc/fixtures-focus.md)

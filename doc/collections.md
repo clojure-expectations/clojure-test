@@ -72,3 +72,4 @@ A simpler `from-each` example:
 * [Useful Predicates](/doc/useful-predicates.md)
 * [Expecting More](/doc/more.md)
 * [Expecting Side Effects](/doc/side-effects.md)
+* [Fixtures & Focused Test Execution](/doc/fixtures-focus.md)

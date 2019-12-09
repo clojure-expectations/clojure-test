@@ -88,3 +88,4 @@ Some simpler examples (taken from Expectations' original documentation):
 * [Useful Predicates](/doc/useful-predicates.md)
 * [Collections](/doc/collections.md)
 * [Expecting Side Effects](/doc/side-effects.md)
+* [Fixtures & Focused Test Execution](/doc/fixtures-focus.md)

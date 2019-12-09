@@ -96,3 +96,4 @@ of values, it often helps to combine `side-effects` with `more-of`:
 * [Useful Predicates](/doc/useful-predicates.md)
 * [Collections](/doc/collections.md)
 * [Expecting More](/doc/more.md)
+* [Fixtures & Focused Test Execution](/doc/fixtures-focus.md)
