@@ -235,6 +235,15 @@ do
 done
 ```
 
+You can also run the tests with Humane Test Output enabled but you need to exclude the negative tests because they assume things about the test report data that HTO modifies:
+
+```
+for v in 1.8 1.9 1.10
+do
+  clojure -A:test:runner:$v:humane -e :negative
+done
+```
+
 ## License & Copyright
 
 Copyright © 2018-2019 Sean Corfield, all rights reserved.

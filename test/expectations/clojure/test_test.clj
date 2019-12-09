@@ -1,7 +1,10 @@
 ;; copyright (c) 2019 sean corfield, all rights reserved
 
 (ns expectations.clojure.test-test
-  "Test the testing framework -- this is sometimes harder than you might think!"
+  "Test the testing framework -- this is sometimes harder than you might think!
+
+  Tests marked `^:negative` will not pass with Humane Test Output enabled
+  because it manipulates the report data which my `is-not` macros rely on."
   (:require [clojure.test :refer [deftest is do-report testing]]
             [expectations.clojure.test :as sut]))
 
@@ -56,11 +59,13 @@
 
 (deftest equality-test
   (is (sut/expect 1 (* 1 1)))
-  (is (sut/expect "foo" (str "f" "oo")))
+  (is (sut/expect "foo" (str "f" "oo"))))
+
+(deftest ^:negative not-equality-test
   (is-not' (sut/expect 2 (* 1 1)) (not (=? 2 1)))
   (is-not' (sut/expect "fool" (str "f" "oo")) (not (=? "fool" "foo"))))
 
-(deftest message-test
+(deftest ^:negative message-test
   (is-not' (sut/expect even? (+ 1 1 1) "It's uneven!")
            (not (even? 3))
            #"uneven")
@@ -105,7 +110,9 @@
   (is (sut/expect {:foo 1} (in {:foo 1 :cat 4})))
   ;; TODO: need better tests here
   (is (nil? (sut/expect :foo (in #{:foo :bar}))))
-  (is (nil? (sut/expect :foo (in [:bar :foo]))))
+  (is (nil? (sut/expect :foo (in [:bar :foo])))))
+
+(deftest ^:negative not-collection-test
   (is-not' (sut/expect {:foo 1} (in {:foo 2 :cat 4})) (not (=? {:foo 1} {:foo 2}))))
 
 ;; TODO: need better tests here
