@@ -89,6 +89,83 @@ in turn passing in that test (as a function).
 
 ## Focused Test Execution
 
+Most test runners allow you to specify namespace(s) or patterns to match namespaces so that you can restrict your test run to just some namespaces in your project rather than all of them.
+
+```bash
+> lein test just.this.ns-test
+...
+> boot test -n just.this.ns-test
+...
+> clojure -A:test -n just.this.ns-test
+...
+```
+
+Some runners let you specify a regex to match on the namespaces to run:
+
+```bash
+> boot test -I "just.*-test$"
+...
+> clojure -A:test -r "just.*-test$"
+...
+```
+
+> `boot` also lets you use a regex to exclude namespaces via `-X`
+
+Some runners let you run a specific test:
+
+```bash
+> lein test :only just.this.ns-test/just-this-test
+...
+> clojure -A:test -v just.this.ns-test/just-this-test
+...
+```
+
+It is also very useful to be able to tag individual tests with metadata and then include or exclude groups of tests when you run them. Both Leiningen and Cognitect's `test-runner` support this using simple keyword metadata on test functions.
+
+The common example given for this is to mark tests as being "integration" level (rather than "unit" level) so they might only be run in a full continuous integration test suite pass, whereas you might run just the lightweight "unit" tests all the time locally while developing -- the assumption being that integration tests are slow and/or have complex environment setup/teardown requirements.
+
+The test suite for this library annotates some of the negative tests so that they can be excluded when running the tests with Humane Test Output enabled (since that modifies the test report data structure in ways that can be incompatible with the `is-not'` macro used to verify failing tests are reported):
+
+```clojure
+(deftest ^:negative not-collection-test
+  (is-not' (sut/expect {:foo 1} (in {:foo 2 :cat 4})) (not (=? {:foo 1} {:foo 2}))))
+```
+
+`^:negative` is a simple piece of metadata added to `not-collection-test` so that tests can be run like this:
+
+```bash
+> clojure -A:test:runner:humane -e :negative
+```
+
+By contrast, this runs all the tests (without Humane Test Output enabled):
+
+```bash
+> clojure -A:test:runner
+```
+
+Cognitect's `test-runner` also has a `-i` option to include only tests marked with specific metadata:
+
+```bash
+> clojure -A:test:runner -i :negative
+```
+
+This run's _only_ tests marked as being `^:negative`.
+
+Leiningen's approach uses an additional layer in its `project.clj` file where you specify `:test-selectors` which are labels for predicates that run on the metadata of tests to determine whether to include them or not. Run `lein test help` for details. The equivalent of the above "humane" run would be:
+
+```clojure
+  :profiles {:humane {:dependencies [pjstadig/humane-test-output "0.10.0"]}}
+  :test-selectors {:humane (complement :negative)}
+```
+
+and:
+
+```bash
+> lein with-profile humane test :humane
+```
+
+> `with-profile humane` is equivalent to `-A:humane` in the CLI above and `lein ... test :humane` is equivalent to `-e :negative` because it has `(complement :negative)` in the test selector definition.
+
 # Further Reading
 
 * [Getting Started](/doc/getting-started.md)
