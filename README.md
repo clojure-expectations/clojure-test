@@ -104,7 +104,7 @@ What follows is an example REPL session showing some of what this library provid
               (str "foo" s)))))
 ```
 
-Just like `deftest`, the `defexpect` macro creates a function that contains the test\(s\). You can run each function individually:
+Just like `deftest`, the `defexpect` macro creates a function that contains the test(s). You can run each function individually:
 
 ```clojure
 user=> (equality)
