@@ -1,4 +1,4 @@
-;; copyright (c) 2019 sean corfield, all rights reserved
+;; copyright (c) 2019-2020 sean corfield, all rights reserved
 
 (ns expectations.clojure.test-test
   "Test the testing framework -- this is sometimes harder than you might think!

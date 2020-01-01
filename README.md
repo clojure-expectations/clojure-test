@@ -246,6 +246,6 @@ done
 
 ## License & Copyright
 
-Copyright © 2018-2019 Sean Corfield, all rights reserved.
+Copyright © 2018-2020 Sean Corfield, all rights reserved.
 
 Distributed under the Eclipse Public License version 1.0.
