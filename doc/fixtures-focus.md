@@ -17,7 +17,7 @@ To use test fixtures with Expectations, you will need to require `clojure.test` 
              :refer [defexpect expect ,,,]]))
 ```
 
-You then define your fixture as a function that accepts the test(s) to be run as a single argument, performs whatever setup you need, calls the test(s), and the performs whatever teardown you need. Since tests could throw exceptions, you generally want to use `try`/`finally` here to here teardown runs even if the tests abort:
+You then define your fixture as a function that accepts the test(s) to be run as a single argument, performs whatever setup you need, calls the test(s), and the performs whatever teardown you need. Since tests could throw exceptions, you generally want to use `try`/`finally` here to ensure teardown runs even if the tests abort:
 
 ```clojure
 (defn my-fixture [work]
