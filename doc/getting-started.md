@@ -191,16 +191,32 @@ Of course, you can also update the `:test` alias to add those new options into `
     com.cognitect/test-runner
     {:git/url "https://github.com/cognitect-labs/test-runner.git"
      ;; as at the time of writing -- check the test-runner repo for the latest:
-     :sha "209b64504cb3bd3b99ecfec7937b358a879f55c1"}}
-     :main-opts ["-m" "cognitect.test-runner"
-                 "-d" "src" "-d" "test" "-r" ".*"]}}}
+     :sha "f7ef16dc3b8332b0d77bc0274578ad5270fbfedd"}}
+   :main-opts ["-m" "cognitect.test-runner"
+               "-d" "src" "-d" "test" "-r" ".*"]}}}
 ```
 
 Note that you'll need both `src` _and_ `test` directories if you want `test-runner` to look in both places.
 
+> Note: My recommendation would be:
+
+```clojure
+{:aliases
+ {:test {:extra-paths ["test"]}
+  :runner
+  {:extra-deps
+   {expectations/clojure-test {:mvn/version "1.2.1"}
+    com.cognitect/test-runner
+    {:git/url "https://github.com/cognitect-labs/test-runner.git"
+     ;; as at the time of writing -- check the test-runner repo for the latest:
+     :sha "f7ef16dc3b8332b0d77bc0274578ad5270fbfedd"}}
+   :main-opts ["-m" "cognitect.test-runner"
+               "-d" "src" "-d" "test" "-r" ".*"]}}}
+```
+
 ## Expecting Specs
 
-If you are using Clojure 1.9 or later, you have access to Spec and `expect` those as well:
+If you are using Clojure 1.9 or later, you have access to Spec and can `expect` those as well:
 
 ```clojure
 (require '[clojure.spec.alpha :as s])
