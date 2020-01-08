@@ -146,7 +146,7 @@ That test file will generally start out with:
             [path.to.my-code :refer [the-functions you-want to-test]]]))
 ```
 
-Following his convention means that all the tooling and IDE/editor integrations should work with no configuration: it's what everyone "expects".
+Following this convention means that all the tooling and IDE/editor integrations should work with no configuration: it's what everyone "expects".
 
 #### Tests with Source Code
 
