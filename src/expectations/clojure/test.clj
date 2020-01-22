@@ -14,7 +14,10 @@
 
 (def humane-test-output?
   "If Humane Test Output is available, activate it, and enable compatibility
-  of our =? with it."
+  of our =? with it.
+
+  This Var will be `true` if Humane Test Output is available and activated,
+  otherwise it will be `nil`."
   (try
     (require 'pjstadig.humane-test-output)
     ((resolve 'pjstadig.humane-test-output/activate!))
@@ -25,11 +28,79 @@
 (defn- bad-usage [s]
   `(throw (IllegalArgumentException.
            (str ~s " should only be used inside expect"))))
-(defmacro ^:no-doc in           [& _] (bad-usage "in"))
-(defmacro ^:no-doc from-each    [& _] (bad-usage "from-each"))
-(defmacro ^:no-doc more-of      [& _] (bad-usage "more-of"))
-(defmacro ^:no-doc more->       [& _] (bad-usage "more->"))
-(defmacro ^:no-doc more         [& _] (bad-usage "more"))
+
+(defmacro in
+  "`(expect expected (in actual))` -- expect a subset of a collection.
+
+  If `actual` is a hash map, `expected` can be a hash map of key/value pairs
+  that you expect to be in the `actual` result (there may be other key/value
+  pairs, which are ignored).
+
+  If `actual` is a set, vector, or list, `expected` can be any value that
+  you expect to be a member of the `actual` data.
+
+  `(expect {:b 2} (in {:a 1 :b 2 :c 3}))`
+  `(expect 2 (in #{1 2 3}))`
+  `(expect 2 (in [1 2 3]))`
+
+  `in` may only be used inside `expect` and is a purely syntactic construct.
+  It should not be `refer`'d nor used as a qualified symbol."
+  [coll]
+  (bad-usage "in"))
+
+(defmacro from-each
+  "`(expect expected (from-each [v coll] (f v)))` -- expect this to be true
+  for each element of collection. `(f v)` is the actual result.
+
+  Equivalent to: `(doseq [v coll] (expect expected (f v)))`
+
+  `(expect even? (from-each [v (range 10)] (* 2 v)))`
+
+  `from-each` may only be used inside `expect` and is a purely syntactic construct.
+  It should not be `refer`'d nor used as a qualified symbol."
+  [bindings & body]
+  (bad-usage "from-each"))
+
+(defmacro more-of
+  "`(expect (more-of destructuring expected1 actual1 ...) actual)` -- provide
+  multiple expectations on `actual` based on binding it against the
+  `destructuring` expression (like in a `let`) and then expecting things about
+  its subcomponents.
+
+  Equivalent to: `(let [destructuring actual] (expect expected1 actual1) ...)`
+
+  `(expect (more-of [a b] string? a int? b) [\"test\" 42])`
+
+  `more-of` may only be used inside `expect` and is a purely syntactic construct.
+  It should not be `refer`'d nor used as a qualified symbol."
+  [destructuring & expected-actual-pairs]
+  (bad-usage "more-of"))
+
+(defmacro more->
+  "`(expect (more-> expected1 (threaded1) ...) actual)` -- provide multiple
+  expectations on `actual` based on threading it into various expressions.
+
+  Equivalent to: `(do (expect expected1 (-> actual (threaded1))) ...)`
+
+  `(expect (more-> string? (first) int? (second)) [\"test\" 42])`
+
+  `more->` may only be used inside `expect` and is a purely syntactic construct.
+  It should not be `refer`'d nor used as a qualified symbol."
+  [& expected-threaded-pairs]
+  (bad-usage "more->"))
+
+(defmacro more
+  "`(expect (more expected1 ...) actual)` -- provide multiple expectations
+  on `actual` as a series of expected results.
+
+  Equivalent to: `(do (expect expected1 actual) ...)`
+
+  `(expect (more int? even?) 42)`
+
+  `more` may only be used inside `expect` and is a purely syntactic construct.
+  It should not be `refer`'d nor used as a qualified symbol."
+  [& expecteds]
+  (bad-usage "more"))
 
 (defn ^:no-doc spec? [e]
   (and (keyword? e)
@@ -83,7 +154,7 @@
 
 (defmacro ^:no-doc ?
   "Wrapper for forms that might throw an exception so exception class names
-  can be used as predicates. This is only needed for more-> so that you can
+  can be used as predicates. This is only needed for `more->` so that you can
   thread exceptions into code that can parse information out of them, to be
   used with various expect predicates."
   [form]
@@ -254,7 +325,11 @@
 
   `(defexpect name expected actual)` is a special case shorthand for
   `(defexpect name (expect expected actual))` provided as an easy way to migrate
-  legacy Expectation tests to the 'clojure.test' compatibility version."
+  legacy Expectation tests to the 'clojure.test' compatibility version.
+
+  `(defexpect name actual)` is a special case shorthand for
+  `(defexpect name (expect actual))` which is equivalent to
+  `(deftest name (is actual))`"
   [n & body]
   (if (and (>= 2 (count body))
            (not (some contains-expect? body)))

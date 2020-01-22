@@ -1,3 +1,7 @@
+# Version 1.2.2 in progress
+
+* Add various macro-like constructs back into the documentation to improve the documentation (`in`, `from-each`, `more-of`, `more->`, `more` are really only syntactic constructs inside `expect`).
+
 # Version 1.2.1 -- 2019-12-09
 
 * Fix cljdoc.org index (Collections was missing).
