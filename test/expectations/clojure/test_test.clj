@@ -161,3 +161,7 @@
   (sut/expect 1 (definition-test 1 1 1))
   (sut/expect 6 (definition-test 1 2 3))
   (is (= 2 @d-t-counter)))
+
+;; these would be failing tests in 1.x but not in 2.x:
+(sut/defexpect deftest-equivalence-0)
+(sut/defexpect deftest-equivalence-1 nil)
