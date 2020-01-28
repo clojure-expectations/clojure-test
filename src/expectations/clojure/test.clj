@@ -331,9 +331,13 @@
   `(defexpect name (expect actual))` which is equivalent to
   `(deftest name (is actual))`"
   [n & body]
-  (if (and (>= 2 (count body))
+  (if (and (<= (count body) 2)
            (not (some contains-expect? body)))
-    `(t/deftest ~n (expect ~@body))
+    (if (<= (count body) 1)
+      ;; #13 match deftest behavior starting in 2.0.0
+      `(t/deftest ~n ~@body)
+      ;; but still treat (defexpect my-name pred (expr)) as a special case
+      `(t/deftest ~n (expect ~@body)))
     `(t/deftest ~n ~@body)))
 
 (defmacro expecting
