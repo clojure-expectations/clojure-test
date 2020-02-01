@@ -12,6 +12,46 @@
             [clojure.string :as str]
             [clojure.test :as t]))
 
+;; to avoid the need to pull in clojure.test for use-fixtures
+
+(defmacro before-each
+  "Execute the given block of code before each test."
+  [& body]
+  `(t/use-fixtures :each (fn [t] ~@body (t))))
+
+(defmacro after-each
+  "Execute the given block of code after each test."
+  [& body]
+  `(t/use-fixtures :each (fn [t] (try (t) (finally ~@body)))))
+
+(defmacro around-each
+  "With a single argument, assume it is a function that accepts a test
+  and executes code around the test. With two arguments, assume it is a
+  block to execute before and a block to execute after each test."
+  ([wrapper]
+   `(t/use-fixtures :each wrapper))
+  ([before after]
+   `(t/use-fixtures :each (fn [t] ~before (try (t) (finally ~after))))))
+
+(defmacro before-once
+  "Execute the given block of code before running tests in this ns."
+  [& body]
+  `(t/use-fixtures :once (fn [t] ~@body (t))))
+
+(defmacro after-once
+  "Execute the given block of code after running tests in this ns."
+  [& body]
+  `(t/use-fixtures :each (fn [t] (try (t) (finally ~@body)))))
+
+(defmacro around-once
+  "With a single argument, assume it is a function that accepts a test group
+  and executes code around that test group. With two arguments, assume it is a
+  block to execute before and a block to execute after the test group."
+  ([wrapper]
+   (t/use-fixtures :once wrapper))
+  ([before after]
+   (t/use-fixtures :once (fn [t] ~before (try (t) (finally ~after))))))
+
 (def humane-test-output?
   "If Humane Test Output is available, activate it, and enable compatibility
   of our =? with it.
