@@ -6,9 +6,25 @@
 
 (def each (atom -1))
 (def once (atom -1))
+(def order (atom []))
 
-(sut/around-each (reset! each 0) (assert (= 1 @each)))
-(sut/around-once (reset! once 0) (assert (= 2 @once)))
+;; before calls all happen in order
+(sut/before-each (reset! order []))
+;; expectations in before calls are valid
+(sut/before-each (sut/expect [] @order))
+(sut/before-each (swap! order conj :a))
+;; these happen in order, but after the around calls
+(sut/after-each  (swap! order conj :x))
+(sut/after-each  (swap! order conj :y))
+(sut/after-each  (swap! order conj :z))
+;; these happen in order like before calls, but the after parts
+;; are reversed (and all happen before the after calls!)
+(sut/around-each (swap! order conj :b) (swap! order conj :w))
+(sut/around-each (swap! order conj :c) (swap! order conj :v))
+;; expectations in after calls are valid
+(sut/after-each  (sut/expect [:a :b :c :v :w :x :y :z] @order))
+(sut/around-each (reset! each 0) (sut/expect 1 @each))
+(sut/around-once (reset! once 0) (sut/expect (= 2 @once)))
 
 (sut/defexpect each-inc-1
   (do
