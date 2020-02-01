@@ -8,8 +8,6 @@
   (:require [clojure.test :refer [deftest is do-report testing with-test]]
             [expectations.clojure.test :as sut]))
 
-;; TODO: need tests for (defexpect test-name expected actual)
-
 (defmacro is-not'
   "Construct a negative test for an expectation with a symbolic failure."
   [expectation failure & [msg]]
@@ -165,3 +163,14 @@
 ;; these would be failing tests in 1.x but not in 2.x:
 (sut/defexpect deftest-equivalence-0)
 (sut/defexpect deftest-equivalence-1 nil)
+
+(def ^:private control (atom 0))
+;; this will succeed on its own
+(sut/defexpect control-test-1 zero? @control)
+;; then retest with a different control value
+(deftest control-test-2
+  (try
+    (reset! control 1)
+    (is-not' (control-test-1) (not (zero? 1)))
+    (finally
+      (reset! control 0))))
