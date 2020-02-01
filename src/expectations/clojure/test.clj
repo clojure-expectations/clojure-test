@@ -48,9 +48,9 @@
   and executes code around that test group. With two arguments, assume it is a
   block to execute before and a block to execute after the test group."
   ([wrapper]
-   (t/use-fixtures :once wrapper))
+   `(t/use-fixtures :once wrapper))
   ([before after]
-   (t/use-fixtures :once (fn [t] ~before (try (t) (finally ~after))))))
+   `(t/use-fixtures :once (fn [t] ~before (try (t) (finally ~after))))))
 
 (def humane-test-output?
   "If Humane Test Output is available, activate it, and enable compatibility
