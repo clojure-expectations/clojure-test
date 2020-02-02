@@ -19,7 +19,7 @@
 (sut/after-each  (swap! order conj :z))
 ;; these happen in order like before calls, but the after parts
 ;; are reversed (and all happen before the after calls!)
-(sut/around-each (swap! order conj :b) (swap! order conj :w))
+(sut/around-each #(do (swap! order conj :b) (%) (swap! order conj :w)))
 (sut/around-each (swap! order conj :c) (swap! order conj :v))
 ;; expectations in after calls are valid
 (sut/after-each  (sut/expect [:a :b :c :v :w :x :y :z] @order))

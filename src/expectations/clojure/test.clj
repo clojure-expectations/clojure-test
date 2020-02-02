@@ -39,7 +39,7 @@
   "Execute the given block of code after each test."
   [& body]
   `(#'compose-fixture-in :each (fn [t#] (try (t#) (finally ~@body)))
-                         (fn [fs# f#] (vec (cons f# fs#)))))
+     (fn [fs# f#] (vec (cons f# fs#)))))
 
 (defmacro around-each
   "With a single argument, assume it is a function that accepts a test
@@ -59,7 +59,7 @@
   "Execute the given block of code after running tests in this ns."
   [& body]
   `(#'compose-fixture-in :each (fn [t#] (try (t#) (finally ~@body)))
-                         (fn [fs# f#] (vec (cons f# fs#)))))
+     (fn [fs# f#] (vec (cons f# fs#)))))
 
 (defmacro around-once
   "With a single argument, assume it is a function that accepts a test group
@@ -470,3 +470,26 @@
      (let [e-val (expected-fn x)
            a-val (actual-fn x)]
        (t/is (= e-val a-val) (difference-fn e-val a-val))))))
+
+(defn- from-clojure-test
+  "Intern the specified symbol from `clojure.test` as a symbol in
+  `expectations.clojure.test` with the same value, docstring, and arglists,
+  with `expectations` instead of `tests` and `expect` instead of `test`."
+  [f]
+  (let [fs (name f)
+        tf (symbol "clojure.test" fs)
+        es (-> fs
+               (str/replace "tests" "expectations")
+               (str/replace "test" "expect"))
+        v  (resolve tf)
+        m  (meta v)]
+    (intern 'expectations.clojure.test (symbol es) (deref v))
+    (alter-meta! (resolve (symbol es))
+                 merge
+                 (update (select-keys m [:arglists :doc])
+                         :doc
+                         str (str "\n\nEquivalent to " tf)))))
+
+;; bring over other useful clojure.test functions:
+(doseq [f '[test-var test-vars test-all-vars test-ns run-tests run-all-tests]]
+  (from-clojure-test f))
