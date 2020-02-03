@@ -486,10 +486,10 @@
     (intern 'expectations.clojure.test (symbol es) (deref v))
     (alter-meta! (resolve (symbol es))
                  merge
-                 (update (select-keys m [:arglists :doc])
+                 (update (dissoc m :name :ns)
                          :doc
                          str (str "\n\nEquivalent to " tf)))))
 
 ;; bring over other useful clojure.test functions:
-(doseq [f '[test-var test-vars test-all-vars test-ns run-tests run-all-tests]]
+(doseq [f '[test-var test-vars test-all-vars test-ns run-tests run-all-tests with-test]]
   (from-clojure-test f))

@@ -4,6 +4,8 @@ When tests are run -- by Leiningen, Boot, Cognitect's `test-runner`, or your IDE
 
 Test fixtures are a way to run arbitrary code before and/or after each test or each group of tests. The classic Expectations library used metadata on certain functions to indicate that they should be run before the entire suite of tests, after the entire suite of tests, or around each individual expectation (test). Since this new Expectations library leans on `clojure.test` for test running infrastructure, it assumes you will use `clojure.test`'s features to provide test fixtures.
 
+**TODO 2.0.0, brings before/after/around each/once variants of `use-fixtures` that compose.**
+
 Focused tests are identified in the code somehow so that your test runner can execute just a subset of all the tests, when needed. The classic Expectations library used a special `expect-focused` macro to signal that just a subset of tests should be run. This new Expectations library follows the convention of `clojure.test`-based tooling instead, relying on metadata on test functions to signal to all the standard tooling the various test selectors available for the runner to filter on.
 
 ## Test Fixtures
@@ -70,8 +72,8 @@ Here's an example that sets up a database connection pool for use across the who
     (binding [*con* con]
       (work))))
 
-(use-fixtures :once pool-setup)
-(use-fixtures :each connection-setup)
+(use-fixtures :once pool-setup) ; TODO (around-once pool-setup)
+(use-fixtures :each connection-setup) ; TODO (around-each connection-setup)
 
 (def test-user {,,,})
 
@@ -82,10 +84,14 @@ Here's an example that sets up a database connection pool for use across the who
 ;; lots more tests that use *con*          
 ```
 
-When the tests in this namespace are run, `clojure.test` will invoke `pool-setup` once, passing in a function that will invoke `connection-setup` for each test in the namespace,
+When the tests in this namespace are run, the underlying `clojure.test` machinery
+will invoke `pool-setup` once, passing in a function that will invoke
+`connection-setup` for each test in the namespace,
 in turn passing in that test (as a function).
 
 > Note: Fixtures are only executed when tests are run via `clojure.test/run-tests` or `clojure.test/test-vars` -- just invoking a test as a function, e.g., `(db-test)` will not cause the fixtures to run.
+
+**Which can be `run-expectations` or `expect-vars` in 2.0.0.**
 
 ## Focused Test Execution
 
