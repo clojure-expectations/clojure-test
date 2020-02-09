@@ -9,6 +9,7 @@
 
   We do not support ClojureScript in clojure.test mode, sorry."
   (:require [clojure.data :as data]
+            [clojure.pprint :as pp]
             [clojure.string :as str]
             [clojure.test :as t]))
 
@@ -228,6 +229,29 @@
   (fn [m]
     (swap! store update (:type m) (fnil conj []) m)))
 
+(defmacro clojure-test-assert
+  "Used by the 'expect' macro to catch unexpected exceptions.
+  You don't call this."
+  [form msg]
+  `(try
+     ~(t/assert-expr msg form)
+     (catch clojure.lang.ExceptionInfo e#
+       (if (re-find #"did not conform to spec" (.getMessage e#))
+         (t/do-report {:type :error,
+                       :message (str ~msg
+                                     "\n--------------------------------------\n"
+                                     (with-out-str
+                                       (binding [pp/*print-miser-width* 60]
+                                         (pp/pprint (ex-data e#))))
+                                     "\n--------------------------------------\n"),
+                       :expected '~form,
+                       :actual (ex-info (.getMessage e#) {})})
+         (t/do-report {:type :error, :message ~msg,
+                       :expected '~form, :actual e#})))
+     (catch Throwable t#
+       (t/do-report {:type :error, :message ~msg,
+                     :expected '~form, :actual t#}))))
+
 (defmacro expect
   "Translate Expectations DSL to clojure.test language.
 
@@ -260,7 +284,7 @@
   destructured using the `binding` and then each expected value `expX`
   is used to check each `valX` -- expressions based on symbols in the
   `binding`."
-  ([a] `(t/is ~a))
+  ([a] `(clojure-test-assert ~a nil))
   ([e a] `(expect ~e ~a nil true ~e))
   ([e a msg] `(expect ~e ~a ~msg true ~e))
   ([e a msg ex? e']
@@ -347,23 +371,15 @@
         `(let [~(second e) ~a] ~@es))
 
       (and ex? (symbol? e) (resolve e) (class? (resolve e)))
-      (if (seq `~msg')
-        (if (isa? (resolve e) Throwable)
-          `(t/is (~'thrown? ~e ~a) ~msg')
-          `(t/is (~'instance? ~e ~a) ~msg'))
-        (if (isa? (resolve e) Throwable)
-          `(t/is (~'thrown? ~e ~a))
-          `(t/is (~'instance? ~e ~a))))
+      (if (isa? (resolve e) Throwable)
+        `(clojure-test-assert (~'thrown? ~e ~a) ~msg')
+        `(clojure-test-assert (~'instance? ~e ~a) ~msg'))
 
       (isa? (type e) java.util.regex.Pattern)
-      (if (seq `~msg')
-        `(t/is (re-find ~e ~a) ~msg')
-        `(t/is (re-find ~e ~a)))
+      `(clojure-test-assert (re-find ~e ~a) ~msg')
 
       :else
-      (if (seq `~msg')
-        `(t/is (~'=? ~e ~a) ~msg')
-        `(t/is (~'=? ~e ~a)))))))
+      `(clojure-test-assert (~'=? ~e ~a) ~msg')))))
 
 (comment
   (macroexpand '(expect (more-> 1 :a 2 :b 3 (-> :c :d)) {:a 1 :b 2 :c {:d 4}}))
@@ -469,27 +485,22 @@
    (fn [x]
      (let [e-val (expected-fn x)
            a-val (actual-fn x)]
-       (t/is (= e-val a-val) (difference-fn e-val a-val))))))
+       (clojure-test-assert (= e-val a-val) (difference-fn e-val a-val))))))
 
 (defn- from-clojure-test
   "Intern the specified symbol from `clojure.test` as a symbol in
-  `expectations.clojure.test` with the same value, docstring, and arglists,
-  with `expectations` instead of `tests` and `expect` instead of `test`."
+  `expectations.clojure.test` with the same value and metadata."
   [f]
-  (let [fs (name f)
-        tf (symbol "clojure.test" fs)
-        es (-> fs
-               (str/replace "tests" "expectations")
-               (str/replace "test" "expect"))
+  (let [tf (symbol "clojure.test" (name f))
         v  (resolve tf)
         m  (meta v)]
-    (intern 'expectations.clojure.test (symbol es) (deref v))
-    (alter-meta! (resolve (symbol es))
+    (intern 'expectations.clojure.test f (deref v))
+    (alter-meta! (resolve f)
                  merge
-                 (update (dissoc m :name :ns)
-                         :doc
-                         str (str "\n\nEquivalent to " tf)))))
+                 (update m :doc str (str "\n\nImported from clojure.test.")))))
 
 ;; bring over other useful clojure.test functions:
-(doseq [f '[test-var test-vars test-all-vars test-ns run-tests run-all-tests with-test]]
+(doseq [f '[run-all-tests run-tests
+            test-all-vars test-ns test-var test-vars
+            use-fixtures with-test]]
   (from-clojure-test f))

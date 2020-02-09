@@ -160,19 +160,6 @@
   (sut/expect 6 (definition-test 1 2 3))
   (is (= 2 @d-t-counter)))
 
-(sut/with-expect
-  (defn definition-expect
-    "Make sure expectations work with with-expect."
-    [a b c]
-    (swap! d-t-counter inc)
-    (* a b c))
-  (println "\nRunning inline expectations")
-  (reset! d-t-counter 0)
-  (is (= 0 @d-t-counter))
-  (sut/expect 1 (definition-expect 1 1 1))
-  (sut/expect 6 (definition-expect 1 2 3))
-  (is (= 2 @d-t-counter)))
-
 ;; these would be failing tests in 1.x but not in 2.x:
 (sut/defexpect deftest-equivalence-0)
 (sut/defexpect deftest-equivalence-1 nil)

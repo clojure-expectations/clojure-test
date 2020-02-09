@@ -91,7 +91,7 @@ in turn passing in that test (as a function).
 
 > Note: Fixtures are only executed when tests are run via `clojure.test/run-tests` or `clojure.test/test-vars` -- just invoking a test as a function, e.g., `(db-test)` will not cause the fixtures to run.
 
-**Which can be `run-expectations` or `expect-vars` in 2.0.0.**
+**Which can be just `run-tests` or `test-vars` in 2.0.0, without `clojure.test`.**
 
 ## Focused Test Execution
 

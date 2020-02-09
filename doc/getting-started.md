@@ -38,7 +38,7 @@ This example provides a quick comparison with `clojure.test` (the tests match th
 
 ```clojure
 (require '[expectations.clojure.test
-           :refer [defexpect expect expecting]])
+           :refer [defexpect expect expecting run-tests test-vars]])
 
 (defexpect simple-test                  ; (deftest simple-test
   (expect 4 (+ 2 2))                    ;   (is (= 4 (+ 2 2)))
@@ -87,17 +87,17 @@ nil
 
 It will return `nil` and print nothing if the test succeeds. It will print out failure messages otherwise (and still return `nil`). While this is the simplest way to run a test, it is not always the best, since it won't run any test fixtures -- see [Fixtures](/doc/fixtures-focus.md) for more details. You can run a test (with fixtures) like this:
 
-**TODO for 2.0.0, issue #15 brings built-in ways to run tests so you don't need `clojure.test`: `expect-vars`, `run-expectations`, etc.**
+**TODO for 2.0.0, issue #15 brings in the test runners so you don't need `clojure.test`.**
 
 ```clojure
-user=> (clojure.test/test-vars [#'simple-test])
+user=> (test-vars [#'simple-test])
 nil
 ```
 
 As you might imagine, you can run more than one test using `test-vars`. You can also run all the tests in the current namespace, which produces more informative output:
 
 ```clojure
-user=> (clojure.test/run-tests)
+user=> (run-tests)
 
 Testing user
 
@@ -154,16 +154,15 @@ Following this convention means that all the tooling and IDE/editor integrations
 
 `clojure.test` has a macro called `with-test` that allows you to define tests inline following your function definition. Given that `clojure.test` ships directly with Clojure, this is reasonable because putting test code in your function definition's metadata doesn't add any dependencies and it has the benefit of being able to see the source of the function and the source of its test right next to each other. You can do that with Expectations too, since it is `clojure.test`-compatible, although it does mean your source code has an additional dependency -- but Expectations is fairly small (~300 lines) and has no additional dependencies.
 
-**TODO 2.0.0, issue #15 brings `with-expect`, so `clojure.test` is no longer needed.**
+**TODO 2.0.0, issue #15 brings `with-test`, so `clojure.test` is no longer needed.**
 
 However, if you put tests in your source files, using `with-test`, then most tooling won't know how to find those tests by default. Here's an example of an inline test and how to run it with Leiningen and the CLI (`deps.edn`):
 
 ```clojure
 (ns my.cool.project
-  (:require [clojure.test :refer [with-test]]
-            [expectations.clojure.test :refer [expect]]))
+  (:require [expectations.clojure.test :refer [expect with-test]]))
 
-(with-test ; TODO with-expect
+(with-test
   (defn square [x] (* x x))
   (expect 1 (square 1))
   (expect 1 (square -1))
