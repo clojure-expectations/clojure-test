@@ -1,21 +1,20 @@
 ;; copyright (c) 2018-2020 sean corfield, all rights reserved
 
 (ns expectations.clojure.test
-  "This namespace provides compatibility with clojure.test and related tooling.
+  "This namespace provides compatibility with `clojure.test` and related tooling.
 
   This namespace should be used standalone, without requiring the 'expectations'
   namespace -- this provides a translation layer from Expectations syntax down
-  to clojure.test functionality.
+  to `clojure.test` functionality.
 
-  We do not support ClojureScript in clojure.test mode, sorry."
+  We do not support ClojureScript in `clojure.test` mode, sorry."
   (:require [clojure.data :as data]
-            [clojure.pprint :as pp]
             [clojure.string :as str]
             [clojure.test :as t]))
 
 (def humane-test-output?
   "If Humane Test Output is available, activate it, and enable compatibility
-  of our =? with it.
+  of our `=?` with it.
 
   This Var will be `true` if Humane Test Output is available and activated,
   otherwise it will be `nil`."
@@ -163,16 +162,16 @@
 
 (defn ^:no-doc all-report
   "Given an atom in which to accumulate results, return a function that
-  can be used in place of clojure.test/do-report, which simply remembers
+  can be used in place of `clojure.test/do-report`, which simply remembers
   all the reported results.
 
-  This is used to support the semantics of expect/in."
+  This is used to support the semantics of `expect/in`."
   [store]
   (fn [m]
     (swap! store update (:type m) (fnil conj []) m)))
 
 (defmacro expect
-  "Translate Expectations DSL to clojure.test language.
+  "Translate Expectations DSL to `clojure.test` language.
 
   These are approximate translations for the most basic forms:
 
@@ -306,7 +305,7 @@
   (macroexpand '(expect (more-of {:keys [a b c]} 1 a 2 b 3 c) {:a 1 :b 2 :c 3})))
 
 (defn- contains-expect?
-  "Given a form, return true if it contains any calls to the 'expect' macro."
+  "Given a form, return `true` if it contains any calls to the 'expect' macro."
   [e]
   (when (and (coll? e) (not (vector? e)))
     (or (= 'expect (first e))
@@ -314,7 +313,7 @@
 
 (defmacro defexpect
   "Given a name (a symbol that may include metadata) and a test body,
-  produce a standard 'clojure.test' test var (using 'deftest').
+  produce a standard `clojure.test` test var (using `deftest`).
 
   `(defexpect name expected actual)` is a special case shorthand for
   `(defexpect name (expect expected actual))` provided as an easy way to migrate
