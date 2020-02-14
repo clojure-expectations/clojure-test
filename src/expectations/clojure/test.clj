@@ -116,7 +116,7 @@
 ;; as part of the macro translation layer
 (defmethod t/assert-expr '=? [msg form]
   ;; (is (=? val-or-pred expr))
-  (let [[_ e a] form
+  (let [[_ e a form'] form
         conform? (spec? e)]
     `(let [e# ~e
            a# ~a
@@ -143,7 +143,12 @@
                        :diffs (if humane?#
                                 [[a# (take 2 (data/diff e# a#))]]
                                 [])
-                       :expected (if humane?# e# '~form)
+                       :expected (cond humane?#
+                                       e#
+                                       ~form'
+                                       ~form'
+                                       :else
+                                       '~form)
                        :actual (cond (fn? e#)
                                      (list '~'not (list '~e a#))
                                      humane?#
@@ -265,7 +270,7 @@
                  (let [e# ~e]
                    (if (map? e#)
                      (let [submap# (select-keys a# (keys e#))]
-                       (expect e# submap# ~msg ~ex? ~form))
+                       (t/is (~'=? e# submap# '~form) ~msg'))
                      (throw (IllegalArgumentException. "'in' requires map or sequence"))))
                  :else
                  (throw (IllegalArgumentException. "'in' requires map or sequence")))))
