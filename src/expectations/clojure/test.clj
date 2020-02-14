@@ -171,30 +171,6 @@
   (fn [m]
     (swap! store update (:type m) (fnil conj []) m)))
 
-(defmacro ^:no-doc clojure-test-assert
-  "Used by the 'expect' macro to catch unexpected exceptions.
-
-  This is a work in progress to try to improve Spec failure errors."
-  [form msg]
-  `(try
-     ~(t/assert-expr msg form)
-     (catch clojure.lang.ExceptionInfo e#
-       (if (re-find #"did not conform to spec" (.getMessage e#))
-         (t/do-report {:type :error,
-                       :message (str ~msg
-                                     "\n--------------------------------------\n"
-                                     (with-out-str
-                                       (binding [pp/*print-miser-width* 60]
-                                         (pp/pprint (ex-data e#))))
-                                     "\n--------------------------------------\n"),
-                       :expected '~form,
-                       :actual (ex-info (.getMessage e#) {})})
-         (t/do-report {:type :error, :message ~msg,
-                       :expected '~form, :actual e#})))
-     (catch Throwable t#
-       (t/do-report {:type :error, :message ~msg,
-                     :expected '~form, :actual t#}))))
-
 (defmacro expect
   "Translate Expectations DSL to clojure.test language.
 
@@ -227,7 +203,7 @@
   destructured using the `binding` and then each expected value `expX`
   is used to check each `valX` -- expressions based on symbols in the
   `binding`."
-  ([a] `(clojure-test-assert ~a nil))
+  ([a] `(t/is ~a nil))
   ([e a] `(expect ~e ~a nil true ~e))
   ([e a msg] `(expect ~e ~a ~msg true ~e))
   ([e a msg ex? e']
@@ -315,14 +291,14 @@
 
       (and ex? (symbol? e) (resolve e) (class? (resolve e)))
       (if (isa? (resolve e) Throwable)
-        `(clojure-test-assert (~'thrown? ~e ~a) ~msg')
-        `(clojure-test-assert (~'instance? ~e ~a) ~msg'))
+        `(t/is (~'thrown? ~e ~a) ~msg')
+        `(t/is (~'instance? ~e ~a) ~msg'))
 
       (isa? (type e) java.util.regex.Pattern)
-      `(clojure-test-assert (re-find ~e ~a) ~msg')
+      `(t/is (re-find ~e ~a) ~msg')
 
       :else
-      `(clojure-test-assert (~'=? ~e ~a) ~msg')))))
+      `(t/is (~'=? ~e ~a) ~msg')))))
 
 (comment
   (macroexpand '(expect (more-> 1 :a 2 :b 3 (-> :c :d)) {:a 1 :b 2 :c {:d 4}}))
@@ -428,7 +404,7 @@
    (fn [x]
      (let [e-val (expected-fn x)
            a-val (actual-fn x)]
-       (clojure-test-assert (= e-val a-val) (difference-fn e-val a-val))))))
+       (t/is (= e-val a-val) (difference-fn e-val a-val))))))
 
 (defn- from-clojure-test
   "Intern the specified symbol from `clojure.test` as a symbol in
