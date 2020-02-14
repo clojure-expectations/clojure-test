@@ -263,7 +263,10 @@
                          (t/do-report r#)))))
                  (map? a#)
                  (let [e# ~e]
-                   (expect e# (select-keys a# (keys e#)) ~msg ~ex? ~form))
+                   (if (map? e#)
+                     (let [submap# (select-keys a# (keys e#))]
+                       (expect e# submap# ~msg ~ex? ~form))
+                     (throw (IllegalArgumentException. "'in' requires map or sequence"))))
                  :else
                  (throw (IllegalArgumentException. "'in' requires map or sequence")))))
 
