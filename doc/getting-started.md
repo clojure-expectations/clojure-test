@@ -20,7 +20,7 @@ for `deps.edn` or:
 ```
 for `project.clj` or `build.boot`.
 
-Then in your test namespaces, you just require `expectations.clojure.test` (instead of `clojure.test`, in most cases) and start using the Expectations-style syntax for your tests.
+Then in your test namespaces, you just require `expectations.clojure.test` (instead of `clojure.test`) and start using the Expectations-style syntax for your tests.
 
 ### Requirements
 
@@ -87,8 +87,6 @@ nil
 
 It will return `nil` and print nothing if the test succeeds. It will print out failure messages otherwise (and still return `nil`). While this is the simplest way to run a test, it is not always the best, since it won't run any test fixtures -- see [Fixtures](/doc/fixtures-focus.md) for more details. You can run a test (with fixtures) like this:
 
-**TODO for 2.0.0, issue #15 brings in the test runners so you don't need `clojure.test`.**
-
 ```clojure
 user=> (test-vars [#'simple-test])
 nil
@@ -105,6 +103,8 @@ Ran 1 tests containing 8 assertions.
 0 failures, 0 errors.
 {:test 1, :pass 8, :fail 0, :error 0, :type :summary}
 ```
+
+As of 2.0.0, `test-vars` and `run-tests` are imported from `clojure.test` automatically behind the scenes, along with other test running functions.
 
 ### Cognitect's `test-runner`
 
@@ -152,9 +152,7 @@ Following this convention means that all the tooling and IDE/editor integrations
 
 #### Tests with Source Code
 
-`clojure.test` has a macro called `with-test` that allows you to define tests inline following your function definition. Given that `clojure.test` ships directly with Clojure, this is reasonable because putting test code in your function definition's metadata doesn't add any dependencies and it has the benefit of being able to see the source of the function and the source of its test right next to each other. You can do that with Expectations too, since it is `clojure.test`-compatible, although it does mean your source code has an additional dependency -- but Expectations is fairly small (~300 lines) and has no additional dependencies.
-
-**TODO 2.0.0, issue #15 brings `with-test`, so `clojure.test` is no longer needed.**
+`clojure.test` has a macro called `with-test` that allows you to define tests inline following your function definition. Given that `clojure.test` ships directly with Clojure, this is reasonable because putting test code in your function definition's metadata doesn't add any dependencies and it has the benefit of being able to see the source of the function and the source of its test right next to each other. You can do that with Expectations too, since it is `clojure.test`-compatible, although it does mean your source code has an additional dependency -- but Expectations is fairly small (~300 lines) and has no additional dependencies. As of 2.0.0, `with-test` is available directly in `expectations.clojure.test`.
 
 However, if you put tests in your source files, using `with-test`, then most tooling won't know how to find those tests by default. Here's an example of an inline test and how to run it with Leiningen and the CLI (`deps.edn`):
 

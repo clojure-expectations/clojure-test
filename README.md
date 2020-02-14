@@ -217,7 +217,7 @@ to be aware of:
 * You use standard `clojure.test`-based tooling -- `lein test`, `boot test`, and [Cognitect's `test-runner`](https://github.com/cognitect-labs/test-runner) -- instead of the Expectations-specific tooling.
 * Because of that, tests run when you decide, not at JVM shutdown (which is the default with Expectations).
 * If you have [Paul Stadig's Humane Test Output](https://github.com/pjstadig/humane-test-output) on your classpath, it will be activated and failures reported by `=?` will be compatible with it, providing better reporting.
-* Instead of the `in-context`, `before-run`, `after-run` machinery of Expectations, you can just use `clojure.test`'s fixtures machinery (`use-fixtures`). **TODO for 2.0.0, issue #15 brings a number of built-in fixture functions.**
+* Instead of the `in-context`, `before-run`, `after-run` machinery of Expectations, you can just use `clojure.test`'s fixtures machinery (`use-fixtures`). As of 2.0.0, `use-fixtures` is exposed directly via `expectations.clojure.test` so you don't need to require `clojure.test`.
 * Instead of Expectations' concept of "focused" test, you can use metadata on tests and tell your test runner to "select" tests as needed (e.g., Leiningen's "test selectors", Boot's "filters", and `test-runner`'s `-i`/`-e` options).
 * `freeze-time`, `redef-state`, and `warn-on-iref-updates` are not (yet) implemented.
 * The undocumented `CustomPred` protocol is not implemented -- you can use plain `is` and extend `clojure.test`'s `assert-expr` multimethod if you need that level of control.

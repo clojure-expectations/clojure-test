@@ -13,64 +13,6 @@
             [clojure.string :as str]
             [clojure.test :as t]))
 
-;; to avoid the need to pull in clojure.test for use-fixtures
-
-(def ^:private clojure-test-meta-keys
-  "Map from `friendly` tags to the actual keys that `clojure.test` uses."
-  {:each :clojure.test/each-fixtures
-   :once :clojure.test/once-fixtures})
-
-(defn- compose-fixture-in
-  "Given a tag and a function, compose it as a fixture onto the existing
-  fixtures, if any. This is a variant of how `clojure.test` handles
-  the fixtures (overwriting any previous ones)."
-  [tag f & [join]]
-  (alter-meta! *ns*
-               update
-               (clojure-test-meta-keys tag)
-               (fnil (or join conj) [])
-               f))
-
-(defmacro before-each
-  "Execute the given block of code before each test."
-  [& body]
-  `(#'compose-fixture-in :each (fn [t#] ~@body (t#))))
-
-(defmacro after-each
-  "Execute the given block of code after each test."
-  [& body]
-  `(#'compose-fixture-in :each (fn [t#] (try (t#) (finally ~@body)))
-     (fn [fs# f#] (vec (cons f# fs#)))))
-
-(defmacro around-each
-  "With a single argument, assume it is a function that accepts a test
-  and executes code around the test. With two arguments, assume it is a
-  block to execute before and a block to execute after each test."
-  ([wrapper]
-   `(#'compose-fixture-in :each ~wrapper))
-  ([before after]
-   `(#'compose-fixture-in :each (fn [t#] ~before (try (t#) (finally ~after))))))
-
-(defmacro before-once
-  "Execute the given block of code before running tests in this ns."
-  [& body]
-  `(#'compose-fixture-in :once (fn [t#] ~@body (t#))))
-
-(defmacro after-once
-  "Execute the given block of code after running tests in this ns."
-  [& body]
-  `(#'compose-fixture-in :each (fn [t#] (try (t#) (finally ~@body)))
-     (fn [fs# f#] (vec (cons f# fs#)))))
-
-(defmacro around-once
-  "With a single argument, assume it is a function that accepts a test group
-  and executes code around that test group. With two arguments, assume it is a
-  block to execute before and a block to execute after the test group."
-  ([wrapper]
-   `(#'compose-fixture-in :once ~wrapper))
-  ([before after]
-   `(#'compose-fixture-in :once (fn [t#] ~before (try (t#) (finally ~after))))))
-
 (def humane-test-output?
   "If Humane Test Output is available, activate it, and enable compatibility
   of our =? with it.
@@ -229,9 +171,10 @@
   (fn [m]
     (swap! store update (:type m) (fnil conj []) m)))
 
-(defmacro clojure-test-assert
+(defmacro ^:no-doc clojure-test-assert
   "Used by the 'expect' macro to catch unexpected exceptions.
-  You don't call this."
+
+  This is a work in progress to try to improve Spec failure errors."
   [form msg]
   `(try
      ~(t/assert-expr msg form)
