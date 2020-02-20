@@ -413,6 +413,27 @@
            a-val (actual-fn x)]
        (t/is (= e-val a-val) (difference-fn e-val a-val))))))
 
+(defn use-fixtures
+  "Wrap test runs in a fixture function to perform setup and
+  teardown. Using a fixture-type of `:each` wraps every test
+  individually, while `:once` wraps the whole run in a single function.
+
+  Like `cljs.test/use-fixtures`, also accepts hash maps with `:before`
+  and/or `:after` keys that specify 0-arity functions to invoke
+  before/after the test/run."
+  [fixture-type & fs]
+  (apply t/use-fixtures fixture-type
+         (map (fn [f]
+                (if (map? f)
+                  (fn [t]
+                    (when-let [before (:before f)]
+                      (before))
+                    (t)
+                    (when-let [after (:after f)]
+                      (after)))
+                  f))
+              fs)))
+
 (defn- from-clojure-test
   "Intern the specified symbol from `clojure.test` as a symbol in
   `expectations.clojure.test` with the same value and metadata."
@@ -428,5 +449,5 @@
 ;; bring over other useful clojure.test functions:
 (doseq [f '[run-all-tests run-tests
             test-all-vars test-ns test-var test-vars
-            use-fixtures with-test]]
+            with-test]]
   (from-clojure-test f))

@@ -8,7 +8,7 @@ Focused tests are identified in the code somehow so that your test runner can ex
 
 ## Test Fixtures
 
-To use test fixtures with Expectations, you can refer `use-fixtures` (which is imported from `clojure.test` behind the scenes automatically, as of 2.0.0). For example:
+To use test fixtures with Expectations, you can refer `use-fixtures` (which, as of 2.0.0, accepts both functions and hash maps, containing `:before` and/or `:after` keys that specify 0-arity functions -- like `cljs.test/use-fixtures`). For example:
 
 ```clojure
 (ns my.cool.project-test
@@ -26,6 +26,10 @@ You then define your fixture as a function that accepts the test(s) to be run as
     (finally
       ;; perform test teardown
       )))
+
+(defn setup [] (,,,))
+
+(defn teardown [] (,,,))
 ```
 
 Then you inform `clojure.test` about your fixture, telling it to run around each test in this namespace, or just once around the whole namespace of tests:
@@ -34,10 +38,13 @@ Then you inform `clojure.test` about your fixture, telling it to run around each
 ;; as a top-level form, usually before you define your tests:
 (use-fixtures :each my-fixture) ; run around each test
 ;; or
+(use-fixtures :each {:before setup, :after teardown}) ; run around each test
+;; or
 (use-fixtures :once my-fixture) ; run once around the whole namespace
+(use-fixtures :once {:before setup, :after teardown}) ; run once around the whole namespace
 ```
 
-`use-fixtures` can accept multiple fixture functions if you need to combine setup and/or teardown from more than one test context.
+`use-fixtures` can accept multiple fixtures if you need to combine setup and/or teardown from more than one test context.
 
 Here's an example that sets up a database connection pool for use across the whole namespace and sets up a database connection for use in each test:
 

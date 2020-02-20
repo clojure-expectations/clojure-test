@@ -2,6 +2,7 @@
 
 * Make `(defexpect foo)` and `(defexpect foo (bar))` match the behavior of `deftest`, without wrapping the body in `(expect ,,,)`. This is potentially breaking insofar as `(defexpect foo (produces-falsey))` would have been a failing test in 1.x but now silently just runs `(produces-falsey)` in the same way that `(deftest foo (produces-falsey))` does.
 * Bring several test-running functions from `clojure.test` in, for convenience in dev/test so users don't need to require `clojure.test` as well.
+* Implement `cljs.test`'s version of `use-fixtures`: accepts functions or hash maps (containing `:before` and/or `:after` keys with 0-arity functions).
 * Add various macro-like constructs back into the documentation to improve the documentation (`in`, `from-each`, `more-of`, `more->`, `more` are really only syntactic constructs inside `expect`).
 
 # Version 1.2.1 -- 2019-12-09
