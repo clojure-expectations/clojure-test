@@ -1,0 +1,16 @@
+{:linters
+ {:consistent-alias
+  {:aliases
+   ;; straw man for some standardization:
+   {clojure.string str}}
+
+  :missing-docstring {:level :warning}
+
+  :single-key-in {:level :warning}
+
+  :unsorted-required-namespaces {:level :error}}
+
+ :lint-as
+ {expectations.clojure.test/defexpect clojure.test/deftest,
+  expectations.clojure.test/from-each clojure.core/for,
+  expectations.clojure.test/more-of clj-kondo.lint-as/def-catch-all}}

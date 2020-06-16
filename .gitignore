@@ -1,2 +1,3 @@
 .cpcache
+.clj-kondo/.cache
 *.jar

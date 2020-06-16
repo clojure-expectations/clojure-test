@@ -5,8 +5,11 @@
 
   Tests marked `^:negative` will not pass with Humane Test Output enabled
   because it manipulates the report data which my `is-not` macros rely on."
-  (:require [clojure.test :refer [deftest is do-report testing]]
-            [expectations.clojure.test :as sut]))
+  (:require [clojure.string :as str]
+            [clojure.test :refer [deftest is do-report testing]]
+            [expectations.clojure.test :as sut
+             ;; refer these purely to help clj-kondo:
+             :refer [from-each in more more-of]]))
 
 (defmacro is-not'
   "Construct a negative test for an expectation with a symbolic failure."
@@ -122,7 +125,7 @@
                              {:a (* 2 13) :b (* 3 13)})
                  (sut/expect pos? (* -3 -5)))
   (sut/expecting "string behavior"
-                 (sut/expect (more #"foo" "foobar" #(clojure.string/starts-with? % "f"))
+                 (sut/expect (more #"foo" "foobar" #(str/starts-with? % "f"))
                              (str "f" "oobar"))
                  (sut/expect #"foo"
                              (from-each [s ["l" "d" "bar"]]
