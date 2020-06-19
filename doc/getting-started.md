@@ -8,7 +8,7 @@ You can add `expectations/clojure-test` to your project with either:
 
 ```clojure
 ;; add this to :extra-deps under a :test alias:
-{expectations/clojure-test {:mvn/version "1.2.1"}}
+expectations/clojure-test {:mvn/version "1.2.1"}
 ```
 for `deps.edn` or:
 
