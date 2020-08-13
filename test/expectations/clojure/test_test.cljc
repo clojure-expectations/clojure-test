@@ -6,51 +6,24 @@
   Tests marked `^:negative` will not pass with Humane Test Output enabled
   because it manipulates the report data which my `is-not` macros rely on."
   (:require [clojure.string :as str]
-            [clojure.test :refer [deftest is do-report testing]]
-            [expectations.clojure.test :as sut
-             ;; refer these purely to help clj-kondo:
-             :refer [from-each in more more-of]]))
+            #?(:clj [expectations.clojure.test-macros :refer
+                     [is-not' is-not passes]]
+               :cljs [expectations.clojure.test-macros
+		       :refer-macros [is-not' is-not passes]])
 
-(defmacro is-not'
-  "Construct a negative test for an expectation with a symbolic failure."
-  [expectation failure & [msg]]
-  `(let [results# (atom nil)]
-     (with-redefs [do-report (sut/all-report results#)]
-       ~expectation)
-     (is (some (fn [fail#]
-                 (= '~failure (:actual fail#)))
-               (:fail @results#)))
-     (when ~msg
-       (is (some (fn [fail#]
-                   (re-find ~msg (:message fail#)))
-                 (:fail @results#))))))
+            #?(:clj [clojure.test :refer [deftest is do-report testing]]
+               :cljs [cljs.test :include-macros true
+	                        :refer [do-report assert-expr]
+				:refer-macros [deftest is testing assert-expr
+				               use-fixtures]])
+            #?(:cljs [cljs.spec.alpha :as s])
+            #?(:clj [expectations.clojure.test :refer
+                     [from-each in more more-of] :as sut]
+               :cljs [expectations.clojure.test
+	               :include-macros true
+		       :as sut])))
 
-(defmacro is-not
-  "Construct a negative test for an expectation with a value-based failure."
-  [expectation failure & [msg]]
-  `(let [results# (atom nil)]
-     (with-redefs [do-report (sut/all-report results#)]
-       ~expectation)
-     (is (some (fn [fail#]
-                 (= ~failure (:actual fail#)))
-               (:fail @results#)))
-     (when ~msg
-       (is (some (fn [fail#]
-                   (re-find ~msg (:message fail#)))
-                 (:fail @results#))))))
-
-(defmacro passes
-  "Construct a positive test for an expectation with a predicate-based success.
-
-  This is needed for cases where a successful test wraps a failing behavior,
-  such as `thrown?`, i.e., `(expect ExceptionType actual)`"
-  [expectation success]
-  `(let [results# (atom nil)]
-     (with-redefs [do-report (sut/all-report results#)]
-       ~expectation)
-     (is (some (fn [pass#]
-                 (~success (:actual pass#)))
-               (:pass @results#)))))
+; The macros are in test_macros.cljc to support Clojurescript.
 
 (deftest predicate-test
   (is (sut/expect even? (+ 1 1)))
@@ -85,7 +58,7 @@
   ;; TODO: fails because regexes never compare equal to themselves!
   #_(is-not' (sut/expect #"fool" "It's foobar!") (not (re-find #"fool" "It's foobar!"))))
 
-(deftest exception-test
+#?(:clj (deftest exception-test
   (passes (sut/expect ArithmeticException (/ 12 0))
           (fn [ex]
             (let [t (Throwable->map ex)]
@@ -93,11 +66,25 @@
                    (or (= 'java.lang.ArithmeticException (-> t :via first :type))
                        (= java.lang.ArithmeticException (-> t :via first :type))))))))
 
-(deftest class-test
-  (is (sut/expect String (name :foo)))
-  (is-not (sut/expect String :foo) clojure.lang.Keyword))
+   :cljs (deftest cljs-exception-test
+           (passes (sut/expect js/Error (throw (ex-info "foo" {})))
+                   (fn [ex]
+                     (let [t (cljs.repl/Error->map ex)]
+                       (and (= "foo"
+                               (-> t :cause)) (or (= 'ExceptionInfo
+                                   (->> t :via first :type))
+                                (= ExceptionInfo
+                                   (->> t :via first :type)))))))))
 
-(try
+#?(:clj (deftest class-test
+  (is (sut/expect String (name :foo)))
+  (is-not (sut/expect String :foo) clojure.lang.Keyword)))
+
+#?(:cljs (deftest class-test
+           (is (sut/expect cljs.core/List '(a b c)))
+           (is-not (sut/expect cljs.core/List :foo) cljs.core/Keyword)))
+
+#?(:clj (try
   (eval '(do
            (require '[clojure.spec.alpha :as s])
            (s/def :small/value (s/and pos-int? #(< % 100)))
@@ -105,7 +92,16 @@
              (is (sut/expect :small/value (* 13 4)))
              (is-not' (sut/expect :small/value (* 13 40)) (not (=? :small/value 520))))))
   (catch Throwable _
-    (println "\nOmitting Spec tests for Clojure" (clojure-version))))
+    (println "\nOmitting Spec tests for Clojure" (clojure-version)))))
+
+; Note :expectations.clojure.test/small-value is defined at the end of
+; expectations.clojure.test/test.cljc for cljs testing.  Defining it here
+; does not work.
+#?(:cljs (deftest spec-test
+           (is (sut/expect :expectations.clojure.test/small-value (* 13 4)))
+           (is-not' (sut/expect :expectations.clojure.test/small-value
+                                (* 13 40))
+                    (not (=? :expectations.clojure.test/small-value 520)))))
 
 (deftest collection-test
   (is (sut/expect {:foo 1} (in {:foo 1 :cat 4})))
@@ -150,7 +146,8 @@
 
 (def d-t-counter (atom 0))
 
-(sut/with-test
+; There is no cljs.test/with-test
+#?(:clj (sut/with-test
   (defn definition-test
     "Make sure expectations work with clojure.test/with-test."
     [a b c]
@@ -161,7 +158,7 @@
   (is (= 0 @d-t-counter))
   (sut/expect 1 (definition-test 1 1 1))
   (sut/expect 6 (definition-test 1 2 3))
-  (is (= 2 @d-t-counter)))
+  (is (= 2 @d-t-counter))))
 
 ;; these would be failing tests in 1.x but not in 2.x:
 (sut/defexpect deftest-equivalence-0)
