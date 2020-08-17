@@ -5,12 +5,15 @@
 
   This namespace should be used standalone, without requiring the 'expectations'
   namespace -- this provides a translation layer from Expectations syntax down
-  to `clojure.test` functionality.
-
-  We do not support ClojureScript in `clojure.test` mode, sorry."
+  to `clojure.test` functionality."
   (:require [clojure.data :as data]
             [clojure.string :as str]
-            [clojure.test :as t]))
+            #?(:cljs [planck.core])
+            #?(:clj [clojure.test :as t]
+               :cljs [cljs.test :include-macros true :as t])
+            #?(:cljs [cljs.spec.alpha :as s])
+            #?@(:cljs [pjstadig.humane-test-output pjstadig.util
+                       pjstadig.print])))
 
 (def humane-test-output?
   "If Humane Test Output is available, activate it, and enable compatibility
@@ -18,15 +21,25 @@
 
   This Var will be `true` if Humane Test Output is available and activated,
   otherwise it will be `nil`."
-  (try
-    (require 'pjstadig.humane-test-output)
-    ((resolve 'pjstadig.humane-test-output/activate!))
-    true
-    (catch Throwable _)))
+  #?(:clj (try (require 'pjstadig.humane-test-output)
+               ((resolve 'pjstadig.humane-test-output/activate!))
+               true
+               (catch Exception _))
+     :cljs (do
+             (defmethod cljs.test/report [:cljs.test/default :fail]
+               [event]
+               (#'pjstadig.util/report-
+                 (if (:diffs event)
+                   event
+                   (pjstadig.print/convert-event event))))
+             ; This should be true for normal operation, false for testing
+             ; this framework and running the :negative tests.
+             true)))
 
 ;; stub functions for :refer compatibility:
 (defn- bad-usage [s]
-  `(throw (IllegalArgumentException.
+  `(throw (#?(:clj IllegalArgumentException.
+              :cljs js/Error.)
            (str ~s " should only be used inside expect"))))
 
 (defmacro in
@@ -104,24 +117,30 @@
 
 (defn ^:no-doc spec? [e]
   (and (keyword? e)
-       (try
-         (require 'clojure.spec.alpha)
-         (when-let [get-spec (resolve 'clojure.spec.alpha/get-spec)]
-           (boolean (get-spec e)))
-         (catch Throwable _))))
+       #?(:clj (try (require 'clojure.spec.alpha)
+                    (when-let [get-spec (resolve 'clojure.spec.alpha/get-spec)]
+                      (boolean (get-spec e)))
+                    (catch Throwable _))
+          :cljs (boolean (s/get-spec e)))))
 
 ;; smart equality extension to clojure.test assertion -- if the expected form
 ;; is a predicate (function) then the assertion is equivalent to (is (e a))
 ;; rather than (is (= e a)) and we need the type check done at runtime, not
 ;; as part of the macro translation layer
-(defmethod t/assert-expr '=? [msg form]
+(defmethod #?(:clj t/assert-expr
+              :cljs cljs.test$macros/assert-expr)
+  '=?
+  #?(:clj [msg form] :cljs [menv msg form])
   ;; (is (=? val-or-pred expr))
   (let [[_ e a form'] form
         conform? (spec? e)]
     `(let [e# ~e
            a# ~a
-           valid?# (when ~conform? (resolve 'clojure.spec.alpha/valid?))
-           explain-str?# (when ~conform? (resolve 'clojure.spec.alpha/explain-str))
+           valid?# (when ~conform? #?(:clj (resolve 'clojure.spec.alpha/valid?)
+                                      :cljs s/valid?))
+           explain-str?# (when ~conform?
+                           #?(:clj (resolve 'clojure.spec.alpha/explain-str)
+                              :cljs s/explain-str))
            r# (cond ~conform?
                     (valid?# e# a#)
                     (fn? e#)
@@ -163,7 +182,11 @@
   thread exceptions into code that can parse information out of them, to be
   used with various expect predicates."
   [form]
-  `(try ~form (catch Throwable t# t#)))
+  `(try ~form
+        (catch #?(:clj Throwable
+                  :cljs :default)
+          t#
+          t#)))
 
 (defn ^:no-doc all-report
   "Given an atom in which to accumulate results, return a function that
@@ -271,9 +294,13 @@
                    (if (map? e#)
                      (let [submap# (select-keys a# (keys e#))]
                        (t/is (~'=? e# submap# '~form) ~msg'))
-                     (throw (IllegalArgumentException. "'in' requires map or sequence"))))
+                     (throw (#?(:clj IllegalArgumentException.
+                                :cljs js/Error.)
+                       "'in' requires map or sequence"))))
                  :else
-                 (throw (IllegalArgumentException. "'in' requires map or sequence")))))
+                 (throw (#?(:clj IllegalArgumentException.
+                            :cljs js/Error.)
+                   "'in' requires map or sequence")))))
 
       (and (sequential? e) (= 'more (first e)))
       (let [es (mapv (fn [e] `(expect ~e ~a ~msg ~ex? ~e')) (rest e))]
@@ -296,12 +323,25 @@
                      (partition 2 (rest (rest e))))]
         `(let [~(second e) ~a] ~@es))
 
-      (and ex? (symbol? e) (resolve e) (class? (resolve e)))
-      (if (isa? (resolve e) Throwable)
-        `(t/is (~'thrown? ~e ~a) ~msg')
-        `(t/is (~'instance? ~e ~a) ~msg'))
+      #?(:clj (and ex? (symbol? e) (resolve e) (class? (resolve e)))
+         :cljs (and ex?
+                    (symbol? e)
+                    (planck.core/find-var e)
+                    (or (= 'js/Error e)
+                        ; is it a symbol which is not a predicate?
+                        (and (fn? (deref (planck.core/find-var e)))
+                             (not= (pr-str (deref (planck.core/find-var e)))
+                                   "#object[Function]")))))
+      #?(:clj (if (isa? (resolve e) Throwable)
+                `(t/is (~'thrown? ~e ~a) ~msg')
+                `(t/is (~'instance? ~e ~a) ~msg'))
+         :cljs (if (= 'js/Error e)
+                 `(t/is (~'thrown? ~e ~a) ~msg')
+                 `(t/is (~'instance? ~e ~a) ~msg')))
 
-      (isa? (type e) java.util.regex.Pattern)
+      (isa? (type e)
+        #?(:clj java.util.regex.Pattern
+           :cljs (type #"regex")))
       `(t/is (re-find ~e ~a) ~msg')
 
       :else
@@ -356,7 +396,8 @@
   by name will return `nil`."
   [fn-vec & forms]
   (when-not (vector? fn-vec)
-    (throw (IllegalArgumentException.
+    (throw (#?(:clj IllegalArgumentException.
+               :cljs js/Error.)
             "side-effects requires a vector as its first argument")))
   (let [mocks (reduce (fn [m f-spec]
                         (if (vector? f-spec)
@@ -413,7 +454,7 @@
            a-val (actual-fn x)]
        (t/is (= e-val a-val) (difference-fn e-val a-val))))))
 
-(defn use-fixtures
+#?(:clj (defn use-fixtures
   "Wrap test runs in a fixture function to perform setup and
   teardown. Using a fixture-type of `:each` wraps every test
   individually, while `:once` wraps the whole run in a single function.
@@ -432,22 +473,46 @@
                     (when-let [after (:after f)]
                       (after)))
                   f))
-              fs)))
+              fs))))
 
-(defn- from-clojure-test
+#?(:cljs (defmacro use-fixtures
+  "Wrap test runs in a fixture function to perform setup and
+  teardown. Using a fixture-type of `:each` wraps every test
+  individually, while `:once` wraps the whole run in a single function.
+
+  Hands off to `cljs.test/use-fixtures`, also accepts hash maps with `:before`
+  and/or `:after` keys that specify 0-arity functions to invoke
+  before/after the test/run."
+  [fixture-type & fs]
+  `(cljs.test/use-fixtures ~fixture-type ~@fs)))
+
+(defn from-clojure-test
   "Intern the specified symbol from `clojure.test` as a symbol in
   `expectations.clojure.test` with the same value and metadata."
   [f]
-  (let [tf (symbol "clojure.test" (name f))
-        v  (resolve tf)
-        m  (meta v)]
-    (intern 'expectations.clojure.test f (deref v))
-    (alter-meta! (resolve f)
-                 merge
-                 (update m :doc str (str "\n\nImported from clojure.test.")))))
+  (let [tf (symbol #?(:clj "clojure.test"
+                      :cljs "cljs.test")
+                   (name f))
+        v (#?(:clj resolve
+              :cljs planck.core/find-var)
+           tf)
+        m (meta v)]
+    (#?(:clj intern
+        :cljs planck.core/intern)
+     'expectations.clojure.test
+     (with-meta f
+       (update m
+               :doc
+               str
+               (str #?(:clj "\n\nImported from clojure.test."
+                       :cljs "\n\nImported from cljs.test"))))
+     (deref v))))
+
 
 ;; bring over other useful clojure.test functions:
-(doseq [f '[run-all-tests run-tests
-            test-all-vars test-ns test-var test-vars
-            with-test]]
+(doseq [f '[#?@(:clj [run-all-tests run-tests test-all-vars test-ns with-test])
+            test-var test-vars]]
   (from-clojure-test f))
+
+; For testing expectations itself in cljs
+#?(:cljs (s/def ::small-value (s/and pos-int? #(< % 100))))

@@ -23,6 +23,10 @@ and command-line tools.
 Works with Clojure 1.8 and later. Spec expectations are only available on
 Clojure 1.9 and later.
 
+Works in self-hosted Clojurescript (specifically,
+[`planck`](https://planck-repl.org)).  See
+[Getting Started with Clojurescript](/doc/getting-started-cljs.md) for details.
+
 You can either use `deftest` from `clojure.test`, or `defexpect` from
 this library to wrap your tests.
 
@@ -243,6 +247,46 @@ do
   clojure -A:test:runner:$v:humane -e :negative
 done
 ```
+
+### Clojurescript testing
+
+The Clojurescript version requires self-hosted Clojurescript (specifically,
+[`planck`](https://planck-repl.org)).  Once you have `planck -h` working,
+you can run the Clojurescript tests with:
+
+```clojure
+clojure -A:cljs-runner -e :negative
+```
+You can run the negative tests as well if you modify one line of `test.cljc`,
+see the comments below the line containing `(def humane-test-output?`.
+
+#### Clojurescript REPL
+
+It can be handy to try things in a REPL.  You can run a REPL for Clojurescript
+by doing:
+```clojure
+$ planck --compile-opts planckopts.edn -c `clj -A:humane -Spath` -r
+ClojureScript 1.10.520
+cljs.user=> (require '[expectations.clojure.test :refer-macros [defexpect expect]])
+nil
+cljs.user=> (defexpect a (expect number? 1))
+#'cljs.user/a
+cljs.user=> (a)
+nil
+cljs.user=> (defexpect a (expect number? :b))
+#'cljs.user/a
+cljs.user=> (a)
+
+FAIL in (a) (run_block@file:44:173)
+
+
+expected: (=? number? :b)
+  actual: (not (number? :b))
+nil
+cljs.user=>
+```
+This will set you up with `defexpect` and `expect`.  Add others as required.
+
 
 ## License & Copyright
 
