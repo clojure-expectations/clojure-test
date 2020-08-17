@@ -11,7 +11,7 @@
                  :sha "f7ef16dc3b8332b0d77bc0274578ad5270fbfedd"}}
    :main-opts ["-m" "cognitect.test-runner"
                "-d" "test"]}
-  :cljdoc {:extra-deps {planck {:mvn/version "2.23.0"}}}
+  :cljdoc {:extra-deps {planck/planck {:mvn/version "2.23.0"}}}
   :cljs-runner
     {:extra-deps {olical/cljs-test-runner {:mvn/version "3.7.0"},
 		  pjstadig/humane-test-output {:mvn/version "0.10.0"}},
