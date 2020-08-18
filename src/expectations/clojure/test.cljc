@@ -12,8 +12,9 @@
             #?(:clj [clojure.test :as t]
                :cljs [cljs.test :include-macros true :as t])
             #?(:cljs [cljs.spec.alpha :as s])
-            #?@(:cljs [pjstadig.humane-test-output pjstadig.util
-                       pjstadig.print])))
+            #?@(:cljs [pjstadig.humane-test-output
+                       pjstadig.print
+                       pjstadig.util])))
 
 (def humane-test-output?
   "If Humane Test Output is available, activate it, and enable compatibility
@@ -115,7 +116,9 @@
   [& expecteds]
   (bad-usage "more"))
 
-(defn ^:no-doc spec? [e]
+(defn ^:no-doc spec?
+  "Detects whether an expected expression seems to be a Spec."
+  [e]
   (and (keyword? e)
        #?(:clj (try (require 'clojure.spec.alpha)
                     (when-let [get-spec (resolve 'clojure.spec.alpha/get-spec)]
@@ -296,11 +299,11 @@
                        (t/is (~'=? e# submap# '~form) ~msg'))
                      (throw (#?(:clj IllegalArgumentException.
                                 :cljs js/Error.)
-                       "'in' requires map or sequence"))))
+                             "'in' requires map or sequence"))))
                  :else
                  (throw (#?(:clj IllegalArgumentException.
                             :cljs js/Error.)
-                   "'in' requires map or sequence")))))
+                         "'in' requires map or sequence")))))
 
       (and (sequential? e) (= 'more (first e)))
       (let [es (mapv (fn [e] `(expect ~e ~a ~msg ~ex? ~e')) (rest e))]
@@ -455,36 +458,36 @@
        (t/is (= e-val a-val) (difference-fn e-val a-val))))))
 
 #?(:clj (defn use-fixtures
-  "Wrap test runs in a fixture function to perform setup and
+         "Wrap test runs in a fixture function to perform setup and
   teardown. Using a fixture-type of `:each` wraps every test
   individually, while `:once` wraps the whole run in a single function.
 
   Like `cljs.test/use-fixtures`, also accepts hash maps with `:before`
   and/or `:after` keys that specify 0-arity functions to invoke
   before/after the test/run."
-  [fixture-type & fs]
-  (apply t/use-fixtures fixture-type
-         (map (fn [f]
-                (if (map? f)
-                  (fn [t]
-                    (when-let [before (:before f)]
-                      (before))
-                    (t)
-                    (when-let [after (:after f)]
-                      (after)))
-                  f))
-              fs))))
+         [fixture-type & fs]
+         (apply t/use-fixtures fixture-type
+                (map (fn [f]
+                       (if (map? f)
+                         (fn [t]
+                           (when-let [before (:before f)]
+                             (before))
+                           (t)
+                           (when-let [after (:after f)]
+                             (after)))
+                         f))
+                     fs))))
 
 #?(:cljs (defmacro use-fixtures
-  "Wrap test runs in a fixture function to perform setup and
+          "Wrap test runs in a fixture function to perform setup and
   teardown. Using a fixture-type of `:each` wraps every test
   individually, while `:once` wraps the whole run in a single function.
 
   Hands off to `cljs.test/use-fixtures`, also accepts hash maps with `:before`
   and/or `:after` keys that specify 0-arity functions to invoke
   before/after the test/run."
-  [fixture-type & fs]
-  `(cljs.test/use-fixtures ~fixture-type ~@fs)))
+          [fixture-type & fs]
+          `(cljs.test/use-fixtures ~fixture-type ~@fs)))
 
 (defn from-clojure-test
   "Intern the specified symbol from `clojure.test` as a symbol in

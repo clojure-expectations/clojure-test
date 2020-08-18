@@ -4,7 +4,7 @@
   "Macros to support testing the testing framework."
   (:require #?(:clj [clojure.test :refer [is do-report] :as t]
                :cljs [cljs.test :refer [do-report assert-expr]
-				:refer-macros [is assert-expr] :as t])
+                      :refer-macros [is assert-expr] :as t])
             #?(:cljs [cljs.spec.alpha :as s])
             #?(:clj [expectations.clojure.test :as sut]
                :cljs [expectations.clojure.test :include-macros true :as sut])))
@@ -16,11 +16,11 @@
      (with-redefs [do-report (sut/all-report results#)]
        ~expectation)
      (t/is (some (fn [fail#]
-                 (= '~failure (:actual fail#)))
+                  (= '~failure (:actual fail#)))
                (:fail @results#)))
      (when ~msg
        (t/is (some (fn [fail#]
-                   (re-find ~msg (:message fail#)))
+                    (re-find ~msg (:message fail#)))
                  (:fail @results#))))))
 
 (defmacro is-not
@@ -30,11 +30,11 @@
      (with-redefs [do-report (sut/all-report results#)]
        ~expectation)
      (t/is (some (fn [fail#]
-                 (= ~failure (:actual fail#)))
+                  (= ~failure (:actual fail#)))
                (:fail @results#)))
      (when ~msg
        (t/is (some (fn [fail#]
-                   (re-find ~msg (:message fail#)))
+                    (re-find ~msg (:message fail#)))
                  (:fail @results#))))))
 
 (defmacro passes
@@ -47,6 +47,5 @@
      (with-redefs [do-report (sut/all-report results#)]
        ~expectation)
      (t/is (some (fn [pass#]
-                 (~success (:actual pass#)))
+                  (~success (:actual pass#)))
                (:pass @results#)))))
-

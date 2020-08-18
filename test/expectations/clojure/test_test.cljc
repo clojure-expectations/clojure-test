@@ -9,19 +9,19 @@
             #?(:clj [expectations.clojure.test-macros :refer
                      [is-not' is-not passes]]
                :cljs [expectations.clojure.test-macros
-		       :refer-macros [is-not' is-not passes]])
+                      :refer-macros [is-not' is-not passes]])
 
             #?(:clj [clojure.test :refer [deftest is do-report testing]]
                :cljs [cljs.test :include-macros true
-	                        :refer [do-report assert-expr]
-				:refer-macros [deftest is testing assert-expr
-				               use-fixtures]])
+                          :refer [do-report assert-expr]
+                      :refer-macros [deftest is testing assert-expr
+                                         use-fixtures]])
             #?(:cljs [cljs.spec.alpha :as s])
             #?(:clj [expectations.clojure.test :refer
                      [from-each in more more-of] :as sut]
                :cljs [expectations.clojure.test
-	               :include-macros true
-		       :as sut])))
+                      :include-macros true
+                      :as sut])))
 
 ; The macros are in test_macros.cljc to support Clojurescript.
 
@@ -59,12 +59,12 @@
   #_(is-not' (sut/expect #"fool" "It's foobar!") (not (re-find #"fool" "It's foobar!"))))
 
 #?(:clj (deftest exception-test
-  (passes (sut/expect ArithmeticException (/ 12 0))
-          (fn [ex]
-            (let [t (Throwable->map ex)]
-              (and (= "Divide by zero" (-> t :cause))
-                   (or (= 'java.lang.ArithmeticException (-> t :via first :type))
-                       (= java.lang.ArithmeticException (-> t :via first :type))))))))
+         (passes (sut/expect ArithmeticException (/ 12 0))
+                 (fn [ex]
+                   (let [t (Throwable->map ex)]
+                     (and (= "Divide by zero" (-> t :cause))
+                          (or (= 'java.lang.ArithmeticException (-> t :via first :type))
+                              (= java.lang.ArithmeticException (-> t :via first :type))))))))
 
    :cljs (deftest cljs-exception-test
            (passes (sut/expect js/Error (throw (ex-info "foo" {})))
@@ -72,27 +72,27 @@
                      (let [t (cljs.repl/Error->map ex)]
                        (and (= "foo"
                                (-> t :cause)) (or (= 'ExceptionInfo
-                                   (->> t :via first :type))
-                                (= ExceptionInfo
-                                   (->> t :via first :type)))))))))
+                                                   (->> t :via first :type))
+                                               (= ExceptionInfo
+                                                  (->> t :via first :type)))))))))
 
 #?(:clj (deftest class-test
-  (is (sut/expect String (name :foo)))
-  (is-not (sut/expect String :foo) clojure.lang.Keyword)))
+         (is (sut/expect String (name :foo)))
+         (is-not (sut/expect String :foo) clojure.lang.Keyword)))
 
 #?(:cljs (deftest class-test
            (is (sut/expect cljs.core/List '(a b c)))
            (is-not (sut/expect cljs.core/List :foo) cljs.core/Keyword)))
 
 #?(:clj (try
-  (eval '(do
-           (require '[clojure.spec.alpha :as s])
-           (s/def :small/value (s/and pos-int? #(< % 100)))
-           (deftest spec-test
-             (is (sut/expect :small/value (* 13 4)))
-             (is-not' (sut/expect :small/value (* 13 40)) (not (=? :small/value 520))))))
-  (catch Throwable _
-    (println "\nOmitting Spec tests for Clojure" (clojure-version)))))
+         (eval '(do
+                  (require '[clojure.spec.alpha :as s])
+                  (s/def :small/value (s/and pos-int? #(< % 100)))
+                  (deftest spec-test
+                    (is (sut/expect :small/value (* 13 4)))
+                    (is-not' (sut/expect :small/value (* 13 40)) (not (=? :small/value 520))))))
+         (catch Throwable _
+           (println "\nOmitting Spec tests for Clojure" (clojure-version)))))
 
 ; Note :expectations.clojure.test/small-value is defined at the end of
 ; expectations.clojure.test/test.cljc for cljs testing.  Defining it here
@@ -148,17 +148,17 @@
 
 ; There is no cljs.test/with-test
 #?(:clj (sut/with-test
-  (defn definition-test
-    "Make sure expectations work with clojure.test/with-test."
-    [a b c]
-    (swap! d-t-counter inc)
-    (* a b c))
-  (println "\nRunning inline tests")
-  (reset! d-t-counter 0)
-  (is (= 0 @d-t-counter))
-  (sut/expect 1 (definition-test 1 1 1))
-  (sut/expect 6 (definition-test 1 2 3))
-  (is (= 2 @d-t-counter))))
+         (defn definition-test
+           "Make sure expectations work with clojure.test/with-test."
+           [a b c]
+           (swap! d-t-counter inc)
+           (* a b c))
+         (println "\nRunning inline tests")
+         (reset! d-t-counter 0)
+         (is (= 0 @d-t-counter))
+         (sut/expect 1 (definition-test 1 1 1))
+         (sut/expect 6 (definition-test 1 2 3))
+         (is (= 2 @d-t-counter))))
 
 ;; these would be failing tests in 1.x but not in 2.x:
 (sut/defexpect deftest-equivalence-0)
