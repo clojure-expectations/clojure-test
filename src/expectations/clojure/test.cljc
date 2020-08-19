@@ -121,9 +121,9 @@
   [e]
   (and (keyword? e)
        #?(:clj (try (require 'clojure.spec.alpha)
-                    (when-let [get-spec (resolve 'clojure.spec.alpha/get-spec)]
-                      (boolean (get-spec e)))
-                    (catch Throwable _))
+                 (when-let [get-spec (resolve 'clojure.spec.alpha/get-spec)]
+                   (boolean (get-spec e)))
+                 (catch Throwable _))
           :cljs (boolean (s/get-spec e)))))
 
 (defn str-match
@@ -148,9 +148,9 @@
   [a b in-both]
   (str "matches: " (pr-str in-both)
        "\n>>>  expected diverges: " (pr-str
-                                      (clojure.string/replace a in-both ""))
+                                     (clojure.string/replace a in-both ""))
        "\n>>>    actual diverges: " (pr-str
-                                      (clojure.string/replace b in-both ""))))
+                                     (clojure.string/replace b in-both ""))))
 
 ;; smart equality extension to clojure.test assertion -- if the expected form
 ;; is a predicate (function) then the assertion is equivalent to (is (e a))
@@ -182,34 +182,34 @@
                        :expected '~form, :actual (if (fn? e#)
                                                    (list '~e a#)
                                                    a#)})
-	 (t/do-report
-           (let [[_# _# in-both# :as diff-vec#]
-                   (when (and (string? e#) (string? a#)) (str-diff e# a#))]
-             {:type :fail,
-              :message (if ~conform?
-                         (if ~msg
-                           (str ~msg "\n" (explain-str?# e# a#))
-                           (explain-str?# e# a#))
-                         (if diff-vec#
-			   ; Both e# an a# are strings, put a nice
-			   ; comparison in the msg.
-                           (str ~msg "\n" (str-msg e# a# in-both#) "\n")
-                           ~msg)),
-                       :diffs (if humane?#
-                                [[a# (take 2 (data/diff e# a#))]]
-                                [])
-                       :expected (cond humane?#
-                                       e#
-                                       ~form'
-                                       ~form'
-                                       :else
-                                       '~form)
-                       :actual (cond (fn? e#)
-                                     (list '~'not (list '~e a#))
-                                     humane?#
-                                     [a#]
-                                     :else
-                                     (list '~'not (list '~'=? e# a#)))})))
+         (t/do-report
+          (let [[_# _# in-both# :as diff-vec#]
+                (when (and (string? e#) (string? a#)) (str-diff e# a#))]
+            {:type :fail,
+             :message (if ~conform?
+                        (if ~msg
+                          (str ~msg "\n" (explain-str?# e# a#))
+                          (explain-str?# e# a#))
+                        (if diff-vec#
+                          ; Both e# an a# are strings, put a nice
+                          ; comparison in the msg.
+                          (str ~msg "\n" (str-msg e# a# in-both#) "\n")
+                          ~msg)),
+             :diffs (if humane?#
+                      [[a# (take 2 (data/diff e# a#))]]
+                      [])
+             :expected (cond humane?#
+                             e#
+                             ~form'
+                             ~form'
+                             :else
+                             '~form)
+             :actual (cond (fn? e#)
+                           (list '~'not (list '~e a#))
+                           humane?#
+                           [a#]
+                           :else
+                           (list '~'not (list '~'=? e# a#)))})))
        r#)))
 
 (defmacro ^:no-doc ?
@@ -280,8 +280,8 @@
                   (conj ~msg)
                   ~(not= e e')
                   (conj (str "  within: " ~within))
-                  :else 
-		  (conj (str (pr-str '~a) "\n"))))]
+                  :else
+                  (conj (str (pr-str '~a) "\n"))))]
      (cond
       (and (sequential? a) (= 'from-each (first a)))
       (let [[_ bindings & body] a]
@@ -334,11 +334,11 @@
                        (t/is (~'=? e# submap# '~form) ~msg'))
                      (throw (#?(:clj IllegalArgumentException.
                                 :cljs js/Error.)
-                             "'in' requires map or sequence"))))
+                              "'in' requires map or sequence"))))
                  :else
                  (throw (#?(:clj IllegalArgumentException.
                             :cljs js/Error.)
-                         "'in' requires map or sequence")))))
+                          "'in' requires map or sequence")))))
 
       (and (sequential? e) (= 'more (first e)))
       (let [es (mapv (fn [e] `(expect ~e ~a ~msg ~ex? ~e')) (rest e))]
@@ -378,8 +378,8 @@
                  `(t/is (~'instance? ~e ~a) ~msg')))
 
       (isa? (type e)
-        #?(:clj java.util.regex.Pattern
-           :cljs (type #"regex")))
+            #?(:clj java.util.regex.Pattern
+               :cljs (type #"regex")))
       `(t/is (re-find ~e ~a) ~msg')
 
       :else
@@ -436,7 +436,7 @@
   (when-not (vector? fn-vec)
     (throw (#?(:clj IllegalArgumentException.
                :cljs js/Error.)
-            "side-effects requires a vector as its first argument")))
+             "side-effects requires a vector as its first argument")))
   (let [mocks (reduce (fn [m f-spec]
                         (if (vector? f-spec)
                           (assoc m (first f-spec) (second f-spec))
