@@ -126,6 +126,32 @@
                     (catch Throwable _))
           :cljs (boolean (s/get-spec e)))))
 
+(defn str-match
+  "Returns the match off of the beginning of two strings."
+  [a b]
+  (loop [a-seq (seq a)
+         b-seq (seq b)
+         match 0]
+    (if (= (first a-seq) (first b-seq))
+      (recur (next a-seq) (next b-seq) (inc match))
+      (subs a 0 match))))
+
+(defn str-diff
+  "Returns three strings [only-in-a only-in-b in-both]"
+  [a b]
+  (let [match (str-match a b)
+        match-len (count match)]
+    [(subs a match-len) (subs b match-len) match]))
+
+(defn str-msg
+  "Given output from str-diff, produce a message about the difference."
+  [a b in-both]
+  (str "matches: " (pr-str in-both)
+       "\n>>>  expected diverges: " (pr-str
+                                      (clojure.string/replace a in-both ""))
+       "\n>>>    actual diverges: " (pr-str
+                                      (clojure.string/replace b in-both ""))))
+
 ;; smart equality extension to clojure.test assertion -- if the expected form
 ;; is a predicate (function) then the assertion is equivalent to (is (e a))
 ;; rather than (is (= e a)) and we need the type check done at runtime, not
@@ -156,12 +182,19 @@
                        :expected '~form, :actual (if (fn? e#)
                                                    (list '~e a#)
                                                    a#)})
-         (t/do-report {:type :fail, :message (if ~conform?
-                                               (if ~msg
-                                                 (str ~msg "\n"
-                                                      (explain-str?# e# a#))
-                                                 (explain-str?# e# a#))
-                                               ~msg)
+	 (t/do-report
+           (let [[_# _# in-both# :as diff-vec#]
+                   (when (and (string? e#) (string? a#)) (str-diff e# a#))]
+             {:type :fail,
+              :message (if ~conform?
+                         (if ~msg
+                           (str ~msg "\n" (explain-str?# e# a#))
+                           (explain-str?# e# a#))
+                         (if diff-vec#
+			   ; Both e# an a# are strings, put a nice
+			   ; comparison in the msg.
+                           (str ~msg "\n" (str-msg e# a# in-both#) "\n")
+                           ~msg)),
                        :diffs (if humane?#
                                 [[a# (take 2 (data/diff e# a#))]]
                                 [])
@@ -176,7 +209,7 @@
                                      humane?#
                                      [a#]
                                      :else
-                                     (list '~'not (list '~'=? e# a#)))}))
+                                     (list '~'not (list '~'=? e# a#)))})))
        r#)))
 
 (defmacro ^:no-doc ?
@@ -246,7 +279,9 @@
                   ~msg
                   (conj ~msg)
                   ~(not= e e')
-                  (conj (str "  within: " ~within))))]
+                  (conj (str "  within: " ~within))
+                  :else 
+		  (conj (str (pr-str '~a) "\n"))))]
      (cond
       (and (sequential? a) (= 'from-each (first a)))
       (let [[_ bindings & body] a]
