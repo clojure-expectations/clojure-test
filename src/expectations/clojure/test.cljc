@@ -183,7 +183,7 @@
                                                    (list '~e a#)
                                                    a#)})
 	 (t/do-report
-           (let [[_ _ in-both# :as diff-vec#]
+           (let [[_# _# in-both# :as diff-vec#]
                    (when (and (string? e#) (string? a#)) (str-diff e# a#))]
              {:type :fail,
               :message (if ~conform?
@@ -279,7 +279,9 @@
                   ~msg
                   (conj ~msg)
                   ~(not= e e')
-                  (conj (str "  within: " ~within))))]
+                  (conj (str "  within: " ~within))
+                  :else 
+		  (conj (str (pr-str '~a) "\n"))))]
      (cond
       (and (sequential? a) (= 'from-each (first a)))
       (let [[_ bindings & body] a]
