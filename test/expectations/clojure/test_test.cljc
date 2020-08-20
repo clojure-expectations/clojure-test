@@ -17,6 +17,7 @@
                       :refer-macros [deftest is testing assert-expr
                                          use-fixtures]])
             #?(:cljs [cljs.spec.alpha :as s])
+	    #?(:cljs [expectations.clojure.test-spec])
             #?(:clj [expectations.clojure.test :refer
                      [from-each in more more-of] :as sut]
                :cljs [expectations.clojure.test
@@ -94,14 +95,12 @@
          (catch Throwable _
            (println "\nOmitting Spec tests for Clojure" (clojure-version)))))
 
-; Note :expectations.clojure.test/small-value is defined at the end of
-; expectations.clojure.test/test.cljc for cljs testing.  Defining it here
-; does not work.
 #?(:cljs (deftest spec-test
-           (is (sut/expect :expectations.clojure.test/small-value (* 13 4)))
-           (is-not' (sut/expect :expectations.clojure.test/small-value
-                                (* 13 40))
-                    (not (=? :expectations.clojure.test/small-value 520)))))
+           (is (sut/expect :expectations.clojure.test-spec/small-value
+                           (* 13 4)))
+           (is-not'
+             (sut/expect :expectations.clojure.test-spec/small-value (* 13 40))
+             (not (=? :expectations.clojure.test-spec/small-value 520)))))
 
 (deftest collection-test
   (is (sut/expect {:foo 1} (in {:foo 1 :cat 4})))

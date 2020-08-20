@@ -551,6 +551,3 @@
 (doseq [f '[#?@(:clj [run-all-tests run-tests test-all-vars test-ns with-test])
             test-var test-vars]]
   (from-clojure-test f))
-
-; For testing expectations itself in cljs
-#?(:cljs (s/def ::small-value (s/and pos-int? #(< % 100))))
