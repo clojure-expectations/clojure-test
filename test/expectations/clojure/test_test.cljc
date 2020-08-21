@@ -173,3 +173,25 @@
     (is-not' (control-test-1) (not (zero? 1)))
     (finally
       (reset! control 0))))
+
+; Unit test for string compare routines
+
+(deftest string-test
+  (is (= "abc" (sut/str-match "abcdef" "abcefg")))
+  (is (= ["def" "efg" "abc"] (sut/str-diff "abcdef" "abcefg")))
+  (is (= "matches: \"abc\"\n>>>  expected diverges: \"def\"\n>>>    actual diverges: \"efg\""
+      (sut/str-msg "abcdef" "abcefg" "abc"))))
+
+; Test use of string compare routines as well as actual form in message
+; on failure.  Tests are similar, but cljs one can be run with 
+; humane-test-output while clj one cannot.
+
+#?(:clj (deftest ^:negative string-compare-failure-test
+          (is-not' (sut/expect "abcdef" (str "abc" "efg"))
+                   (not (=? "abcdef" "abcefg"))
+                   #"(?is)(str \"abc\" \"efg\").*matches: \"abc\""))
+   :cljs (deftest string-compare-failure-test
+           (is-not' (sut/expect "abcdef" (str "abc" "efg"))
+                    ["abcefg"]
+                    #"(?is)(str \"abc\" \"efg\").*matches: \"abc\"")))
+
