@@ -126,7 +126,7 @@
                  (catch Throwable _))
           :cljs (boolean (s/get-spec e)))))
 
-(defn str-match
+(defn ^:no-doc str-match
   "Returns the match off of the beginning of two strings."
   [a b]
   (loop [a-seq (seq a)
@@ -136,14 +136,14 @@
       (recur (next a-seq) (next b-seq) (inc match))
       (subs a 0 match))))
 
-(defn str-diff
+(defn ^:no-doc str-diff
   "Returns three strings [only-in-a only-in-b in-both]"
   [a b]
   (let [match (str-match a b)
         match-len (count match)]
     [(subs a match-len) (subs b match-len) match]))
 
-(defn str-msg
+(defn ^:no-doc str-msg
   "Given output from str-diff, produce a message about the difference."
   [a b in-both]
   (str "matches: " (pr-str in-both)
@@ -551,6 +551,3 @@
 (doseq [f '[#?@(:clj [run-all-tests run-tests test-all-vars test-ns with-test])
             test-var test-vars]]
   (from-clojure-test f))
-
-; For testing expectations itself in cljs
-#?(:cljs (s/def ::small-value (s/and pos-int? #(< % 100))))
