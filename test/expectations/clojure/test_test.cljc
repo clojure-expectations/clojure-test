@@ -17,7 +17,7 @@
                       :refer-macros [deftest is testing assert-expr
                                          use-fixtures]])
             #?(:cljs [cljs.spec.alpha :as s])
-	    #?(:cljs [expectations.clojure.test-spec])
+            #?(:cljs [expectations.clojure.test-spec])
             #?(:clj [expectations.clojure.test :refer
                      [from-each in more more-of] :as sut]
                :cljs [expectations.clojure.test
@@ -180,10 +180,10 @@
   (is (= "abc" (sut/str-match "abcdef" "abcefg")))
   (is (= ["def" "efg" "abc"] (sut/str-diff "abcdef" "abcefg")))
   (is (= "matches: \"abc\"\n>>>  expected diverges: \"def\"\n>>>    actual diverges: \"efg\""
-      (sut/str-msg "abcdef" "abcefg" "abc"))))
+         (sut/str-msg "abcdef" "abcefg" "abc"))))
 
 ; Test use of string compare routines as well as actual form in message
-; on failure.  Tests are similar, but cljs one can be run with 
+; on failure.  Tests are similar, but cljs one can be run with
 ; humane-test-output while clj one cannot.
 
 #?(:clj (deftest ^:negative string-compare-failure-test
@@ -194,4 +194,3 @@
            (is-not' (sut/expect "abcdef" (str "abc" "efg"))
                     ["abcefg"]
                     #"(?is)(str \"abc\" \"efg\").*matches: \"abc\"")))
-
