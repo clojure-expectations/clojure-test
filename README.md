@@ -265,7 +265,7 @@ see the comments below the line containing `(def humane-test-output?`.
 It can be handy to try things in a REPL.  You can run a REPL for Clojurescript
 by doing:
 ```clojure
-$ planck --compile-opts planckopts.edn -c `clj -A:humane -Spath` -r
+$ planck --compile-opts planckopts.edn -c `clojure -Spath -A:humane` -r
 ClojureScript 1.10.520
 cljs.user=> (require '[expectations.clojure.test :refer-macros [defexpect expect]])
 nil
