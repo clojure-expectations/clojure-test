@@ -192,7 +192,7 @@ Of course, you can also update the `:test` alias to add those new options into `
     com.cognitect/test-runner
     {:git/url "https://github.com/cognitect-labs/test-runner.git"
      ;; as at the time of writing -- check the test-runner repo for the latest:
-     :sha "f7ef16dc3b8332b0d77bc0274578ad5270fbfedd"}}
+     :sha "b6b3193fcc42659d7e46ecd1884a228993441182"}}
    :main-opts ["-m" "cognitect.test-runner"
                "-d" "src" "-d" "test" "-r" ".*"]}}}
 ```
@@ -210,7 +210,7 @@ Note that you'll need both `src` _and_ `test` directories if you want `test-runn
     com.cognitect/test-runner
     {:git/url "https://github.com/cognitect-labs/test-runner.git"
      ;; as at the time of writing -- check the test-runner repo for the latest:
-     :sha "f7ef16dc3b8332b0d77bc0274578ad5270fbfedd"}}
+     :sha "b6b3193fcc42659d7e46ecd1884a228993441182"}}
    :main-opts ["-m" "cognitect.test-runner"
                "-d" "src" "-d" "test" "-r" ".*"]}}}
 ```
