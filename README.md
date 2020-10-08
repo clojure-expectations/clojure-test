@@ -228,14 +228,14 @@ to be aware of:
 
 ## Test & Development
 
-To test, run `clj -A:test:runner` (tests against Clojure 1.8).
+To test, run `clj -M:test:runner` (tests against Clojure 1.8).
 
 Multi-version testing:
 
 ```
 for v in 1.8 1.9 1.10
 do
-  clojure -A:test:runner:$v
+  clojure -M:test:runner:$v
 done
 ```
 
@@ -244,7 +244,7 @@ You can also run the tests with Humane Test Output enabled but you need to exclu
 ```
 for v in 1.8 1.9 1.10
 do
-  clojure -A:test:runner:$v:humane -e :negative
+  clojure -M:test:runner:$v:humane -e :negative
 done
 ```
 
@@ -255,7 +255,7 @@ The Clojurescript version requires self-hosted Clojurescript (specifically,
 you can run the Clojurescript tests with:
 
 ```clojure
-clojure -A:cljs-runner -e :negative
+clojure -M:cljs-runner -e :negative
 ```
 You can run the negative tests as well if you modify one line of `test.cljc`,
 see the comments below the line containing `(def humane-test-output?`.

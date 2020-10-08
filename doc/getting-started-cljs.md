@@ -43,7 +43,7 @@ You will need two small `.edn` files in your project:
 To run the tests, you run:
 
 ```
-clj -A:cljs-runner
+clj -M:cljs-runner
 ```
 
 These tests will take a good while longer to run than the same tests
