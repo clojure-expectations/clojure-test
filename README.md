@@ -228,14 +228,14 @@ to be aware of:
 
 ## Test & Development
 
-To test, run `clj -M:test:runner` (tests against Clojure 1.8).
+To test, run `clj -X:test:runner` (tests against Clojure 1.8).
 
 Multi-version testing:
 
 ```
 for v in 1.8 1.9 1.10
 do
-  clojure -M:test:runner:$v
+  clojure -X:test:runner:$v
 done
 ```
 
@@ -244,7 +244,7 @@ You can also run the tests with Humane Test Output enabled but you need to exclu
 ```
 for v in 1.8 1.9 1.10
 do
-  clojure -M:test:runner:$v:humane -e :negative
+  clojure -X:test:runner:$v:humane -e :negative
 done
 ```
 

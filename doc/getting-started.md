@@ -114,7 +114,7 @@ This assumes you are using the [CLI and `deps.edn`](https://clojure.org/guides/d
 > clojure -M:test
 ```
 
-> I recommend having separate `:test` and `:runner` aliases -- the former with `:extra-paths` for your `test` folder tree and any `:extra-deps` needed by your tests themselves; the latter with `:extra-deps` for the test runner and `:main-opts` to actually invoke it. That makes it easier to work with other tooling and be able to use `-M:test` to bring in your tests and dependencies without actually running them (and `-M:test:runner` to actually run them). The alternative is remembering to use `-R:test` to bring in tests and dependencies without running them (and either add `-M:test` to run them or switch to `-M:test`).
+> I recommend having separate `:test` and `:runner` aliases -- the former with `:extra-paths` for your `test` folder tree and any `:extra-deps` needed by your tests themselves; the latter with `:extra-deps` for the test runner and `:exec-fn` to actually invoke it. That makes it easier to work with other tooling and be able to use `-M:test` to bring in your tests and dependencies without actually running them (and `-X:test:runner` to actually run them). The alternative is remembering to use `-R:test` to bring in tests and dependencies without running them (and either add `-M:test` to run them or switch to `-M:test`).
 
 ### Leiningen
 
@@ -189,12 +189,12 @@ Of course, you can also update the `:test` alias to add those new options into `
   {:extra-paths ["test"]
    :extra-deps
    {expectations/clojure-test {:mvn/version "1.2.1"}
-    com.cognitect/test-runner
-    {:git/url "https://github.com/cognitect-labs/test-runner.git"
-     ;; as at the time of writing -- check the test-runner repo for the latest:
-     :sha "b6b3193fcc42659d7e46ecd1884a228993441182"}}
-   :main-opts ["-m" "cognitect.test-runner"
-               "-d" "src" "-d" "test" "-r" ".*"]}}}
+    io.github.cognitect-labs/test-runner
+                {:git/url "https://github.com/cognitect-labs/test-runner"
+                 :sha "2d69f33d7980c3353b246c28f72ffeafbd9f2fab"}}
+   :exec-fn cognitect.test-runner.api/test
+   :exec-args {:dirs ["src" "test"]
+               :patterns [".*"]}}}}
 ```
 
 Note that you'll need both `src` _and_ `test` directories if you want `test-runner` to look in both places.
@@ -207,12 +207,12 @@ Note that you'll need both `src` _and_ `test` directories if you want `test-runn
   :runner
   {:extra-deps
    {expectations/clojure-test {:mvn/version "1.2.1"}
-    com.cognitect/test-runner
-    {:git/url "https://github.com/cognitect-labs/test-runner.git"
-     ;; as at the time of writing -- check the test-runner repo for the latest:
-     :sha "b6b3193fcc42659d7e46ecd1884a228993441182"}}
-   :main-opts ["-m" "cognitect.test-runner"
-               "-d" "src" "-d" "test" "-r" ".*"]}}}
+    io.github.cognitect-labs/test-runner
+                {:git/url "https://github.com/cognitect-labs/test-runner"
+                 :sha "2d69f33d7980c3353b246c28f72ffeafbd9f2fab"}}
+   :exec-fn cognitect.test-runner.api/test
+   :exec-args {:dirs ["src" "test"]
+               :patterns [".*"]}}}}
 ```
 
 ## Expecting Specs

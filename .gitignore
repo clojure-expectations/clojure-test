@@ -1,4 +1,5 @@
 .cpcache
 .clj-kondo/.cache
+/.lsp/sqlite.db
 *.jar
 cljs-test-runner-out

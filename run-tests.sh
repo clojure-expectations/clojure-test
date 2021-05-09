@@ -1,12 +1,12 @@
 #!/bin/sh
-for v in 8 9 10
+for v in 9 10
 do
-	clojure -M:1.${v}:test:runner
+	clojure -X:1.${v}:test:runner
 	if test $? -ne 0
 	then
 		exit 1
 	fi
-	clojure -M:1.${v}:test:humane:runner -e :negative
+	clojure -X:1.${v}:test:humane:runner -e :negative
 	if test $? -ne 0
 	then
 		exit 1
