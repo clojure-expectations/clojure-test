@@ -1,7 +1,7 @@
 {:deps {org.clojure/clojure {:mvn/version "1.9.0"}}
  :aliases
  {:1.9 {:override-deps {org.clojure/clojure {:mvn/version "1.9.0"}}}
-  :1.10 {:override-deps {org.clojure/clojure {:mvn/version "1.10.1"}}}
+  :1.10 {:override-deps {org.clojure/clojure {:mvn/version "1.10.3"}}}
   :test {:extra-paths ["test"]}
   :humane {:extra-deps {pjstadig/humane-test-output {:mvn/version "RELEASE"}}}
   :runner
@@ -9,16 +9,19 @@
                 {:git/url "https://github.com/cognitect-labs/test-runner"
                  :sha "2d69f33d7980c3353b246c28f72ffeafbd9f2fab"}}
    :exec-fn cognitect.test-runner.api/test}
-  :cljdoc {:extra-deps {planck/planck {:mvn/version "2.23.0"}}}
+  :cljdoc {:extra-deps {planck/planck {:mvn/version "2.25.0"}}}
   :cljs-runner
-  {:extra-deps {olical/cljs-test-runner {:mvn/version "3.7.0"},
-                pjstadig/humane-test-output {:mvn/version "0.10.0"}},
-   :extra-paths ["src" "test" "cljs-test-runner-out/gen"],
+  {:extra-deps {olical/cljs-test-runner {:mvn/version "3.8.0"}
+                pjstadig/humane-test-output {:mvn/version "0.11.0"}}
+   :extra-paths ["src" "test" "cljs-test-runner-out/gen"]
    :main-opts ["-m" "cljs-test-runner.main" "--doo-opts"
                "dooopts.edn" "-x" "planck"]}
-  :jar
-  {:extra-deps {seancorfield/depstar {:mvn/version "1.1.132"}}
-   :main-opts ["-m" "hf.depstar.jar" "expectations.jar"]}
-  :deploy
-  {:extra-deps {slipset/deps-deploy {:mvn/version "0.1.1"}}
-   :main-opts ["-m" "deps-deploy.deps-deploy" "deploy" "expectations.jar"]}}}
+  :jar {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.0.216"}}
+        :exec-fn hf.depstar/jar
+        :exec-args {:jar "expectations.jar" :sync-pom true}}
+  :install {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
+            :exec-fn deps-deploy.deps-deploy/deploy
+            :exec-args {:installer :local :artifact "expectations.jar"}}
+  :deploy {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
+           :exec-fn deps-deploy.deps-deploy/deploy
+           :exec-args {:installer :remote :artifact "expectations.jar"}}}}

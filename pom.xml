@@ -28,19 +28,7 @@
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
-      <version>1.8.0</version>
-    </dependency>
-    <dependency>
-      <groupId>pjstadig</groupId>
-      <artifactId>humane-test-output</artifactId>
-      <version>0.10.0</version>
-      <scope>provided</scope>
-    </dependency>
-    <dependency>
-      <groupId>planck</groupId>
-      <artifactId>planck</artifactId>
-      <version>2.23.0</version>
-      <scope>provided</scope>
+      <version>1.9.0</version>
     </dependency>
   </dependencies>
   <build>
@@ -50,10 +38,6 @@
     <repository>
       <id>clojars</id>
       <url>https://repo.clojars.org/</url>
-    </repository>
-    <repository>
-      <id>sonatype</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
     </repository>
   </repositories>
   <distributionManagement>
