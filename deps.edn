@@ -1,7 +1,6 @@
-{:deps {org.clojure/clojure {:mvn/version "1.8.0"}}
+{:deps {org.clojure/clojure {:mvn/version "1.9.0"}}
  :aliases
- {:1.8 {:override-deps {org.clojure/clojure {:mvn/version "1.8.0"}}}
-  :1.9 {:override-deps {org.clojure/clojure {:mvn/version "1.9.0"}}}
+ {:1.9 {:override-deps {org.clojure/clojure {:mvn/version "1.9.0"}}}
   :1.10 {:override-deps {org.clojure/clojure {:mvn/version "1.10.1"}}}
   :test {:extra-paths ["test"]}
   :humane {:extra-deps {pjstadig/humane-test-output {:mvn/version "RELEASE"}}}

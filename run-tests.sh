@@ -6,7 +6,7 @@ do
 	then
 		exit 1
 	fi
-	clojure -X:1.${v}:test:humane:runner -e :negative
+	clojure -X:1.${v}:test:humane:runner :excludes '[:negative]'
 	if test $? -ne 0
 	then
 		exit 1
@@ -14,7 +14,7 @@ do
 done
 if test "$1" != "clj-only"
 then
-	clojure -M:test:cljs-runner -e :negative
+	clojure -M:test:cljs-runner :excludes '[:negative]'
 	if test $? -ne 0
 	then
 		exit 1

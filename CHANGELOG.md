@@ -1,9 +1,9 @@
 # Version 2.0.0 in progress
 
-> NOTE: The dependency name will change from `expectations/clojure-test` to `expectations/cljc-test` to reflect support for ClojureScript (via `planck`) and that `doo` filters out JAR artifacts that begin `clojure-` for self-hosted ClojureScript environments (i.e., `planck`).
+> NOTE: The dependency name will change from `expectations/clojure-test` to something still to be determined. Clojars has introduced a [Verified Group Names policy](https://github.com/clojars/clojars-web/wiki/Verified-Group-Names) which means no new libraries can be pushed to the `expectations` group, and because `doo` filters out JAR artifacts that begin `clojure-` for self-hosted ClojureScript environments (i.e., `planck`), continuing to use `clojure-test` for the artifact name is not viable.
 
 * Make `(defexpect foo)` and `(defexpect foo (bar))` match the behavior of `deftest`, without wrapping the body in `(expect ,,,)`. This is potentially breaking insofar as `(defexpect foo (produces-falsey))` would have been a failing test in 1.x but now silently just runs `(produces-falsey)` in the same way that `(deftest foo (produces-falsey))` does.
-* Bring several test-running functions from `clojure.test` in, for convenience in dev/test so users don't need to require `clojure.test` as well.
+* Bring in several test-running functions from `clojure.test`, for convenience in dev/test so users don't need to require `clojure.test` as well.
 * Implement `cljs.test`'s version of `use-fixtures`: accepts functions or hash maps (containing `:before` and/or `:after` keys with 0-arity functions).
 * Add various macro-like constructs back into the documentation to improve the documentation (`in`, `from-each`, `more-of`, `more->`, `more` are really only syntactic constructs inside `expect`).
 * Support ClojureScript via `planck` -- see https://github.com/clojure-expectations/clojure-test/pull/16 for details (@kkinear).

@@ -228,12 +228,12 @@ to be aware of:
 
 ## Test & Development
 
-To test, run `clj -X:test:runner` (tests against Clojure 1.8).
+To test, run `clj -X:test:runner` (tests against Clojure 1.9).
 
 Multi-version testing:
 
 ```
-for v in 1.8 1.9 1.10
+for v in 1.9 1.10
 do
   clojure -X:test:runner:$v
 done
@@ -242,9 +242,9 @@ done
 You can also run the tests with Humane Test Output enabled but you need to exclude the negative tests because they assume things about the test report data that HTO modifies:
 
 ```
-for v in 1.8 1.9 1.10
+for v in 1.9 1.10
 do
-  clojure -X:test:runner:$v:humane -e :negative
+  clojure -X:test:runner:$v:humane :excludes '[:negative]'
 done
 ```
 
@@ -290,6 +290,6 @@ This will set you up with `defexpect` and `expect`.  Add others as required.
 
 ## License & Copyright
 
-Copyright © 2018-2020 Sean Corfield, all rights reserved.
+Copyright © 2018-2021 Sean Corfield, all rights reserved.
 
 Distributed under the Eclipse Public License version 1.0.

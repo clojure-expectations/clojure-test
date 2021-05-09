@@ -84,7 +84,7 @@ Here's an example that sets up a database connection pool for use across the who
   (expect {:membership/status "active"}
           (in (sut/lookup-membership *con* test-user))))
 
-;; lots more tests that use *con*          
+;; lots more tests that use *con*
 ```
 
 When the tests in this namespace are run, the underlying `clojure.test` machinery
@@ -141,19 +141,19 @@ The test suite for this library annotates some of the negative tests so that the
 `^:negative` is a simple piece of metadata added to `not-collection-test` so that tests can be run like this:
 
 ```bash
-> clojure -M:test:runner:humane -e :negative
+> clojure -X:test:runner:humane :excludes '[:negative]'
 ```
 
 By contrast, this runs all the tests (without Humane Test Output enabled):
 
 ```bash
-> clojure -M:test:runner
+> clojure -X:test:runner
 ```
 
-Cognitect's `test-runner` also has a `-i` option to include only tests marked with specific metadata:
+Cognitect's `test-runner` also has an `:includes` option to include only tests marked with specific metadata:
 
 ```bash
-> clojure -M:test:runner -i :negative
+> clojure -X:test:runner :includes '[:negative]'
 ```
 
 This run's _only_ tests marked as being `^:negative`.
