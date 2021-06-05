@@ -1,22 +1,22 @@
-# Getting Started with expectations/clojure-test
+# Getting Started with expectations.clojure.test
 
 This library provides an expressive alternative to [`clojure.test`](http://clojure.github.io/clojure/clojure.test-api.html), based on the syntax of Jay Fields' [Expectations](https://clojure-expectations.github.io/) library, but fully compatible with all the `clojure.test`-based tooling out there: no special plugins or editor modes are needed.
 
 ## Installation
 
-You can add `expectations/clojure-test` to your project with either:
+You can add `expectations.clojure.test` to your project with either:
 
 ```clojure
 ;; add this to :extra-deps under a :test alias:
-expectations/clojure-test {:mvn/version "1.2.1"}
+com.github.seancorfield/expectations {:mvn/version "2.0.0-alpha1"}
 ```
 for `deps.edn` or:
 
 ```clojure
 ;; add this to :dev-dependencies (Leiningen)
-[expectations/clojure-test "1.2.1"]
+[com.github.seancorfield/expectations "2.0.0-alpha1"]
 ;; or add this to :dependencies (Boot)
-[expectations/clojure-test "1.2.1" :scope "test"]
+[com.github.seancorfield/expectations "2.0.0-alpha1" :scope "test"]
 ```
 for `project.clj` or `build.boot`.
 
@@ -188,10 +188,10 @@ Of course, you can also update the `:test` alias to add those new options into `
  {:test
   {:extra-paths ["test"]
    :extra-deps
-   {expectations/clojure-test {:mvn/version "1.2.1"}
+   {com.github.seancorfield/expectations {:mvn/version "2.0.0-alpha1"}
     io.github.cognitect-labs/test-runner
                 {:git/url "https://github.com/cognitect-labs/test-runner"
-                 :sha "2d69f33d7980c3353b246c28f72ffeafbd9f2fab"}}
+                 :sha "62ef1de18e076903374306060ac0e8a752e57c86"}}
    :exec-fn cognitect.test-runner.api/test
    :exec-args {:dirs ["src" "test"]
                :patterns [".*"]}}}}
@@ -206,10 +206,10 @@ Note that you'll need both `src` _and_ `test` directories if you want `test-runn
  {:test {:extra-paths ["test"]}
   :runner
   {:extra-deps
-   {expectations/clojure-test {:mvn/version "1.2.1"}
+   {com.github.seancorfield/expectations {:mvn/version "2.0.0-alpha1"}
     io.github.cognitect-labs/test-runner
                 {:git/url "https://github.com/cognitect-labs/test-runner"
-                 :sha "2d69f33d7980c3353b246c28f72ffeafbd9f2fab"}}
+                 :sha "62ef1de18e076903374306060ac0e8a752e57c86"}}
    :exec-fn cognitect.test-runner.api/test
    :exec-args {:dirs ["src" "test"]
                :patterns [".*"]}}}}

@@ -4,12 +4,12 @@ A `clojure.test`-compatible version of the [classic Expectations testing library
 
 ## Where?
 
-[![Clojars Project](https://clojars.org/expectations/clojure-test/latest-version.svg)](https://clojars.org/expectations/clojure-test) [![cljdoc badge](https://cljdoc.org/badge/expectations/clojure-test)](https://cljdoc.org/d/expectations/clojure-test/CURRENT)
+[![Clojars Project](https://clojars.org/com.github.seancorfield/expectations/latest-version.svg)](https://clojars.org/com.github.seancorfield/expectations) [![cljdoc badge](https://cljdoc.org/badge/com.github.seancorfield/expectations)](https://cljdoc.org/d/com.github.seancorfield/expectations/CURRENT)
 
 Try it out:
 
 ```
-clj -Sdeps '{:deps {expectations/clojure-test {:mvn/version "RELEASE"}}}'
+clj -Sdeps '{:deps {com.github.seancorfield/expectations {:mvn/version "RELEASE"}}}'
 ```
 
 ## What?
