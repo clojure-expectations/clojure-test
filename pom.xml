@@ -30,6 +30,12 @@
       <artifactId>clojure</artifactId>
       <version>1.9.0</version>
     </dependency>
+    <dependency>
+      <groupId>planck</groupId>
+      <artifactId>planck</artifactId>
+      <version>2.25.0</version>
+      <scope>test<scope>
+    </dependency>
   </dependencies>
   <build>
     <sourceDirectory>src</sourceDirectory>
@@ -38,6 +44,10 @@
     <repository>
       <id>clojars</id>
       <url>https://repo.clojars.org/</url>
+    </repository>
+    <repository>
+      <id>sonatype</id>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
     </repository>
   </repositories>
   <distributionManagement>
