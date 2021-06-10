@@ -103,7 +103,7 @@ Most test runners allow you to specify namespace(s) or patterns to match namespa
 ...
 > boot test -n just.this.ns-test
 ...
-> clojure -M:test -n just.this.ns-test
+> clojure -X:test :nses '[just.this.ns-test]'
 ...
 ```
 
@@ -112,7 +112,7 @@ Some runners let you specify a regex to match on the namespaces to run:
 ```bash
 > boot test -I "just.*-test$"
 ...
-> clojure -M:test -r "just.*-test$"
+> clojure -X:test :patterns '["just.*-test$"]'
 ...
 ```
 
@@ -123,7 +123,7 @@ Some runners let you run a specific test:
 ```bash
 > lein test :only just.this.ns-test/just-this-test
 ...
-> clojure -M:test -v just.this.ns-test/just-this-test
+> clojure -X:test :vars '[just.this.ns-test/just-this-test]'
 ...
 ```
 
@@ -141,19 +141,19 @@ The test suite for this library annotates some of the negative tests so that the
 `^:negative` is a simple piece of metadata added to `not-collection-test` so that tests can be run like this:
 
 ```bash
-> clojure -X:test:runner:humane :excludes '[:negative]'
+> clojure -X:test:humane :excludes '[:negative]'
 ```
 
 By contrast, this runs all the tests (without Humane Test Output enabled):
 
 ```bash
-> clojure -X:test:runner
+> clojure -X:test
 ```
 
 Cognitect's `test-runner` also has an `:includes` option to include only tests marked with specific metadata:
 
 ```bash
-> clojure -X:test:runner :includes '[:negative]'
+> clojure -X:test :includes '[:negative]'
 ```
 
 This run's _only_ tests marked as being `^:negative`.

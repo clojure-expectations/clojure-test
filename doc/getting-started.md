@@ -111,10 +111,8 @@ As of 2.0.0, `test-vars` and `run-tests` are imported from `clojure.test` automa
 This assumes you are using the [CLI and `deps.edn`](https://clojure.org/guides/deps_and_cli) for your project, and that you have set up a `:test` alias per [`test-runner`'s README](https://github.com/cognitect-labs/test-runner/blob/master/readme.md):
 
 ```bash
-> clojure -M:test
+> clojure -X:test
 ```
-
-> I recommend having separate `:test` and `:runner` aliases -- the former with `:extra-paths` for your `test` folder tree and any `:extra-deps` needed by your tests themselves; the latter with `:extra-deps` for the test runner and `:exec-fn` to actually invoke it. That makes it easier to work with other tooling and be able to use `-M:test` to bring in your tests and dependencies without actually running them (and `-X:test:runner` to actually run them). The alternative is remembering to use `-R:test` to bring in tests and dependencies without running them (and either add `-M:test` to run them or switch to `-M:test`).
 
 ### Leiningen
 
@@ -178,7 +176,7 @@ then you can just run `lein test` and it will check for tests inside the `src` t
 For the `clojure` CLI, you'll need to tell Cognitect's `test-runner` to look for tests in `src` _and_ you'll have to override it's default regex pattern for matching test namespaces:
 
 ```bash
-clojure -M:test -d src -r ".*"
+clojure -X:test :dirs '["src"]' :patterns '[".*"]'
 ```
 
 Of course, you can also update the `:test` alias to add those new options into `:main-opts` so that you don't need them on the command line:
@@ -198,22 +196,6 @@ Of course, you can also update the `:test` alias to add those new options into `
 ```
 
 Note that you'll need both `src` _and_ `test` directories if you want `test-runner` to look in both places.
-
-> Note: My recommendation would be:
-
-```clojure
-{:aliases
- {:test {:extra-paths ["test"]}
-  :runner
-  {:extra-deps
-   {com.github.seancorfield/expectations {:mvn/version "2.0.0-alpha1"}
-    io.github.cognitect-labs/test-runner
-                {:git/url "https://github.com/cognitect-labs/test-runner"
-                 :sha "62ef1de18e076903374306060ac0e8a752e57c86"}}
-   :exec-fn cognitect.test-runner.api/test
-   :exec-args {:dirs ["src" "test"]
-               :patterns [".*"]}}}}
-```
 
 ## Expecting Specs
 
