@@ -34,7 +34,7 @@
       <groupId>planck</groupId>
       <artifactId>planck</artifactId>
       <version>2.25.0</version>
-      <scope>test<scope>
+      <scope>test</scope>
     </dependency>
   </dependencies>
   <build>
