@@ -8,7 +8,7 @@ Focused tests are identified in the code somehow so that your test runner can ex
 
 ## Test Fixtures
 
-To use test fixtures with Expectations, you can refer `use-fixtures` (which, as of 2.0.0, accepts both functions and hash maps, containing `:before` and/or `:after` keys that specify 0-arity functions -- like `cljs.test/use-fixtures`). For example:
+To use test fixtures with Expectations, you can refer `use-fixtures` (which, as of 2.0.0, accepts both functions -- like `clojure.test/use-fixtures` -- and hash maps containing `:before` and/or `:after` keys that specify 0-arity functions -- like `cljs.test/use-fixtures`). For example:
 
 ```clojure
 (ns my.cool.project-test
