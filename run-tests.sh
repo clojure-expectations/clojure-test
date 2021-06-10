@@ -14,7 +14,7 @@ do
 done
 if test "$1" != "clj-only"
 then
-	clojure -M:cljs-test :excludes '[:negative]'
+	clojure -M:cljs-test -e :negative
 	if test $? -ne 0
 	then
 		exit 1
