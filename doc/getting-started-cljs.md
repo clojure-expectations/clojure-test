@@ -20,7 +20,7 @@ Your `deps.edn` should include this information:
 
 ```clojure
 {:aliases {:cljs-runner
-             {:extra-deps {com.github.seancorfield/expectations {:mvn/version "2.0.0-alpha1"},
+             {:extra-deps {com.github.seancorfield/expectations {:mvn/version "2.0.0-alpha2"},
                            olical/cljs-test-runner {:mvn/version "3.7.0"},
                            pjstadig/humane-test-output {:mvn/version "0.10.0"}},
               :extra-paths ["src" "test" "cljs-test-runner-out/gen"],

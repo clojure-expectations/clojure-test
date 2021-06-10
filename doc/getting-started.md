@@ -8,15 +8,15 @@ You can add `expectations.clojure.test` to your project with either:
 
 ```clojure
 ;; add this to :extra-deps under a :test alias:
-com.github.seancorfield/expectations {:mvn/version "2.0.0-alpha1"}
+com.github.seancorfield/expectations {:mvn/version "2.0.0-alpha2"}
 ```
 for `deps.edn` or:
 
 ```clojure
 ;; add this to :dev-dependencies (Leiningen)
-[com.github.seancorfield/expectations "2.0.0-alpha1"]
+[com.github.seancorfield/expectations "2.0.0-alpha2"]
 ;; or add this to :dependencies (Boot)
-[com.github.seancorfield/expectations "2.0.0-alpha1" :scope "test"]
+[com.github.seancorfield/expectations "2.0.0-alpha2" :scope "test"]
 ```
 for `project.clj` or `build.boot`.
 
@@ -186,7 +186,7 @@ Of course, you can also update the `:test` alias to add those new options into `
  {:test
   {:extra-paths ["test"]
    :extra-deps
-   {com.github.seancorfield/expectations {:mvn/version "2.0.0-alpha1"}
+   {com.github.seancorfield/expectations {:mvn/version "2.0.0-alpha2"}
     io.github.cognitect-labs/test-runner
                 {:git/url "https://github.com/cognitect-labs/test-runner"
                  :sha "62ef1de18e076903374306060ac0e8a752e57c86"}}

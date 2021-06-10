@@ -3,7 +3,7 @@
   <modelVersion>4.0.0</modelVersion>
   <groupId>com.github.seancorfield</groupId>
   <artifactId>expectations</artifactId>
-  <version>2.0.0-alpha1</version>
+  <version>2.0.0-alpha2</version>
   <name>exp-clojure-test</name>
   <description>A clojure.test-compatible version of the classic Expectations testing library.</description>
   <url>https://github.com/clojure-expectations/clojure-test</url>
@@ -22,7 +22,7 @@
     <connection>scm:git:git@github.com:clojure-expectations/clojure-test.git</connection>
     <developerConnection>scm:git:git@github.com:clojure-expectations/clojure-test.git</developerConnection>
     <url>https://github.com/clojure-expectations/clojure-test</url>
-    <tag>v2.0.0-alpha1</tag>
+    <tag>v2.0.0-alpha2</tag>
   </scm>
   <dependencies>
     <dependency>
@@ -44,10 +44,6 @@
     <repository>
       <id>clojars</id>
       <url>https://repo.clojars.org/</url>
-    </repository>
-    <repository>
-      <id>sonatype</id>
-      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
     </repository>
   </repositories>
   <distributionManagement>
