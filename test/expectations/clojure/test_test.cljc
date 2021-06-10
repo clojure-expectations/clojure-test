@@ -24,7 +24,7 @@
                       :include-macros true
                       :as sut])))
 
-; The macros are in test_macros.cljc to support Clojurescript.
+; The macros are in test_macros.cljc to support ClojureScript.
 
 (deftest predicate-test
   (is (sut/expect even? (+ 1 1)))

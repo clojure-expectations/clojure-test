@@ -1,19 +1,19 @@
-# Getting Started with expectations/cljc-test using Clojurescript
+# Getting Started with expectations/cljc-test using ClojureScript
 
 > NOTE: ClojureScript support, via `planck` is coming in 2.0.0 but you can try it out now via the **develop** branch in the repo!
 
 You can use `expectations/cljc-test` to run tests in both Clojure
-and Clojurescript.  Many tests will work without changes in both
-Clojure and Clojurescript, though of course some will require
+and ClojureScript.  Many tests will work without changes in both
+Clojure and ClojureScript, though of course some will require
 changes for the different environments.  This section describes how
-to use `expectations/cljc-test` in Clojurescript and the differences
+to use `expectations/cljc-test` in ClojureScript and the differences
 from using it in Clojure -- see the other sections for details of how
 to use it in Clojure for a complete picture.
 
 
 ## Installation
 
-In order to run `expectations/cljc-test` with Clojurescript, you
+In order to run `expectations/cljc-test` with ClojureScript, you
 will use `olical/cljs-test-runner` and the Clojure tool `clj`.
 
 Your `deps.edn` should include this information:
@@ -52,10 +52,10 @@ necessarily a bad thing.
 
 ### Requirements
 
-The Clojurescript version of `expectations/cljc-test` works (at present)
-only with a specific implementation of self-hosted Clojurescript:
+The ClojureScript version of `expectations/cljc-test` works (at present)
+only with a specific implementation of self-hosted ClojureScript:
 [`planck`](https://planck-repl.org).  You will have to install `planck`
-yourself in order to use `expectations/cljc-test` with Clojurescript.
+yourself in order to use `expectations/cljc-test` with ClojureScript.
 
 You will have to get `planck -h` to work locally.  See
 [here](https://planck-repl.org) for instructions on how to install
@@ -66,11 +66,11 @@ You will have to get `planck -h` to work locally.  See
 The use of Paul Stadig's
 [Humane Test Output](https://github.com/pjstadig/humane-test-output), is
 optional for the Clojure version of `expectations/cljc-test` but it is
-required for the Clojurescript version of `expectations/cljc-test`.
+required for the ClojureScript version of `expectations/cljc-test`.
 
 ## The Basics
 
-This example is the Clojurescript version of the quick comparison provided
+This example is the ClojureScript version of the quick comparison provided
 for the Clojure version of `expectations/cljc-test`, and provides a quick
 comparison with `clojure.test` (the tests match those in the [`clojure.test`
 documentation](http://clojure.github.io/clojure/clojure.test-api.html)):
@@ -115,13 +115,12 @@ expression being tested often makes the test much clearer.
 
 Here is the list of features from Expectations supported by the
 Clojure version of `expectations.clojure.test` where there are
-differences in the Clojurescript implementation.
+differences in the ClojureScript implementation.
 
 ### * Class test
-Classes are different in Clojurescript.
 
-Classes are all different in Clojurescript, and in some cases things
-that would be a class in Clojure are different in Clojurescript.  For
+Classes are all different in ClojureScript, and in some cases things
+that would be a class in Clojure are different in ClojureScript.  For
 instance, lists are a class:
 ```clojure
 (defexpect class-test cljs.core/List '(a b c))
@@ -131,7 +130,7 @@ discoverable type or class, and are better handled with a predicate:
 ```clojure
 (defexpect string-class-test string? "abc")
 ```
-In general, the classes in Clojurescript will not be the same as
+In general, the classes in ClojureScript will not be the same as
 the classes in Clojure.  You can do this to write a test that
 will work in both environments:
 ```clojure
@@ -147,7 +146,7 @@ as it happens, it is not.
 
 ### * Exception test
 
-Exceptions are very different in Clojurescript from Clojure.
+Exceptions are very different in ClojureScript from Clojure.
 
 The Clojure example:
 ```clojure
@@ -166,7 +165,7 @@ Exceptions certainly exist and can be thrown. You can throw pretty
 much anything in Javascript.  There is no `Throwable` class in
 Clojurecript to distinguish things that can be thrown from anything
 else.  The only exception supported in `expectations/cljc-test`
-in Clojurescript is where the exception is: `js/Error`.  For example:
+in ClojureScript is where the exception is: `js/Error`.  For example:
 ```clojure
 (defexpect exception js/Error (count 5))
 ```
@@ -184,7 +183,7 @@ Specs are always supported, and work equivalently to Clojure.
 The end of the Clojure [Getting Started](/doc/getting-started.md) provides
 additional information on how to use `expectations/cljc-test`, and most
 of the information is directly applicable to using `expectations/cljc-test`
-in Clojurescript as well.
+in ClojureScript as well.
 
 # Further Reading
 

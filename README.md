@@ -23,9 +23,9 @@ and command-line tools.
 Works with Clojure 1.8 and later. Spec expectations are only available on
 Clojure 1.9 and later.
 
-Works in self-hosted Clojurescript (specifically,
+Works in self-hosted ClojureScript (specifically,
 [`planck`](https://planck-repl.org)).  See
-[Getting Started with Clojurescript](/doc/getting-started-cljs.md) for details.
+[Getting Started with ClojureScript](/doc/getting-started-cljs.md) for details.
 
 You can either use `deftest` from `clojure.test`, or `defexpect` from
 this library to wrap your tests.
@@ -228,14 +228,14 @@ to be aware of:
 
 ## Test & Development
 
-To test, run `clj -X:test:runner` (tests against Clojure 1.9).
+To test, run `clj -X:test` (tests against Clojure 1.9).
 
 Multi-version testing:
 
 ```
 for v in 1.9 1.10
 do
-  clojure -X:test:runner:$v
+  clojure -X:test:$v
 done
 ```
 
@@ -244,15 +244,15 @@ You can also run the tests with Humane Test Output enabled but you need to exclu
 ```
 for v in 1.9 1.10
 do
-  clojure -X:test:runner:$v:humane :excludes '[:negative]'
+  clojure -X:test:$v:humane :excludes '[:negative]'
 done
 ```
 
-### Clojurescript testing
+### ClojureScript testing
 
-The Clojurescript version requires self-hosted Clojurescript (specifically,
+The ClojureScript version requires self-hosted ClojureScript (specifically,
 [`planck`](https://planck-repl.org)).  Once you have `planck -h` working,
-you can run the Clojurescript tests with:
+you can run the ClojureScript tests with:
 
 ```clojure
 clojure -M:cljs-runner -e :negative
@@ -260,9 +260,9 @@ clojure -M:cljs-runner -e :negative
 You can run the negative tests as well if you modify one line of `test.cljc`,
 see the comments below the line containing `(def humane-test-output?`.
 
-#### Clojurescript REPL
+#### ClojureScript REPL
 
-It can be handy to try things in a REPL.  You can run a REPL for Clojurescript
+It can be handy to try things in a REPL.  You can run a REPL for ClojureScript
 by doing:
 ```clojure
 $ planck --compile-opts planckopts.edn -c `clojure -Spath -A:humane` -r
