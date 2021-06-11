@@ -20,8 +20,7 @@ macro. This library has no dependencies, other than `clojure.test` itself, and
 should be compatible with all existing `clojure.test`-based tooling in editors
 and command-line tools.
 
-Works with Clojure 1.8 and later. Spec expectations are only available on
-Clojure 1.9 and later.
+Works with Clojure 1.9 and later.
 
 Works in self-hosted ClojureScript (specifically,
 [`planck`](https://planck-repl.org)).  See

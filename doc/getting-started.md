@@ -24,7 +24,7 @@ Then in your test namespaces, you just require `expectations.clojure.test` (inst
 
 ### Requirements
 
-This library is designed to work with Clojure 1.8 or later, and automatically provides support for `clojure.spec` if you use Clojure 1.9 or later. It is also designed to work with Paul Stadig's [Humane Test Output](https://github.com/pjstadig/humane-test-output), which provides better failure messages for `clojure.test`.
+This library is designed to work with Clojure 1.9 or later, and provides support for `clojure.spec` predicates. It is also designed to work with Paul Stadig's [Humane Test Output](https://github.com/pjstadig/humane-test-output), which provides better failure messages for `clojure.test`.
 
 ### Humane Test Output
 
