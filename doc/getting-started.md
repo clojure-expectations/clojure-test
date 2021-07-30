@@ -187,9 +187,8 @@ Of course, you can also update the `:test` alias to add those new options into `
   {:extra-paths ["test"]
    :extra-deps
    {com.github.seancorfield/expectations {:mvn/version "2.0.0-alpha2"}
-    io.github.cognitect-labs/test-runner
-                {:git/url "https://github.com/cognitect-labs/test-runner"
-                 :sha "62ef1de18e076903374306060ac0e8a752e57c86"}}
+    ;; assumes Clojure CLI 1.10.3.933 or later:
+    io.github.cognitect-labs/test-runner {:git/tag "v0.4.0" :git/sha "334f2e2"}}
    :exec-fn cognitect.test-runner.api/test
    :exec-args {:dirs ["src" "test"]
                :patterns [".*"]}}}}

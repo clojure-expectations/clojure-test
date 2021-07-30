@@ -5,8 +5,7 @@
   :test
   {:extra-paths ["test"]
    :extra-deps {io.github.cognitect-labs/test-runner
-                {:git/url "https://github.com/cognitect-labs/test-runner"
-                 :sha "62ef1de18e076903374306060ac0e8a752e57c86"}}
+                {:git/tag "v0.4.0" :git/sha "334f2e2"}}
    :exec-fn cognitect.test-runner.api/test}
   :humane {:extra-deps {pjstadig/humane-test-output {:mvn/version "RELEASE"}}}
   :cljs-test
@@ -15,7 +14,7 @@
    :extra-paths ["src" "test" "cljs-test-runner-out/gen"]
    :main-opts ["-m" "cljs-test-runner.main" "--doo-opts"
                "dooopts.edn" "-x" "planck"]}
-  :jar {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.0.216"}}
+  :jar {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.278"}}
         :exec-fn hf.depstar/jar
         :exec-args {:jar "expectations.jar" :sync-pom true}}
   :install {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
