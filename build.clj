@@ -10,7 +10,8 @@
 
   clojure -A:deps -T:build help/doc"
   (:require [clojure.tools.build.api :as b]
-            [clojure.tools.deps.alpha :as t]))
+            [clojure.tools.deps.alpha :as t]
+            [deps-deploy.deps-deploy :as dd]))
 
 (def lib 'com.github.seancorfield/expectations)
 ;; we're not gold yet!

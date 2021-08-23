@@ -3,7 +3,8 @@
  :deps {org.clojure/clojure {:mvn/version "1.9.0"}}
  :aliases
  {;; for help: clojure -A:deps -T:build help/doc
-  :build {:deps {io.github.clojure/tools.build {:git/tag "v0.1.8" :git/sha "38d2780"}}
+  :build {:deps {io.github.clojure/tools.build {:git/tag "v0.1.9" :git/sha "6736c83"}
+                 io.github.slipset/deps-deploy {:sha "b4359c5d67ca002d9ed0c4b41b710d7e5a82e3bf"}}
           :ns-default build}
 
   ;; versions to test against:
@@ -26,12 +27,4 @@
                 pjstadig/humane-test-output {:mvn/version "0.11.0"}}
    :extra-paths ["src" "test" "cljs-test-runner-out/gen"]
    :main-opts ["-m" "cljs-test-runner.main" "--doo-opts"
-               "dooopts.edn" "-x" "planck"]}
-
-  ;; first run: clojure -T:build ci
-  ;; then: clojure -T:deploy target/h<TAB>
-  :deploy {:deps {slipset/deps-deploy {:git/url "https://github.com/slipset/deps-deploy"
-                                       :sha "b4359c5d67ca002d9ed0c4b41b710d7e5a82e3bf"}}
-           :exec-fn deps-deploy.deps-deploy/deploy
-           :exec-args {:installer :remote
-                       :pom-file "target/classes/META-INF/maven/com.github.seancorfield/expectations/pom.xml"}}}}
+               "dooopts.edn" "-x" "planck"]}}}
