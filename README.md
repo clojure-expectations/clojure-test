@@ -1,4 +1,4 @@
-# `clojure.test` for Expectations
+# `clojure.test` for Expectations [![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/clojure-expectations/clojure-test)
 
 A `clojure.test`-compatible version of the [classic Expectations testing library](https://clojure-expectations.github.io/).
 
