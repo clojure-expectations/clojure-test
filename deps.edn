@@ -1,25 +1,37 @@
-{:deps {org.clojure/clojure {:mvn/version "1.9.0"}}
+{:mvn/repos {"sonatype" {:url "https://oss.sonatype.org/content/repositories/snapshots/"}}
+ :paths ["src"]
+ :deps {org.clojure/clojure {:mvn/version "1.9.0"}}
  :aliases
- {:1.9 {:override-deps {org.clojure/clojure {:mvn/version "1.9.0"}}}
+ {;; for help: clojure -A:deps -T:build help/doc
+  :build {:deps {io.github.clojure/tools.build {:git/tag "v0.1.8" :git/sha "38d2780"}}
+          :ns-default build}
+
+  ;; versions to test against:
+  :1.9 {:override-deps {org.clojure/clojure {:mvn/version "1.9.0"}}}
   :1.10 {:override-deps {org.clojure/clojure {:mvn/version "1.10.3"}}}
-  :test
+  :master {:override-deps {org.clojure/clojure {:mvn/version "1.11.1-master-SNAPSHOT"}}}
+
+  ;; running tests/checks of various kinds:
+  :test ; can also run clojure -X:test
   {:extra-paths ["test"]
    :extra-deps {io.github.cognitect-labs/test-runner
                 {:git/tag "v0.4.0" :git/sha "334f2e2"}}
    :exec-fn cognitect.test-runner.api/test}
-  :humane {:extra-deps {pjstadig/humane-test-output {:mvn/version "RELEASE"}}}
-  :cljs-test
+  :runner
+  {:main-opts ["-m" "cognitect.test-runner"]}
+  :humane
+  {:extra-deps {pjstadig/humane-test-output {:mvn/version "RELEASE"}}}
+  :cljs
   {:extra-deps {olical/cljs-test-runner {:mvn/version "3.8.0"}
                 pjstadig/humane-test-output {:mvn/version "0.11.0"}}
    :extra-paths ["src" "test" "cljs-test-runner-out/gen"]
    :main-opts ["-m" "cljs-test-runner.main" "--doo-opts"
                "dooopts.edn" "-x" "planck"]}
-  :jar {:replace-deps {com.github.seancorfield/depstar {:mvn/version "2.1.278"}}
-        :exec-fn hf.depstar/jar
-        :exec-args {:jar "expectations.jar" :sync-pom true}}
-  :install {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
-            :exec-fn deps-deploy.deps-deploy/deploy
-            :exec-args {:installer :local :artifact "expectations.jar"}}
-  :deploy {:replace-deps {slipset/deps-deploy {:mvn/version "0.1.5"}}
+
+  ;; first run: clojure -T:build ci
+  ;; then: clojure -T:deploy target/h<TAB>
+  :deploy {:deps {slipset/deps-deploy {:git/url "https://github.com/slipset/deps-deploy"
+                                       :sha "b4359c5d67ca002d9ed0c4b41b710d7e5a82e3bf"}}
            :exec-fn deps-deploy.deps-deploy/deploy
-           :exec-args {:installer :remote :artifact "expectations.jar"}}}}
+           :exec-args {:installer :remote
+                       :pom-file "target/classes/META-INF/maven/com.github.seancorfield/expectations/pom.xml"}}}}
