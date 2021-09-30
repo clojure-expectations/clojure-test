@@ -188,7 +188,8 @@ Of course, you can also update the `:test` alias to add those new options into `
    :extra-deps
    {com.github.seancorfield/expectations {:mvn/version "2.0.0-alpha2"}
     ;; assumes Clojure CLI 1.10.3.933 or later:
-    io.github.cognitect-labs/test-runner {:git/tag "v0.4.0" :git/sha "334f2e2"}}
+    io.github.cognitect-labs/test-runner
+    {:git/tag "v0.5.0" :git/sha "48c3c67"}}
    :exec-fn cognitect.test-runner.api/test
    :exec-args {:dirs ["src" "test"]
                :patterns [".*"]}}}}

@@ -3,6 +3,7 @@
 > NOTE: Clojars has introduced a [Verified Group Names policy](https://github.com/clojars/clojars-web/wiki/Verified-Group-Names) which means no new libraries can be pushed to the `expectations` group, and `doo` filters out JAR artifacts that begin `clojure-` for self-hosted ClojureScript environments (i.e., `planck`), so continuing to use `clojure-test` for the artifact name is not viable. Accordingly, the 2.x versions of this library are published as `com.github.seancorfield/expectations`.
 
 * 2.0.x in progress (alpha3?)
+  * Update `build-clj` to v0.5.0.
   * Switch to `build.clj`/`tools.build` for CI/deploy.
 
 * 2.0.0-alpha2 -- 2021-06-09
