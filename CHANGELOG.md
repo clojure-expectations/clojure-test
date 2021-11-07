@@ -4,7 +4,7 @@
 
 * 2.0.x in progress (alpha3?)
   * Address #22 by adding `clj-kondo.exports` (this is just a first pass; the `:lint-as` mappings will probably be replaced by hooks in the future).
-  * Fix #19 by supporting regex/patterns dynamically inside `?=` (as well as the compile-time support already in `expect`).
+  * Fix #19 by supporting regex/patterns dynamically inside `=?` (as well as the compile-time support already in `expect`).
   * Update `build-clj` to v0.5.0.
   * Switch to `build.clj`/`tools.build` for CI/deploy.
 
