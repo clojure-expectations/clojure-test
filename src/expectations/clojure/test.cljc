@@ -174,6 +174,10 @@
                     (valid?# e# a#)
                     (fn? e#)
                     (e# a#)
+                    (isa? (type e#)
+                          #?(:clj java.util.regex.Pattern
+                             :cljs (type #"regex")))
+                    (some? (re-find e# a#))
                     :else
                     (= e# a#))
            humane?# (and humane-test-output? (not (fn? e#)) (not ~conform?))]

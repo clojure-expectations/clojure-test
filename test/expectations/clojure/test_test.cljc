@@ -194,3 +194,6 @@
            (is-not' (sut/expect "abcdef" (str "abc" "efg"))
                     ["abcefg"]
                     #"(?is)(str \"abc\" \"efg\").*matches: \"abc\"")))
+
+(deftest issue-19-regex-test
+  (is (sut/expect (re-pattern "\\d+") "1000")))
