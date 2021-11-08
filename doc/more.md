@@ -10,7 +10,13 @@ If you have multiple predicates that you expect to be satisfied by a given expre
   (expect (more vector? not-empty) [1 2 3])
 ```
 
-This expects the (actual) test value to be a vector and also to be non-empty (we could have specified `seq` there just as easily). This can be particularly powerful when combined with `from-each` to check that multiple expectations hold for computations applied to multiple input values.
+This expects the (actual) test value to be a vector and also to be non-empty (we could have specified `seq` there just as easily). This can be particularly powerful when combined with `from-each` to check that multiple expectations hold for computations applied to multiple input values:
+
+```clojure
+  (expect (more vector? not-empty)
+          (from-each [n [1 2 3]]
+            (into [] (range n))))
+```
 
 > If you have expectations that should hold for **all** input values, you might want to look at [`clojure.test.check`](https://github.com/clojure/test.check) instead.
 
@@ -81,6 +87,30 @@ Some simpler examples (taken from Expectations' original documentation):
                    1       x)
           [1 2 3])
 ```
+
+`more-of` can be used with `from-each` to provide functionality similar
+to `are` in `clojure.test` (but more powerful):
+
+```clojure
+  (deftest are-example
+    (are [expected start end]
+         (= expected (range start end))
+         [0 1 2 3] 0 4
+         []        0 0
+         [1 2 3]   1 4))
+
+  (defexpect equivalent-to-are
+    (expect (more-of [expected actual]
+                     expected actual)
+            (from-each [[expected start end]
+                        [[[0 1 2 3] 0 4]
+                         [[]        0 0]
+                         [[1 2 3]   1 4]]]
+              [expected (range start end)])))
+```
+
+Although this is more verbose for this basic example, remember that the
+`expected` value could also be a predicate function, a regex, a Spec, etc.
 
 # Further Reading
 

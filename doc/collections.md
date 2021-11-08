@@ -66,6 +66,9 @@ A simpler `from-each` example:
 
 `from-each` also supports `:let` and `:when` syntax just like `for` and `doseq`.
 
+See also [Expecting More](/doc/more.md) for examples of combining `from-each`
+with other Expectations for powerful multi-valued tests.
+
 # Further Reading
 
 * [Getting Started](/doc/getting-started.md)
