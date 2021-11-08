@@ -9,12 +9,11 @@
   For more information, run:
 
   clojure -A:deps -T:build help/doc"
-  (:require #_[clojure.tools.build.api :as b]
+  (:require [clojure.tools.build.api :as b]
             [org.corfield.build :as bb]))
 
 (def lib 'com.github.seancorfield/expectations)
-;; we're not gold yet!
-(def version "2.0.0-alpha3" #_(format "2.0.%s" (b/git-count-revs nil)))
+(def version (format "2.0.%s" (b/git-count-revs nil)))
 
 (defn run-tests "Run the tests."
   [{:keys [aliases] :as opts}]

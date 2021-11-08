@@ -2,11 +2,17 @@
 
 > NOTE: Clojars has introduced a [Verified Group Names policy](https://github.com/clojars/clojars-web/wiki/Verified-Group-Names) which means no new libraries can be pushed to the `expectations` group, and `doo` filters out JAR artifacts that begin `clojure-` for self-hosted ClojureScript environments (i.e., `planck`), so continuing to use `clojure-test` for the artifact name is not viable. Accordingly, the 2.x versions of this library are published as `com.github.seancorfield/expectations`.
 
-* 2.0.x in progress (alpha3?)
+## Stable Releases
+
+Only accretive/fixative changes will be made from now on.
+
+* 2.0.137 -- 2021-11-07
   * Address #22 by adding `clj-kondo.exports` (this is just a first pass; the `:lint-as` mappings will probably be replaced by hooks in the future).
   * Fix #19 by supporting regex/patterns dynamically inside `=?` (as well as the compile-time support already in `expect`).
   * Update `build-clj` to v0.5.0.
   * Switch to `build.clj`/`tools.build` for CI/deploy.
+
+## 2.0.x Prereleases
 
 * 2.0.0-alpha2 -- 2021-06-09
   * Mostly a documentation refresh, compared to Alpha 1.
@@ -17,6 +23,11 @@
   * Implement `cljs.test`'s version of `use-fixtures`: accepts functions or hash maps (containing `:before` and/or `:after` keys with 0-arity functions).
   * Add various macro-like constructs back into the source code to improve the documentation (`in`, `from-each`, `more-of`, `more->`, `more` are really only syntactic constructs inside `expect`).
   * Support (self-hosted) ClojureScript via `planck` -- see https://github.com/clojure-expectations/clojure-test/pull/16 for details (@kkinear).
+
+## Previous Releases
+
+These versions required users to also require `clojure.test` and were not as
+directly comparable to `clojure.test` behaviors.
 
 * 1.2.1 -- 2019-12-09
   * Fix cljdoc.org index (Collections was missing).
