@@ -33,7 +33,7 @@ Instead of expecting a result to be close to a value, you may expect a result to
 
 Sometimes you have two functions that you expect to be "functionally equivalent". In other words, when they are given the same argument, they should produce the same value perhaps via different computations. This can also emerge when you have a data structure and a function under test where the result of that function can also be computed via a simple test function for a given set of input data.
 
-Here's a simple example showing that two way to compute the square of a number are "functionally equivalent" (for the given test values):
+Here's a simple example showing that two ways to compute the square of a number are "functionally equivalent" (for the given test values):
 
 ```clojure
   (expect (functionally (fn [n] (reduce + (repeat n n)))
