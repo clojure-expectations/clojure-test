@@ -6,6 +6,10 @@
 
 Only accretive/fixative changes will be made from now on.
 
+* 2.0.next in progress
+  * Documentation updates.
+  * Build deps updates.
+
 * 2.0.137 -- 2021-11-07
   * Address #22 by adding `clj-kondo.exports` (this is just a first pass; the `:lint-as` mappings will probably be replaced by hooks in the future).
   * Fix #19 by supporting regex/patterns dynamically inside `=?` (as well as the compile-time support already in `expect`).
