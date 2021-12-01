@@ -1,4 +1,4 @@
-;; copyright (c) 2018-2020 sean corfield, all rights reserved
+;; copyright (c) 2018-2021 sean corfield, all rights reserved
 
 (ns expectations.clojure.test
   "This namespace provides compatibility with `clojure.test` and related tooling.
@@ -297,10 +297,15 @@
 
       (and (sequential? a) (= 'in (first a)))
       (let [form `(~'expect ~e ~a)]
-        `(let [a#     ~(second a)
+        `(let [e#     ~e
+               a#     ~(second a)
                not-in# (str '~e " not found in " a#)
                msg#    (if (seq ~msg') (str ~msg' "\n" not-in#) not-in#)]
-           (cond (or (sequential? a#) (set? a#))
+           (cond (and (set? a#) (set? e#))
+                 ;; special case of set in set -- report any elements from
+                 ;; expected set that are not in the actual set:
+                 (t/is (~'=? (clojure.set/difference e# a#) #{} '~form) msg#)
+                 (or (sequential? a#) (set? a#))
                  (let [all-reports# (atom nil)
                        one-report# (atom nil)]
                    ;; we accumulate any and all failures and errors but we
@@ -308,7 +313,7 @@
                    ;; fully passes (i.e., no failures or errors)
                    (with-redefs [t/do-report (all-report one-report#)]
                      (doseq [a'# a#]
-                       (expect ~e a'# msg# ~ex? ~form)
+                       (expect e# a'# msg# ~ex? ~form)
                        (if (or (contains? @one-report# :error)
                                (contains? @one-report# :fail))
                          (do
@@ -332,17 +337,16 @@
                        (when-let [r# (first (:fail @all-reports#))]
                          (t/do-report r#)))))
                  (map? a#)
-                 (let [e# ~e]
-                   (if (map? e#)
-                     (let [submap# (select-keys a# (keys e#))]
-                       (t/is (~'=? e# submap# '~form) ~msg'))
-                     (throw (#?(:clj IllegalArgumentException.
-                                :cljs js/Error.)
-                              "'in' requires map or sequence"))))
+                 (if (map? e#)
+                   (let [submap# (select-keys a# (keys e#))]
+                     (t/is (~'=? e# submap# '~form) ~msg'))
+                   (throw (#?(:clj IllegalArgumentException.
+                              :cljs js/Error.)
+                           "'in' requires map or sequence")))
                  :else
                  (throw (#?(:clj IllegalArgumentException.
                             :cljs js/Error.)
-                          "'in' requires map or sequence")))))
+                         "'in' requires map or sequence")))))
 
       (and (sequential? e) (= 'more (first e)))
       (let [es (mapv (fn [e] `(expect ~e ~a ~msg ~ex? ~e')) (rest e))]

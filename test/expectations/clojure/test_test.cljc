@@ -1,4 +1,4 @@
-;; copyright (c) 2019-2020 sean corfield, all rights reserved
+;; copyright (c) 2019-2021 sean corfield, all rights reserved
 
 (ns expectations.clojure.test-test
   "Test the testing framework -- this is sometimes harder than you might think!
@@ -104,6 +104,7 @@
 
 (deftest collection-test
   (is (sut/expect {:foo 1} (in {:foo 1 :cat 4})))
+  (is (sut/expect #{1 2} (in #{0 1 2 3})))
   ;; TODO: need better tests here
   (is (nil? (sut/expect :foo (in #{:foo :bar}))))
   (is (nil? (sut/expect :foo (in [:bar :foo])))))
