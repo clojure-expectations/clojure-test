@@ -6,6 +6,9 @@
 
 Only accretive/fixative changes will be made from now on.
 
+* 2.0.next in progress
+  * Update `build.clj` to v0.6.2.
+
 * 2.0.143 -- 2021-12-01
   * Fix #23 by adding support for set-`in`-set expectations.
   * Documentation updates.
