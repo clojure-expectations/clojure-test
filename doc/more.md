@@ -55,6 +55,8 @@ Since the test value is threaded-first into the expressions, we can use `->` to 
           (/ 1 0))
 ```
 
+See below for a more comprehensive example of exception testing that also uses `more-of`.
+
 ## `expect more-of`
 
 Sometimes destructuring an (actual) test value is the easiest way to apply your expectations:
@@ -111,6 +113,19 @@ to `are` in `clojure.test` (but more powerful):
 
 Although this is more verbose for this basic example, remember that the
 `expected` value could also be a predicate function, a regex, a Spec, etc.
+
+`more-of` can also be used with `more->` to provide succinct tests on Clojure's `ex-info` exceptions:
+
+```clojure
+  (defexpect ex-info-tests
+    (expect (more-> clojure.lang.ExceptionInfo type
+                    (more-of {:keys [status responseCode]}
+                             409 status
+                             4001110 responseCode) ex-data)
+            (throw (ex-info "boo" {:status 409 :responseCode 4001110}))))
+```
+
+In this example, the exception is threaded into `type` and the predicate is a class, and it is also threaded into `ex-data` and the predicate is a `more-of` expression that destructures that data and matches parts of it.
 
 # Further Reading
 
