@@ -1,6 +1,9 @@
 name: Clojure CI
 
-on: [pull_request]
+on:
+  push:
+    tags:
+      - "v*"
 
 jobs:
   build:
@@ -28,4 +31,9 @@ jobs:
             ~/.cpcache
           key: ${{ runner.os }}-${{ hashFiles('**/deps.edn') }}
       - name: Run Tests
-        run: clojure -T:build ci
+        run: clojure -T:build ci :snapshot false
+      - name: Deploy Release
+        run: clojure -T:build deploy :snapshot false
+        env:
+          CLOJARS_PASSWORD: ${{secrets.DEPLOY_TOKEN}}
+          CLOJARS_USERNAME: ${{secrets.DEPLOY_USERNAME}}

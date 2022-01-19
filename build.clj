@@ -13,7 +13,9 @@
             [org.corfield.build :as bb]))
 
 (def lib 'com.github.seancorfield/expectations)
-(def version (format "2.0.%s" (b/git-count-revs nil)))
+(defn- the-version [patch] (format "2.0.%s" patch))
+(def version (the-version (b/git-count-revs nil)))
+(def snapshot (the-version "999-SNAPSHOT"))
 
 (defn run-tests "Run the tests."
   [{:keys [aliases] :as opts}]
@@ -29,7 +31,7 @@
   Specify :cljs true to run the ClojureScript tests as well."
   [opts]
   (-> opts
-      (assoc :lib lib :version version)
+      (assoc :lib lib :version (if (:snapshot opts) snapshot version))
       (as-> opts
             (reduce (fn [opts alias]
                       (run-tests (assoc opts :aliases [alias])))
@@ -43,5 +45,5 @@
 
 (defn deploy "Deploy the JAR to Clojars." [opts]
   (-> opts
-      (assoc :lib lib :version version)
+      (assoc :lib lib :version (if (:snapshot opts) snapshot version))
       (bb/deploy)))
