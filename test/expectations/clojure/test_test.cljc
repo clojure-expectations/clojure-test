@@ -127,6 +127,18 @@
                              (from-each [s ["l" "d" "bar"]]
                                         (str "foo" s)))))
 
+(deftest more-evals-once
+  (let [counter (atom 1)]
+    ;; issue 24: more should only evaluate actual expression once:
+    (sut/expect (more even? even? even? pos?)
+                (swap! counter inc))
+    (is (= 2 @counter)))
+  (let [counter (atom 1)]
+    ;; issue 24: more-> should only evaluate actual expression once:
+    (sut/expect (more-> even? identity even? identity even? identity pos? identity)
+                (swap! counter inc))
+    (is (= 2 @counter))))
+
 (defn- dummy1 [x] (throw (ex-info "called dummy1" {:x x})))
 (defn- dummy2 [x] (throw (ex-info "called dummy2" {:x x})))
 
