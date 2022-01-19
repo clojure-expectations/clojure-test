@@ -287,111 +287,113 @@
                   :else
                   (conj (str (pr-str '~a) "\n"))))]
      (cond
-      (and (sequential? a) (= 'from-each (first a)))
-      (let [[_ bindings & body] a]
-        (if (= 1 (count body))
-          `(doseq ~bindings
-             (expect ~e ~(first body) ~msg ~ex? ~e))
-          `(doseq ~bindings
-             (expect ~e (do ~@body) ~msg ~ex? ~e))))
+       (and (sequential? a) (= 'from-each (first a)))
+       (let [[_ bindings & body] a]
+         (if (= 1 (count body))
+           `(doseq ~bindings
+              (expect ~e ~(first body) ~msg ~ex? ~e))
+           `(doseq ~bindings
+              (expect ~e (do ~@body) ~msg ~ex? ~e))))
 
-      (and (sequential? a) (= 'in (first a)))
-      (let [form `(~'expect ~e ~a)]
-        `(let [e#     ~e
-               a#     ~(second a)
-               not-in# (str '~e " not found in " a#)
-               msg#    (if (seq ~msg') (str ~msg' "\n" not-in#) not-in#)]
-           (cond (and (set? a#) (set? e#))
+       (and (sequential? a) (= 'in (first a)))
+       (let [form `(~'expect ~e ~a)]
+         `(let [e#     ~e
+                a#     ~(second a)
+                not-in# (str '~e " not found in " a#)
+                msg#    (if (seq ~msg') (str ~msg' "\n" not-in#) not-in#)]
+            (cond (and (set? a#) (set? e#))
                  ;; special case of set in set -- report any elements from
                  ;; expected set that are not in the actual set:
-                 (t/is (~'=? (clojure.set/difference e# a#) #{} '~form) msg#)
-                 (or (sequential? a#) (set? a#))
-                 (let [all-reports# (atom nil)
-                       one-report# (atom nil)]
+                  (t/is (~'=? (clojure.set/difference e# a#) #{} '~form) msg#)
+                  (or (sequential? a#) (set? a#))
+                  (let [all-reports# (atom nil)
+                        one-report# (atom nil)]
                    ;; we accumulate any and all failures and errors but we
                    ;; only accumulate passes if each sequential expectation
                    ;; fully passes (i.e., no failures or errors)
-                   (with-redefs [t/do-report (all-report one-report#)]
-                     (doseq [a'# a#]
-                       (expect e# a'# msg# ~ex? ~form)
-                       (if (or (contains? @one-report# :error)
-                               (contains? @one-report# :fail))
-                         (do
-                           (when (contains? @one-report# :fail)
-                             (swap! all-reports#
-                                    update :fail into (:fail @one-report#)))
-                           (when (contains? @one-report# :error)
-                             (swap! all-reports#
-                                    update :error into (:error @one-report#))))
-                         (when (contains? @one-report# :pass)
-                           (swap! all-reports#
-                                  update :pass into (:pass @one-report#))))
-                       (reset! one-report# nil)))
+                    (with-redefs [t/do-report (all-report one-report#)]
+                      (doseq [a'# a#]
+                        (expect e# a'# msg# ~ex? ~form)
+                        (if (or (contains? @one-report# :error)
+                                (contains? @one-report# :fail))
+                          (do
+                            (when (contains? @one-report# :fail)
+                              (swap! all-reports#
+                                     update :fail into (:fail @one-report#)))
+                            (when (contains? @one-report# :error)
+                              (swap! all-reports#
+                                     update :error into (:error @one-report#))))
+                          (when (contains? @one-report# :pass)
+                            (swap! all-reports#
+                                   update :pass into (:pass @one-report#))))
+                        (reset! one-report# nil)))
 
-                   (if (contains? @all-reports# :pass)
+                    (if (contains? @all-reports# :pass)
                      ;; report all the passes (and no failures or errors)
-                     (doseq [r# (:pass @all-reports#)] (t/do-report r#))
-                     (do
-                       (when-let [r# (first (:error @all-reports#))]
-                         (t/do-report r#))
-                       (when-let [r# (first (:fail @all-reports#))]
-                         (t/do-report r#)))))
-                 (map? a#)
-                 (if (map? e#)
-                   (let [submap# (select-keys a# (keys e#))]
-                     (t/is (~'=? e# submap# '~form) ~msg'))
-                   (throw (#?(:clj IllegalArgumentException.
-                              :cljs js/Error.)
-                           "'in' requires map or sequence")))
-                 :else
-                 (throw (#?(:clj IllegalArgumentException.
-                            :cljs js/Error.)
-                         "'in' requires map or sequence")))))
+                      (doseq [r# (:pass @all-reports#)] (t/do-report r#))
+                      (do
+                        (when-let [r# (first (:error @all-reports#))]
+                          (t/do-report r#))
+                        (when-let [r# (first (:fail @all-reports#))]
+                          (t/do-report r#)))))
+                  (map? a#)
+                  (if (map? e#)
+                    (let [submap# (select-keys a# (keys e#))]
+                      (t/is (~'=? e# submap# '~form) ~msg'))
+                    (throw (#?(:clj IllegalArgumentException.
+                               :cljs js/Error.)
+                            "'in' requires map or sequence")))
+                  :else
+                  (throw (#?(:clj IllegalArgumentException.
+                             :cljs js/Error.)
+                          "'in' requires map or sequence")))))
 
-      (and (sequential? e) (= 'more (first e)))
-      (let [es (mapv (fn [e] `(expect ~e ~a ~msg ~ex? ~e')) (rest e))]
-        `(do ~@es))
+       (and (sequential? e) (= 'more (first e)))
+       (let [sa (gensym)
+             es (mapv (fn [e] `(expect ~e ~sa ~msg ~ex? ~e')) (rest e))]
+         `(let [~sa (? ~a)] ~@es))
 
-      (and (sequential? e) (= 'more-> (first e)))
-      (let [es (mapv (fn [[e a->]]
-                       (if (and (sequential? a->)
-                                (symbol? (first a->))
-                                (let [s (name (first a->))]
-                                  (or (str/ends-with? s "->")
-                                      (str/ends-with? s "->>"))))
-                         `(expect ~e (~(first a->) (? ~a) ~@(rest a->)) ~msg false ~e')
-                         `(expect ~e (-> (? ~a) ~a->) ~msg false ~e')))
-                     (partition 2 (rest e)))]
-        `(do ~@es))
+       (and (sequential? e) (= 'more-> (first e)))
+       (let [sa (gensym)
+             es (mapv (fn [[e a->]]
+                        (if (and (sequential? a->)
+                                 (symbol? (first a->))
+                                 (let [s (name (first a->))]
+                                   (or (str/ends-with? s "->")
+                                       (str/ends-with? s "->>"))))
+                          `(expect ~e (~(first a->) ~sa ~@(rest a->)) ~msg false ~e')
+                          `(expect ~e (-> ~sa ~a->) ~msg false ~e')))
+                      (partition 2 (rest e)))]
+         `(let [~sa (? ~a)] ~@es))
 
-      (and (sequential? e) (= 'more-of (first e)))
-      (let [es (mapv (fn [[e a]] `(expect ~e ~a ~msg ~ex? ~e'))
-                     (partition 2 (rest (rest e))))]
-        `(let [~(second e) ~a] ~@es))
+       (and (sequential? e) (= 'more-of (first e)))
+       (let [es (mapv (fn [[e a]] `(expect ~e ~a ~msg ~ex? ~e'))
+                      (partition 2 (rest (rest e))))]
+         `(let [~(second e) ~a] ~@es))
 
-      #?(:clj (and ex? (symbol? e) (resolve e) (class? (resolve e)))
-         :cljs (and ex?
-                    (symbol? e)
-                    (planck.core/find-var e)
-                    (or (= 'js/Error e)
+       #?(:clj (and ex? (symbol? e) (resolve e) (class? (resolve e)))
+          :cljs (and ex?
+                     (symbol? e)
+                     (planck.core/find-var e)
+                     (or (= 'js/Error e)
                         ; is it a symbol which is not a predicate?
-                        (and (fn? (deref (planck.core/find-var e)))
-                             (not= (pr-str (deref (planck.core/find-var e)))
-                                   "#object[Function]")))))
-      #?(:clj (if (isa? (resolve e) Throwable)
-                `(t/is (~'thrown? ~e ~a) ~msg')
-                `(t/is (~'instance? ~e ~a) ~msg'))
-         :cljs (if (= 'js/Error e)
+                         (and (fn? (deref (planck.core/find-var e)))
+                              (not= (pr-str (deref (planck.core/find-var e)))
+                                    "#object[Function]")))))
+       #?(:clj (if (isa? (resolve e) Throwable)
                  `(t/is (~'thrown? ~e ~a) ~msg')
-                 `(t/is (~'instance? ~e ~a) ~msg')))
+                 `(t/is (~'instance? ~e ~a) ~msg'))
+          :cljs (if (= 'js/Error e)
+                  `(t/is (~'thrown? ~e ~a) ~msg')
+                  `(t/is (~'instance? ~e ~a) ~msg')))
 
-      (isa? (type e)
-            #?(:clj java.util.regex.Pattern
-               :cljs (type #"regex")))
-      `(t/is (re-find ~e ~a) ~msg')
+       (isa? (type e)
+             #?(:clj java.util.regex.Pattern
+                :cljs (type #"regex")))
+       `(t/is (re-find ~e ~a) ~msg')
 
-      :else
-      `(t/is (~'=? ~e ~a) ~msg')))))
+       :else
+       `(t/is (~'=? ~e ~a) ~msg')))))
 
 (comment
   (macroexpand '(expect (more-> 1 :a 2 :b 3 (-> :c :d)) {:a 1 :b 2 :c {:d 4}}))
