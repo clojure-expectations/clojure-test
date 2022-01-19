@@ -9,6 +9,7 @@
   For more information, run:
 
   clojure -A:deps -T:build help/doc"
+  (:refer-clojure :exclude [test])
   (:require [clojure.tools.build.api :as b]
             [org.corfield.build :as bb]))
 
@@ -25,6 +26,15 @@
         (assoc :main-opts ["-e" ":negative"]))
       (bb/run-tests)))
 
+(defn test "Run all the tests." [opts]
+  (reduce (fn [opts alias]
+            (run-tests (assoc opts :aliases [alias])))
+          opts
+          (cond-> [:1.9 :1.10 :master :humane]
+            (:cljs opts)
+            (conj :cljs)))
+  opts)
+
 (defn ci
   "Run the CI pipeline of tests (and build the JAR).
 
@@ -32,13 +42,7 @@
   [opts]
   (-> opts
       (assoc :lib lib :version (if (:snapshot opts) snapshot version))
-      (as-> opts
-            (reduce (fn [opts alias]
-                      (run-tests (assoc opts :aliases [alias])))
-                    opts
-                    (cond-> [:1.9 :1.10 :master :humane]
-                      (:cljs opts)
-                      (conj :cljs))))
+      (test)
       (bb/clean)
       (assoc :src-pom "template/pom.xml")
       (bb/jar)))
