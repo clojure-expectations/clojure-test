@@ -1,12 +1,12 @@
 # Change Log
 
-> NOTE: Clojars has introduced a [Verified Group Names policy](https://github.com/clojars/clojars-web/wiki/Verified-Group-Names) which means no new libraries can be pushed to the `expectations` group, and `doo` filters out JAR artifacts that begin `clojure-` for self-hosted ClojureScript environments (i.e., `planck`), so continuing to use `clojure-test` for the artifact name is not viable. Accordingly, the 2.x versions of this library are published as `com.github.seancorfield/expectations`.
+> NOTE: Since Clojars introduced a [Verified Group Names policy](https://github.com/clojars/clojars-web/wiki/Verified-Group-Names), no new libraries could be pushed to the `expectations` group, and `doo` filters out JAR artifacts that begin `clojure-` for self-hosted ClojureScript environments (i.e., `planck`), so continuing to use `clojure-test` for the artifact name is not viable. Accordingly, the 2.x versions of this library are published as `com.github.seancorfield/expectations`.
 
 ## Stable Releases
 
 Only accretive/fixative changes will be made from now on.
 
-* 2.0.next in progress
+* 2.0.156 -- 2022-01-19
   * Address [#26](https://github.com/clojure-expectations/clojure-test/issues/26) by adding an example combining `more->` and `more-of` around destructuring `ex-info` data.
   * Fix [#24](https://github.com/clojure-expectations/clojure-test/issues/24) by using a local (gensym) for the actual value in `more` and `more->` so it is only evaluated once.
   * Update `build-clj` to v0.6.7 and automate snapshot/release builds.
