@@ -47,5 +47,5 @@
      (with-redefs [do-report (sut/all-report results#)]
        ~expectation)
      (t/is (some (fn [pass#]
-                  (~success (:actual pass#)))
-               (:pass @results#)))))
+                   (~success (:actual pass#)))
+                 (:pass @results#)))))

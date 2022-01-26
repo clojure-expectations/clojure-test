@@ -13,9 +13,9 @@
 
             #?(:clj [clojure.test :refer [deftest is do-report testing]]
                :cljs [cljs.test :include-macros true
-                          :refer [do-report assert-expr]
+                      :refer [do-report assert-expr]
                       :refer-macros [deftest is testing assert-expr
-                                         use-fixtures]])
+                                     use-fixtures]])
             #?(:cljs [cljs.spec.alpha :as s])
             #?(:cljs [expectations.clojure.test-spec])
             #?(:clj [expectations.clojure.test :refer
@@ -59,13 +59,25 @@
   ;; TODO: fails because regexes never compare equal to themselves!
   #_(is-not' (sut/expect #"fool" "It's foobar!") (not (re-find #"fool" "It's foobar!"))))
 
+#?(:clj (def get-ex-message (or (resolve 'clojure.core/ex-message)
+                                (fn [^Throwable t] (.getMessage t))))
+   :cljs (def get-ex-message ex-message))
+
 #?(:clj (deftest exception-test
          (passes (sut/expect ArithmeticException (/ 12 0))
                  (fn [ex]
                    (let [t (Throwable->map ex)]
                      (and (= "Divide by zero" (-> t :cause))
                           (or (= 'java.lang.ArithmeticException (-> t :via first :type))
-                              (= java.lang.ArithmeticException (-> t :via first :type))))))))
+                              (= java.lang.ArithmeticException (-> t :via first :type)))))))
+         (passes (sut/expect Exception (/ 12 0))
+                 (fn [ex]
+                   (let [t (Throwable->map ex)]
+                     (and (= "Divide by zero" (-> t :cause))
+                          (or (= 'java.lang.ArithmeticException (-> t :via first :type))
+                              (= java.lang.ArithmeticException (-> t :via first :type)))))))
+         (is (sut/expect (more-> ArithmeticException type #"Divide by zero" get-ex-message) (/ 12 0)))
+         (is (sut/expect (more-> Exception type #"Divide by zero" get-ex-message) (/ 12 0))))
 
    :cljs (deftest cljs-exception-test
            (passes (sut/expect js/Error (throw (ex-info "foo" {})))

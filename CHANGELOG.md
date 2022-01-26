@@ -6,6 +6,9 @@
 
 Only accretive/fixative changes will be made from now on.
 
+* 2.0.157 -- 2022-01-25
+  * Fix a small regression in how classes are treated when used as predicates in `expect`.
+
 * 2.0.156 -- 2022-01-19
   * Address [#26](https://github.com/clojure-expectations/clojure-test/issues/26) by adding an example combining `more->` and `more-of` around destructuring `ex-info` data.
   * Fix [#24](https://github.com/clojure-expectations/clojure-test/issues/24) by using a local (gensym) for the actual value in `more` and `more->` so it is only evaluated once.

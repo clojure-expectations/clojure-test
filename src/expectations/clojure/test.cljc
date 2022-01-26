@@ -178,6 +178,12 @@
                           #?(:clj java.util.regex.Pattern
                              :cljs (type #"regex")))
                     (some? (re-find e# a#))
+                    #?(:clj (and (class? e#) (class? a#))
+                       :cljs false) ; maybe figure this out later
+                    (isa? a# e#) ; (expect parent child)
+                    #?(:clj (class? e#)
+                       :cljs false) ; maybe figure this out later
+                    (instance? e# a#) ; (expect klazz object)
                     :else
                     (= e# a#))
            humane?# (and humane-test-output? (not (fn? e#)) (not ~conform?))]
