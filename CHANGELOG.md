@@ -6,6 +6,9 @@
 
 Only accretive/fixative changes will be made from now on.
 
+* 2.0.next in progress
+  * Update `build-clj` to v0.8.0.
+
 * 2.0.157 -- 2022-01-25
   * Fix a small regression in how classes are treated when used as predicates in `expect`.
 
