@@ -407,10 +407,13 @@
   (macroexpand '(expect (more-of {:keys [a b c]} 1 a 2 b 3 c) {:a 1 :b 2 :c 3})))
 
 (defn- contains-expect?
-  "Given a form, return `true` if it contains any calls to the 'expect' macro."
+  "Given a form, return `true` if it contains any calls to the 'expect' macro.
+
+  As of #28, we also recognize qualified 'expect' calls."
   [e]
   (when (and (coll? e) (not (vector? e)))
-    (or (= 'expect (first e))
+    (or (and (symbol? (first e))
+             (= "expect" (name (first e))))
         (some contains-expect? e))))
 
 (defmacro defexpect
@@ -419,19 +422,13 @@
 
   `(defexpect name expected actual)` is a special case shorthand for
   `(defexpect name (expect expected actual))` provided as an easy way to migrate
-  legacy Expectation tests to the 'clojure.test' compatibility version.
-
-  `(defexpect name actual)` is a special case shorthand for
-  `(defexpect name (expect actual))` which is equivalent to
-  `(deftest name (is actual))`"
+  legacy Expectation tests to the 'clojure.test' compatibility version."
   [n & body]
-  (if (and (<= (count body) 2)
+  (if (and (= (count body) 2)
            (not (some contains-expect? body)))
-    (if (<= (count body) 1)
-      ;; #13 match deftest behavior starting in 2.0.0
-      `(t/deftest ~n ~@body)
-      ;; but still treat (defexpect my-name pred (expr)) as a special case
-      `(t/deftest ~n (expect ~@body)))
+      ;; treat (defexpect my-name pred (expr)) as a special case
+      `(t/deftest ~n (expect ~@body))
+    ;; #13 match deftest behavior starting in 2.0.0
     `(t/deftest ~n ~@body)))
 
 (defmacro expecting

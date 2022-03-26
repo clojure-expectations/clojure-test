@@ -6,7 +6,8 @@
 
 Only accretive/fixative changes will be made from now on.
 
-* 2.0.next in progress
+* 2.0.159 -- 2022-03-26
+  * Fix [#28](https://github.com/clojure-expectations/clojure-test/issues/28) by recognizing qualified calls to `expect` (to suppress legacy behavior in more cases).
   * Update `build-clj` to v0.8.0.
 
 * 2.0.157 -- 2022-01-25
