@@ -58,7 +58,7 @@
   `(expect 2 (in [1 2 3]))`
 
   `in` may only be used inside `expect` and is a purely syntactic construct.
-  It should not be `refer`'d nor used as a qualified symbol."
+  This macro can be `refer`'d to satisfy tooling like `clj-kondo`."
   [coll]
   (bad-usage "in"))
 
@@ -71,7 +71,7 @@
   `(expect even? (from-each [v (range 10)] (* 2 v)))`
 
   `from-each` may only be used inside `expect` and is a purely syntactic construct.
-  It should not be `refer`'d nor used as a qualified symbol."
+  This macro can be `refer`'d to satisfy tooling like `clj-kondo`."
   [bindings & body]
   (bad-usage "from-each"))
 
@@ -86,7 +86,7 @@
   `(expect (more-of [a b] string? a int? b) [\"test\" 42])`
 
   `more-of` may only be used inside `expect` and is a purely syntactic construct.
-  It should not be `refer`'d nor used as a qualified symbol."
+  This macro can be `refer`'d to satisfy tooling like `clj-kondo`."
   [destructuring & expected-actual-pairs]
   (bad-usage "more-of"))
 
@@ -99,7 +99,7 @@
   `(expect (more-> string? (first) int? (second)) [\"test\" 42])`
 
   `more->` may only be used inside `expect` and is a purely syntactic construct.
-  It should not be `refer`'d nor used as a qualified symbol."
+  This macro can be `refer`'d to satisfy tooling like `clj-kondo`."
   [& expected-threaded-pairs]
   (bad-usage "more->"))
 
@@ -112,7 +112,7 @@
   `(expect (more int? even?) 42)`
 
   `more` may only be used inside `expect` and is a purely syntactic construct.
-  It should not be `refer`'d nor used as a qualified symbol."
+  This macro can be `refer`'d to satisfy tooling like `clj-kondo`."
   [& expecteds]
   (bad-usage "more"))
 
