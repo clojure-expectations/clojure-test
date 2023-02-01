@@ -6,7 +6,7 @@
 
 Only accretive/fixative changes will be made from now on.
 
-* 2.0.next in progress
+* 2.0.165 -- 2023-01-31
   * Fix [#30](https://github.com/clojure-expectations/clojure-test/issues/30) by removing `build-clj` and using raw `tools.build`.
   * Address [#29](https://github.com/clojure-expectations/clojure-test/issues/29) by providing a "hook" for `more->` (but more work is needed).
   * Address [#27](https://github.com/clojure-expectations/clojure-test/issues/27) by changing `refer`'d note in stub macros' docstrings.
