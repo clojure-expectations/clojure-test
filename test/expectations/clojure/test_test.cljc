@@ -19,7 +19,7 @@
             #?(:cljs [cljs.spec.alpha :as s])
             #?(:cljs [expectations.clojure.test-spec])
             #?(:clj [expectations.clojure.test :refer
-                     [from-each in more more-of] :as sut]
+                     [from-each in more more-> more-of =?] :as sut]
                :cljs [expectations.clojure.test
                       :include-macros true
                       :as sut])))

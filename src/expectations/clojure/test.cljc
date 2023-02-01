@@ -43,6 +43,11 @@
               :cljs js/Error.)
            (str ~s " should only be used inside expect"))))
 
+(defmacro =?
+  "Internal fuzzy-equality test (clojure.test/assert-expr)."
+  [expected actual & [form]]
+  (bad-usage "=?"))
+
 (defmacro in
   "`(expect expected (in actual))` -- expect a subset of a collection.
 
