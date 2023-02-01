@@ -10,44 +10,67 @@
 
   clojure -A:deps -T:build help/doc"
   (:refer-clojure :exclude [test])
-  (:require [clojure.tools.build.api :as b]
-            [org.corfield.build :as bb]))
+  (:require [clojure.string :as str]
+            [clojure.tools.build.api :as b]
+            [clojure.tools.deps :as t]
+            [deps-deploy.deps-deploy :as dd]))
 
 (def lib 'com.github.seancorfield/expectations)
 (defn- the-version [patch] (format "2.0.%s" patch))
 (def version (the-version (b/git-count-revs nil)))
 (def snapshot (the-version "999-SNAPSHOT"))
+(def class-dir "target/classes")
 
 (defn run-tests "Run the tests."
   [{:keys [aliases] :as opts}]
-  (-> opts
-      (cond->
-        (some #{:humane :cljs} aliases)
-        (assoc :main-opts ["-e" ":negative"]))
-      (bb/run-tests)))
+  (println "\nRunning tests for" (str/join ", " (map name aliases)) "...")
+  (let [basis    (b/create-basis {:aliases (into [:test] aliases)})
+        combined (t/combine-aliases basis (into [:test] aliases))
+        cmds     (b/java-command
+                  {:basis     basis
+                   :main      'clojure.main
+                   :main-args (cond-> (:main-opts combined)
+                                (some #{:humane :cljs} aliases)
+                                (into ["-e" ":negative"]))})
+        {:keys [exit]} (b/process cmds)]
+    (when-not (zero? exit) (throw (ex-info "Tests failed" {}))))
+  opts)
 
 (defn test "Run all the tests." [opts]
   (reduce (fn [opts alias]
             (run-tests (assoc opts :aliases [alias])))
           opts
-          (cond-> [:1.9 :1.10 :master :humane]
+          (cond-> [:1.9 :1.10 :1.11 :master :humane]
             (:cljs opts)
             (conj :cljs)))
   opts)
 
-(defn ci
-  "Run the CI pipeline of tests (and build the JAR).
+(defn- jar-opts [opts]
+  (let [version (if (:snapshot opts) snapshot version)]
+    (assoc opts
+           :lib lib :version version
+           :jar-file (format "target/%s-%s.jar" lib version)
+           :scm {:tag (str "v" version)}
+           :basis (b/create-basis {})
+           :class-dir class-dir
+           :target "target"
+           :src-dirs ["src"]
+           :src-pom "template/pom.xml")))
 
-  Specify :cljs true to run the ClojureScript tests as well."
-  [opts]
-  (-> opts
-      (assoc :lib lib :version (if (:snapshot opts) snapshot version))
-      (test)
-      (bb/clean)
-      (assoc :src-pom "template/pom.xml")
-      (bb/jar)))
+(defn ci "Run the CI pipeline of tests (and build the JAR)." [opts]
+  (test opts)
+  (b/delete {:path "target"})
+  (let [opts (jar-opts opts)]
+    (println "\nWriting pom.xml...")
+    (b/write-pom opts)
+    (println "\nCopying source...")
+    (b/copy-dir {:src-dirs ["resources" "src"] :target-dir class-dir})
+    (println "\nBuilding JAR...")
+    (b/jar opts))
+  opts)
 
 (defn deploy "Deploy the JAR to Clojars." [opts]
-  (-> opts
-      (assoc :lib lib :version (if (:snapshot opts) snapshot version))
-      (bb/deploy)))
+  (let [{:keys [jar-file] :as opts} (jar-opts opts)]
+    (dd/deploy {:installer :remote :artifact (b/resolve-path jar-file)
+                :pom-file (b/pom-path (select-keys opts [:lib :class-dir]))}))
+  opts)

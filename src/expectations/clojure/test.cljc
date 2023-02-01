@@ -1,4 +1,4 @@
-;; copyright (c) 2018-2021 sean corfield, all rights reserved
+;; copyright (c) 2018-2023 sean corfield, all rights reserved
 
 (ns expectations.clojure.test
   "This namespace provides compatibility with `clojure.test` and related tooling.

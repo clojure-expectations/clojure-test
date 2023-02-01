@@ -289,6 +289,6 @@ This will set you up with `defexpect` and `expect`.  Add others as required.
 
 ## License & Copyright
 
-Copyright © 2018-2021 Sean Corfield, all rights reserved.
+Copyright © 2018-2023 Sean Corfield, all rights reserved.
 
 Distributed under the Eclipse Public License version 1.0.
