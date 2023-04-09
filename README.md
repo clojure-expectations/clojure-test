@@ -5,6 +5,7 @@ A `clojure.test`-compatible version of the [classic Expectations testing library
 ## Where?
 
 [![Clojars Project](https://clojars.org/com.github.seancorfield/expectations/latest-version.svg)](https://clojars.org/com.github.seancorfield/expectations) [![cljdoc badge](https://cljdoc.org/badge/com.github.seancorfield/expectations?2.0.165)](https://cljdoc.org/d/com.github.seancorfield/expectations/CURRENT) [![Slack](https://img.shields.io/badge/slack-Expectations-red.svg?logo=slack)](https://clojurians.slack.com/messages/C2L9MU2RY)
+
 Try it out:
 
 ```
