@@ -179,7 +179,7 @@ For the `clojure` CLI, you'll need to tell Cognitect's `test-runner` to look for
 clojure -X:test :dirs '["src"]' :patterns '[".*"]'
 ```
 
-Of course, you can also update the `:test` alias to add those new options into `:main-opts` so that you don't need them on the command line:
+Of course, you can also update the `:test` alias to add those new options into `:exec-args` so that you don't need them on the command line:
 
 ```clojure
 {:aliases

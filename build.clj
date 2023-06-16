@@ -29,7 +29,7 @@
         cmds     (b/java-command
                   {:basis     basis
                    :main      'clojure.main
-                   :main-args (cond-> (:main-opts combined)
+                   :main-args (cond-> (:main-args combined)
                                 (some #{:humane :cljs} aliases)
                                 (into ["-e" ":negative"]))})
         {:keys [exit]} (b/process cmds)]
