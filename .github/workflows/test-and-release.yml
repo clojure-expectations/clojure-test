@@ -16,6 +16,8 @@ jobs:
         with:
           distribution: 'adopt'
           java-version: '11'
+      - name: Install Planck
+        run: sudo add-apt-repository -y ppa:mfikes/planck && sudo apt-get update -y && sudo apt-get install -y planck
       - name: Clojure CLI
         uses: DeLaGuardo/setup-clojure@master
         with:
@@ -30,7 +32,7 @@ jobs:
             ~/.cpcache
           key: ${{ runner.os }}-${{ hashFiles('**/deps.edn') }}
       - name: Run Tests
-        run: clojure -T:build ci :snapshot false
+        run: clojure -T:build ci :cljs true :snapshot false
       - name: Deploy Release
         run: clojure -T:build deploy :snapshot false
         env:
