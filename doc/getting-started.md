@@ -217,13 +217,13 @@ If an expectation on a Spec fails, you get the explanation as well as the standa
 ;; when run:
 
 FAIL in (spec-failure) (...:...)
-420 - failed: (< % 100) spec: :small/value
+(* 14 30)
 
-expected: (=? :small/value (* 14 30))
-  actual: (not (=? :small/value 420))
+val: 420 fails spec: :small/value predicate: (< % 100)
+
+expected: (s/valid? :small/value (* 14 30))
+  actual: (not (s/valid? :small/value 420))
 ```
-
-> The `=?` operator appearing here is an Expectations extension to `clojure.test` that provides an "intelligent equality" that supports predicates and Specs, as well as regular value equality.
 
 ## Failure Messages
 
@@ -237,7 +237,11 @@ user=> (failure-msg)
 
 FAIL in (failure-msg) (...:...)
 It's uneven!
-expected: (=? even? (+ 1 1 1))
+(+ 1 1 1)
+
+(+ 1 1 1) did not satisfy even?
+
+expected: (even? (+ 1 1 1))
   actual: (not (even? 3))
 nil
 
@@ -250,10 +254,12 @@ user=> (spec-failure-msg)
 
 FAIL in (spec-failure) (...:...)
 Too big!
-420 - failed: (< % 100) spec: :small/value
+(* 14 30)
 
-expected: (=? :small/value (* 14 30))
-  actual: (not (=? :small/value 420))
+val: 420 fails spec: :small/value predicate: (< % 100)
+
+expected: (s/valid? :small/value (* 14 30))
+  actual: (not (s/valid? :small/value 420))
 nil
 
 ;; expecting adds its message too:
@@ -269,18 +275,22 @@ user=> (another-spec-failure-msg)
 FAIL in (another-spec-failure-msg) (...:...)
 Large number should fail
 Too big!
-420 - failed: (< % 100) spec: :small/value
+(* 14 30)
 
-expected: (=? :small/value (* 14 30))
-  actual: (not (=? :small/value 420))
+val: 420 fails spec: :small/value predicate: (< % 100)
+
+expected: (s/valid? :small/value (* 14 30))
+  actual: (not (s/valid? :small/value 420))
 
 FAIL in (another-spec-failure-msg) (...:...)
 Negative number should fail
 Too small!
--420 - failed: pos-int? spec: :small/value
+(* -14 30)
 
-expected: (=? :small/value (* -14 30))
-  actual: (not (=? :small/value -420))
+val: -420 fails spec: :small/value predicate: pos-int?
+
+expected: (s/valid? :small/value (* -14 30))
+  actual: (not (s/valid? :small/value -420))
 nil
 ```
 

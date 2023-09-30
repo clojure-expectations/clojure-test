@@ -26,13 +26,15 @@ It's worth noting that the default output from `in` can be somewhat confusing an
 
 ;; default output
 FAIL in () (...:...)
-  within: (expect {:foo 1} (in {:bar 2}))
-expected: (=? e__206__auto__ (clojure.core/select-keys a__203__auto__ (clojure.core/keys e__206__auto__)))
-  actual: (not (=? {:foo 1} {}))
+(in {:bar 2})
+
+expected: (expect {:foo 1} (in {:bar 2}))
+  actual: (not= {:foo 1} {})
 
 ;; with Humane Test Output:
 FAIL in () (...:...)
-  within: (expect {:foo 1} (in {:bar 2}))
+(in {:bar 2})
+
 expected: {:foo 1}
   actual: {}
     diff: - {:foo 1}

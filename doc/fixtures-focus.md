@@ -156,7 +156,7 @@ Cognitect's `test-runner` also has an `:includes` option to include only tests m
 > clojure -X:test :includes '[:negative]'
 ```
 
-This run's _only_ tests marked as being `^:negative`.
+This runs _only_ tests marked as being `^:negative`.
 
 Leiningen's approach uses an additional layer in its `project.clj` file where you specify `:test-selectors` which are labels for predicates that run on the metadata of tests to determine whether to include them or not. Run `lein test help` for details. The equivalent of the above "humane" run would be:
 

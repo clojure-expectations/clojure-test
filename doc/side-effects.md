@@ -55,9 +55,10 @@ Here's the output of running those two tests:
 user=> (my-code-test-1)
 
 FAIL in (my-code-test-1) (...:...)
+(side-effects [my-pred println] (my-code 42))
 
-expected: (=? [[42] ["good"]] (side-effects [my-pred println] (my-code 42)))
-  actual: (not (=? [[42] ["good"]] [(42) ("bad")]))
+expected: (= [[42] ["good"]] (side-effects [my-pred println] (my-code 42)))
+  actual: (not= [[42] ["good"]] [(42) ("bad")])
 nil
 user=> (my-code-test-2)
 nil

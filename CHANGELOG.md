@@ -9,7 +9,7 @@ Only accretive/fixative changes will be made from now on.
 * 2.1.182 -- 2023-09-29
   * Improved failure reporting: most failures now provide an additional message describing the failure as well as improving how the expected and actual values are displayed (primarily hiding `=?` and showing a more accurate/intuitive test form).
   * Update `deps.edn` to use `:main-args` (instead of `:main-opts`) for parameterized tasks in `build.clj` -- see [Running Tasks based on Aliases](https://clojure-doc.org/articles/cookbooks/cli_build_projects/)
-  * Drop support for Java 8.
+  * Drop support for Java 8 (it may continue to work but it is no longer tested).
   * Update dependencies to latest stable versions.
 
 * 2.0.165 -- 2023-01-31
