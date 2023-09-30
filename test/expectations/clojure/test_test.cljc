@@ -37,8 +37,8 @@
   (is (sut/expect "foo" (str "f" "oo"))))
 
 (deftest ^:negative not-equality-test
-  (is-not' (sut/expect 2 (* 1 1)) (not (=? 2 1)))
-  (is-not' (sut/expect "fool" (str "f" "oo")) (not (=? "fool" "foo"))))
+  (is-not' (sut/expect 2 (* 1 1)) (not= 2 1))
+  (is-not' (sut/expect "fool" (str "f" "oo")) (not= "fool" "foo")))
 
 (deftest ^:negative message-test
   (is-not' (sut/expect even? (+ 1 1 1) "It's uneven!")
@@ -48,10 +48,10 @@
            (not (empty? [1]))
            #"full")
   (is-not' (sut/expect 2 (* 1 1) "One times one isn't two?")
-           (not (=? 2 1))
+           (not= 2 1)
            #"isn't two")
   (is-not' (sut/expect "fool" (str "f" "oo") "No fooling around!")
-           (not (=? "fool" "foo"))
+           (not= "fool" "foo")
            #"fooling"))
 
 (deftest regex-test
@@ -103,7 +103,7 @@
                   (s/def :small/value (s/and pos-int? #(< % 100)))
                   (deftest spec-test
                     (is (sut/expect :small/value (* 13 4)))
-                    (is-not' (sut/expect :small/value (* 13 40)) (not (=? :small/value 520))))))
+                    (is-not' (sut/expect :small/value (* 13 40)) (not (s/valid? :small/value 520))))))
          (catch Throwable _
            (println "\nOmitting Spec tests for Clojure" (clojure-version)))))
 
@@ -122,22 +122,22 @@
   (is (nil? (sut/expect :foo (in [:bar :foo])))))
 
 (deftest ^:negative not-collection-test
-  (is-not' (sut/expect {:foo 1} (in {:foo 2 :cat 4})) (not (=? {:foo 1} {:foo 2}))))
+  (is-not' (sut/expect {:foo 1} (in {:foo 2 :cat 4})) (not= {:foo 1} {:foo 2}))
 
 ;; TODO: need better tests here
-(deftest grouping-more-more-of-from-each
-  (sut/expecting "numeric behavior"
-                 (sut/expect (more-of {:keys [a b]}
-                                      even? a
-                                      odd?  b)
-                             {:a (* 2 13) :b (* 3 13)})
-                 (sut/expect pos? (* -3 -5)))
-  (sut/expecting "string behavior"
-                 (sut/expect (more #"foo" "foobar" #(str/starts-with? % "f"))
-                             (str "f" "oobar"))
-                 (sut/expect #"foo"
-                             (from-each [s ["l" "d" "bar"]]
-                                        (str "foo" s)))))
+  (deftest grouping-more-more-of-from-each
+    (sut/expecting "numeric behavior"
+      (sut/expect (more-of {:keys [a b]}
+                           even? a
+                           odd?  b)
+                  {:a (* 2 13) :b (* 3 13)})
+      (sut/expect pos? (* -3 -5)))
+    (sut/expecting "string behavior"
+      (sut/expect (more #"foo" "foobar" #(str/starts-with? % "f"))
+                  (str "f" "oobar"))
+      (sut/expect #"foo"
+                  (from-each [s ["l" "d" "bar"]]
+                             (str "foo" s))))))
 
 (deftest more-evals-once
   (let [counter (atom 1)]
@@ -204,7 +204,7 @@
 (deftest string-test
   (is (= "abc" (sut/str-match "abcdef" "abcefg")))
   (is (= ["def" "efg" "abc"] (sut/str-diff "abcdef" "abcefg")))
-  (is (= "matches: \"abc\"\n>>>  expected diverges: \"def\"\n>>>    actual diverges: \"efg\""
+  (is (= "matches: \"abc\"\n>>>  expected diverges: \"def\"\n>>>    actual diverges: \"efg\"\n"
          (sut/str-msg "abcdef" "abcefg" "abc"))))
 
 ; Test use of string compare routines as well as actual form in message
@@ -213,7 +213,7 @@
 
 #?(:clj (deftest ^:negative string-compare-failure-test
           (is-not' (sut/expect "abcdef" (str "abc" "efg"))
-                   (not (=? "abcdef" "abcefg"))
+                   (not= "abcdef" "abcefg")
                    #"(?is)(str \"abc\" \"efg\").*matches: \"abc\""))
    :cljs (deftest string-compare-failure-test
            (is-not' (sut/expect "abcdef" (str "abc" "efg"))

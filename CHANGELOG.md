@@ -7,6 +7,7 @@
 Only accretive/fixative changes will be made from now on.
 
 * 2.0.next in progress
+  * Improved failure reporting: most failures now provide an additional message describing the failure as well as improving how the expected and actual values are displayed (primarily hiding `=?` and showing a more accurate/intuitive test form).
   * Update `deps.edn` to use `:main-args` (instead of `:main-opts`) for parameterized tasks in `build.clj` -- see [Running Tasks based on Aliases](https://clojure-doc.org/articles/cookbooks/cli_build_projects/)
   * Update dependencies to latest stable versions.
 

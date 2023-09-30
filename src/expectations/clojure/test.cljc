@@ -9,8 +9,9 @@
   (:require [clojure.data :as data]
             [clojure.string :as str]
             #?(:cljs [planck.core])
-            #?(:clj [clojure.test :as t]
+            #?(:clj  [clojure.test :as t]
                :cljs [cljs.test :include-macros true :as t])
+            #?(:clj  [clojure.spec.alpha :as s])
             #?(:cljs [cljs.spec.alpha :as s])
             #?@(:cljs [pjstadig.humane-test-output
                        pjstadig.print
@@ -37,11 +38,12 @@
              ; this framework and running the :negative tests.
              true)))
 
+(defn ^:no-doc illegal-argument [s]
+  (#?(:clj IllegalArgumentException. :cljs js/Error.) s))
+
 ;; stub functions for :refer compatibility:
 (defn- bad-usage [s]
-  `(throw (#?(:clj IllegalArgumentException.
-              :cljs js/Error.)
-           (str ~s " should only be used inside expect"))))
+  `(throw (illegal-argument (str ~s " should only be used inside expect"))))
 
 (defmacro =?
   "Internal fuzzy-equality test (clojure.test/assert-expr)."
@@ -124,12 +126,7 @@
 (defn ^:no-doc spec?
   "Detects whether an expected expression seems to be a Spec."
   [e]
-  (and (keyword? e)
-       #?(:clj (try (require 'clojure.spec.alpha)
-                 (when-let [get-spec (resolve 'clojure.spec.alpha/get-spec)]
-                   (boolean (get-spec e)))
-                 (catch Throwable _))
-          :cljs (boolean (s/get-spec e)))))
+  (and (keyword? e) (s/get-spec e)))
 
 (defn ^:no-doc str-match
   "Returns the match off of the beginning of two strings."
@@ -155,7 +152,8 @@
        "\n>>>  expected diverges: " (pr-str
                                      (clojure.string/replace a in-both ""))
        "\n>>>    actual diverges: " (pr-str
-                                     (clojure.string/replace b in-both ""))))
+                                     (clojure.string/replace b in-both ""))
+       "\n"))
 
 ;; smart equality extension to clojure.test assertion -- if the expected form
 ;; is a predicate (function) then the assertion is equivalent to (is (e a))
@@ -167,30 +165,49 @@
   #?(:clj [msg form] :cljs [menv msg form])
   ;; (is (=? val-or-pred expr))
   (let [[_ e a form'] form
-        conform? (spec? e)]
+        conform? (boolean (spec? e))]
     `(let [e# ~e
            a# ~a
-           valid?# (when ~conform? #?(:clj (resolve 'clojure.spec.alpha/valid?)
-                                      :cljs s/valid?))
-           explain-str?# (when ~conform?
-                           #?(:clj (resolve 'clojure.spec.alpha/explain-str)
-                              :cljs s/explain-str))
-           r# (cond ~conform?
-                    (valid?# e# a#)
-                    (fn? e#)
-                    (e# a#)
-                    (isa? (type e#)
-                          #?(:clj java.util.regex.Pattern
-                             :cljs (type #"regex")))
-                    (some? (re-find e# a#))
-                    #?(:clj (and (class? e#) (class? a#))
-                       :cljs false) ; maybe figure this out later
-                    (isa? a# e#) ; (expect parent child)
-                    #?(:clj (class? e#)
-                       :cljs false) ; maybe figure this out later
-                    (instance? e# a#) ; (expect klazz object)
-                    :else
-                    (= e# a#))
+           f# ~form'
+           valid?# (when ~conform? s/valid?)
+           explain-str?# (when ~conform? s/explain-str)
+           [r# m# ef# af#]
+           (cond ~conform?
+                 [(valid?# e# a#)
+                  (explain-str?# e# a#)
+                  (list '~'s/valid? '~e '~a)
+                  (list '~'not (list '~'s/valid? '~e a#))]
+                 (fn? e#)
+                 [(e# a#)
+                  (str '~a " did not satisfy " '~e "\n")
+                  (list '~e '~a)
+                  (list '~'not (list '~e a#))]
+                 (isa? (type e#)
+                       #?(:clj java.util.regex.Pattern
+                          :cljs (type #"regex")))
+                 [(some? (re-find e# a#))
+                  (str (pr-str a#) " did not match " (pr-str e#) "\n")
+                  (list '~'re-find '~e '~a)
+                  (list '~'not (list '~'re-find e# a#))]
+                 #?(:clj (and (class? e#) (class? a#))
+                    :cljs false) ; maybe figure this out later
+                 [(isa? a# e#) ; (expect parent child)
+                  (str a# " is not derived from " e# "\n")
+                  (list '~'isa? '~a '~e)
+                  (list '~'not (list '~'isa? a# e#))]
+                 #?(:clj (class? e#)
+                    :cljs false) ; maybe figure this out later
+                 [(instance? e# a#) ; (expect klazz object)
+                  (str a# " (" (class a#) ") is not an instance of " e# "\n")
+                  (list '~'instance? '~e '~a)
+                  (class a#)]
+                 :else
+                 [(= e# a#)
+                  (when (and (string? e#) (string? a#) (not= e# a#))
+                    (let [[_# _# in-both#] (str-diff e# a#)]
+                      (str-msg e# a# in-both#)))
+                  (list '~'= '~e '~a)
+                  (list '~'not= e# a#)])
            humane?# (and humane-test-output? (not (fn? e#)) (not ~conform?))]
        (if r#
          (t/do-report {:type :pass, :message ~msg,
@@ -198,34 +215,30 @@
                                                    (list '~e a#)
                                                    a#)})
          (t/do-report
-          (let [[_# _# in-both# :as diff-vec#]
-                (when (and (string? e#) (string? a#)) (str-diff e# a#))]
-            {:type :fail,
-             :message (if ~conform?
-                        (if ~msg
-                          (str ~msg "\n" (explain-str?# e# a#))
-                          (explain-str?# e# a#))
-                        (if diff-vec#
-                          ; Both e# an a# are strings, put a nice
-                          ; comparison in the msg.
-                          (str ~msg "\n" (str-msg e# a# in-both#) "\n")
-                          ~msg)),
-             :diffs (if humane?#
-                      [[a# (take 2 (data/diff e# a#))]]
-                      [])
-             :expected (cond humane?#
-                             e#
-                             ~form'
-                             ~form'
-                             :else
-                             '~form)
-             :actual (cond (fn? e#)
-                           (list '~'not (list '~e a#))
-                           humane?#
-                           [a#]
+          {:type :fail,
+           :message (if m# (if ~msg (str ~msg "\n" m#) m#) ~msg)
+           :diffs (if humane?#
+                    [[a# (take 2 (data/diff e# a#))]]
+                    [])
+           :expected (cond humane?#
+                           e#
+                           f#
+                           f#
+                           ef#
+                           ef#
                            :else
-                           (list '~'not (list '~'=? e# a#)))})))
+                           '~form)
+           :actual (cond af#
+                         af#
+                         humane?#
+                         [a#]
+                         :else
+                         (list '~'not (list '~'=? e# a#)))}))
        r#)))
+
+(comment
+  (data/diff "foo" ["bar"])
+  )
 
 (defmacro ^:no-doc ?
   "Wrapper for forms that might throw an exception so exception class names
@@ -351,13 +364,9 @@
                   (if (map? e#)
                     (let [submap# (select-keys a# (keys e#))]
                       (t/is (~'=? e# submap# '~form) ~msg'))
-                    (throw (#?(:clj IllegalArgumentException.
-                               :cljs js/Error.)
-                            "'in' requires map or sequence")))
+                    (throw (illegal-argument "'in' requires map or sequence")))
                   :else
-                  (throw (#?(:clj IllegalArgumentException.
-                             :cljs js/Error.)
-                          "'in' requires map or sequence")))))
+                  (throw (illegal-argument "'in' requires map or sequence")))))
 
        (and (sequential? e) (= 'more (first e)))
        (let [sa (gensym)
@@ -393,15 +402,15 @@
                                     "#object[Function]")))))
        #?(:clj (if (isa? (resolve e) Throwable)
                  `(t/is (~'thrown? ~e ~a) ~msg')
-                 `(t/is (~'instance? ~e ~a) ~msg'))
+                 `(t/is (~'=? ~e ~a) ~msg'))
           :cljs (if (= 'js/Error e)
                   `(t/is (~'thrown? ~e ~a) ~msg')
-                  `(t/is (~'instance? ~e ~a) ~msg')))
+                  `(t/is (~'=? ~e ~a) ~msg')))
 
-       (isa? (type e)
-             #?(:clj java.util.regex.Pattern
-                :cljs (type #"regex")))
-       `(t/is (re-find ~e ~a) ~msg')
+      ;;  (isa? (type e)
+      ;;        #?(:clj java.util.regex.Pattern
+      ;;           :cljs (type #"regex")))
+      ;;  `(t/is (re-find ~e ~a) ~msg')
 
        :else
        `(t/is (~'=? ~e ~a) ~msg')))))
@@ -452,9 +461,7 @@
   by name will return `nil`."
   [fn-vec & forms]
   (when-not (vector? fn-vec)
-    (throw (#?(:clj IllegalArgumentException.
-               :cljs js/Error.)
-             "side-effects requires a vector as its first argument")))
+    (throw (illegal-argument "side-effects requires a vector as its first argument")))
   (let [mocks (reduce (fn [m f-spec]
                         (if (vector? f-spec)
                           (assoc m (first f-spec) (second f-spec))
