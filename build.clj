@@ -77,7 +77,7 @@
     (b/write-pom opts)
     (println "\nCopying source...")
     (b/copy-dir {:src-dirs ["resources" "src"] :target-dir class-dir})
-    (println "\nBuilding JAR...")
+    (println "\nBuilding JAR" (:jar-file opts) "...")
     (b/jar opts))
   opts)
 
