@@ -198,9 +198,11 @@
                  #?(:clj (class? e#)
                     :cljs false) ; maybe figure this out later
                  [(instance? e# a#) ; (expect klazz object)
-                  (str a# " (" (class a#) ") is not an instance of " e# "\n")
+                  (str a#
+                       #?(:clj (str " (" (class a#) ")"))
+                       " is not an instance of " e# "\n")
                   (list '~'instance? '~e '~a)
-                  (class a#)]
+                  #?(:clj (class a#))]
                  :else
                  [(= e# a#)
                   (when (and (string? e#) (string? a#) (not= e# a#))
@@ -405,12 +407,7 @@
                  `(t/is (~'=? ~e ~a) ~msg'))
           :cljs (if (= 'js/Error e)
                   `(t/is (~'thrown? ~e ~a) ~msg')
-                  `(t/is (~'=? ~e ~a) ~msg')))
-
-      ;;  (isa? (type e)
-      ;;        #?(:clj java.util.regex.Pattern
-      ;;           :cljs (type #"regex")))
-      ;;  `(t/is (re-find ~e ~a) ~msg')
+                  `(t/is (~'instance? ~e ~a) ~msg')))
 
        :else
        `(t/is (~'=? ~e ~a) ~msg')))))

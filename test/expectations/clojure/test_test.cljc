@@ -112,7 +112,7 @@
                            (* 13 4)))
            (is-not'
              (sut/expect :expectations.clojure.test-spec/small-value (* 13 40))
-             (not (=? :expectations.clojure.test-spec/small-value 520)))))
+             (not (s/valid? :expectations.clojure.test-spec/small-value 520)))))
 
 (deftest collection-test
   (is (sut/expect {:foo 1} (in {:foo 1 :cat 4})))
@@ -217,7 +217,7 @@
                    #"(?is)(str \"abc\" \"efg\").*matches: \"abc\""))
    :cljs (deftest string-compare-failure-test
            (is-not' (sut/expect "abcdef" (str "abc" "efg"))
-                    ["abcefg"]
+                    (not= "abcdef" "abcefg")
                     #"(?is)(str \"abc\" \"efg\").*matches: \"abc\"")))
 
 (deftest issue-19-regex-test
