@@ -28,7 +28,7 @@
             [deps-deploy.deps-deploy :as dd]))
 
 (def lib 'com.github.seancorfield/expectations)
-(defn- the-version [patch] (format "2.0.%s" patch))
+(defn- the-version [patch] (format "2.1.%s" patch))
 (def version (the-version (b/git-count-revs nil)))
 (def snapshot (the-version "999-SNAPSHOT"))
 (def class-dir "target/classes")
