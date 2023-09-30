@@ -1,14 +1,26 @@
 (ns build
   "Expections (clojure-test) build script.
 
-  clojure -T:build run-tests
-  clojure -T:build run-tests :aliases '[:master]'
+   Run individual round of tests:
 
-  clojure -T:build ci
+   clojure -T:build run-tests
+   clojure -T:build run-tests :aliases '[:master]'
 
-  For more information, run:
+   Run multi-version tests:
 
-  clojure -A:deps -T:build help/doc"
+   clojure -T:build test
+
+   Also run cljs tests:
+
+   clojure -T:build test :cljs true
+
+   Run the CI pipeline (to build a JAR):
+
+   clojure -T:build ci
+
+   For more information, run:
+
+   clojure -A:deps -T:build help/doc"
   (:refer-clojure :exclude [test])
   (:require [clojure.string :as str]
             [clojure.tools.build.api :as b]
