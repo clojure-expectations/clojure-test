@@ -6,6 +6,9 @@
 
 Only accretive/fixative changes will be made from now on.
 
+* 2.1.next in progress
+  * Update `tools.build` to 0.9.6 (and get rid of `template/pom.xml` in favor of new `:pom-data` option to `b/write-pom`).
+
 * 2.1.182 -- 2023-09-29
   * Improved failure reporting: most failures now provide an additional message describing the failure as well as improving how the expected and actual values are displayed (primarily hiding `=?` and showing a more accurate/intuitive test form).
   * Update `deps.edn` to use `:main-args` (instead of `:main-opts`) for parameterized tasks in `build.clj` -- see [Running Tasks based on Aliases](https://clojure-doc.org/articles/cookbooks/cli_build_projects/)

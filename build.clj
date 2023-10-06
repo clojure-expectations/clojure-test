@@ -57,17 +57,32 @@
             (conj :cljs)))
   opts)
 
+(defn- pom-template [version]
+  [[:description "A clojure.test-compatible version of the classic Expectations testing library."]
+   [:url "https://github.com/clojure-expectations/clojure-test"]
+   [:licenses
+    [:license
+     [:name "Eclipse Public License"]
+     [:url "http://www.eclipse.org/legal/epl-v10.html"]]]
+   [:developers
+    [:developer
+     [:name "Sean Corfield"]]]
+   [:scm
+    [:url "https://github.com/clojure-expectations/clojure-test"]
+    [:connection "scm:git:https://github.com/clojure-expectations/clojure-test.git"]
+    [:developerConnection "scm:git:ssh:git@github.com:clojure-expectations/clojure-test.git"]
+    [:tag (str "v" version)]]])
+
 (defn- jar-opts [opts]
   (let [version (if (:snapshot opts) snapshot version)]
     (assoc opts
-           :lib lib :version version
-           :jar-file (format "target/%s-%s.jar" lib version)
-           :scm {:tag (str "v" version)}
-           :basis (b/create-basis {})
+           :lib lib   :version version
+           :jar-file  (format "target/%s-%s.jar" lib version)
+           :basis     (b/create-basis {})
            :class-dir class-dir
-           :target "target"
-           :src-dirs ["src"]
-           :src-pom "template/pom.xml")))
+           :target    "target"
+           :src-dirs  ["src"]
+           :pom-data  (pom-template version))))
 
 (defn ci "Run the CI pipeline of tests (and build the JAR)." [opts]
   (test opts)
