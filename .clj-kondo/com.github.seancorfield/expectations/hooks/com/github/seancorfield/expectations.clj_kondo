@@ -22,7 +22,7 @@
           (map (fn [[e a]]
                  (api/list-node
                   (list
-                   (api/token-node '=?)
+                   (api/token-node 'expectations.clojure.test/expect)
                    e
                    a)))
                pairs)))]
