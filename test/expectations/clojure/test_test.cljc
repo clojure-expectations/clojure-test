@@ -22,6 +22,7 @@
                      [from-each in more more-> more-of =?] :as sut]
                :cljs [expectations.clojure.test
                       :include-macros true
+                      :refer-macros [from-each in more more-> more-of =?]
                       :as sut])))
 
 ; The macros are in test_macros.cljc to support ClojureScript.

@@ -7,6 +7,7 @@
 Only accretive/fixative changes will be made from now on.
 
 * 2.1.next in progress
+  * Address [#29](https://github.com/clojure-expectations/clojure-test/issues/29) by providing a "hook" for `more-of`.
   * Update `tools.build` to 0.9.6 (and get rid of `template/pom.xml` in favor of new `:pom-data` option to `b/write-pom`).
 
 * 2.1.182 -- 2023-09-29
