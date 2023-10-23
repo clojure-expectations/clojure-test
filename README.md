@@ -4,7 +4,7 @@ A `clojure.test`-compatible version of the [classic Expectations testing library
 
 ## Where?
 
-[![Clojars Project](https://clojars.org/com.github.seancorfield/expectations/latest-version.svg)](https://clojars.org/com.github.seancorfield/expectations) [![cljdoc badge](https://cljdoc.org/badge/com.github.seancorfield/expectations?2.1.182)](https://cljdoc.org/d/com.github.seancorfield/expectations/CURRENT) [![Slack](https://img.shields.io/badge/slack-Expectations-red.svg?logo=slack)](https://clojurians.slack.com/app_redirect?channel=expectations)
+[![Clojars Project](https://clojars.org/com.github.seancorfield/expectations/latest-version.svg)](https://clojars.org/com.github.seancorfield/expectations) [![cljdoc badge](https://cljdoc.org/badge/com.github.seancorfield/expectations?2.1.186)](https://cljdoc.org/d/com.github.seancorfield/expectations/CURRENT) [![Slack](https://img.shields.io/badge/slack-Expectations-red.svg?logo=slack)](https://clojurians.slack.com/app_redirect?channel=expectations)
 
 Try it out:
 
