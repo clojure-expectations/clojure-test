@@ -17,8 +17,8 @@
         rewritten
         (api/list-node
          (list*
-          (api/token-node 'let)
-          (api/vector-node (vector bindings (api/token-node 'nil)))
+          (api/token-node 'fn)
+          (api/vector-node (vector bindings))
           (map (fn [[e a]]
                  (api/list-node
                   (list
