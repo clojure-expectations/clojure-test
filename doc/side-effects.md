@@ -91,6 +91,35 @@ of values, it often helps to combine `side-effects` with `more-of`:
           (side-effects [[my-pred true] println] (my-code 42))))
 ```
 
+The examples here have fairly simple argument lists: a single value in each
+call that is just a literal. In real world code, calls will often have multiple
+arguments and those might be data structures. `more-of` lets you destructure
+arbitrary expressions (because, under the hood, it works just like `let` or `fn`)
+so combine the vector destructuring for multiple arguments with key
+destructuring etc:
+
+```clojure
+(defn my-compute [x y z] (assoc x y (inc z)))
+(defn processor [a b c] (my-compute {:a a :b b} :c c))
+
+(defexpect my-compute-test
+  (expect (more-of [[{:keys [a b]} k v]   ; first call
+                    [{a2 :a b2 :b} k2 v2] ; second call, renaming keys
+                    :as all]
+                   2  (count all) ; check there were just two calls
+                   1  a
+                   2  b
+                   :c k
+                   3  v
+                   4  a2
+                   5  b2
+                   :c k2
+                   6  v2)
+          (side-effects [my-compute]
+            (processor 1 2 3)
+            (processor 4 5 6))))
+```
+
 # Further Reading
 
 * [Getting Started](/doc/getting-started.md)
