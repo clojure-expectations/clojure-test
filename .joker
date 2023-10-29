@@ -1,9 +1,0 @@
-{:known-macros [expectations.clojure.test/defexpect
-                expectations.clojure.test/expect
-                expectations.clojure.test/from-each
-                expectations.clojure.test/in
-                expectations.clojure.test/more
-                expectations.clojure.test/more->
-                expectations.clojure.test/more-of
-                expectations.clojure.test/side-effects]
- :rules {:if-without-else true}}

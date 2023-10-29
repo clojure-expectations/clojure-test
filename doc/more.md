@@ -33,7 +33,16 @@ If you have a series of predicates (or values) that you expect to be satisfied b
 `more->` accepts a series of predicate (or value) and expression pairs.
 The (actual) test value is threaded through each of the expressions and the predicate (or value) is expected of the result.
 
-Going back to our `lookup-membership` example, we might want to expect:
+The example above is equivalent to these two expectations:
+
+```clojure
+  (expect 1 (-> [1 2 3] first))
+  (expect 3 (-> [1 2 3] last))
+```
+
+Going back to our `lookup-membership` example (in
+[**Collections**](/doc/collections.md) and
+[**Fixtures**](/doc/fixtures-focus.md)), we might want to expect:
 
 ```clojure
   (expect (more-> #{:membership/id :membership/status :membership/type ,,,}
@@ -90,6 +99,20 @@ Some simpler examples (taken from Expectations' original documentation):
           [1 2 3])
 ```
 
+You can think of `more-of` as being a shorthand for a predicate function
+that `expect`s the pairs in its body:
+
+```clojure
+  (expect (fn [x]
+            (expect vector? x)
+            (expect 1 (first x)))
+          [1 2 3])
+  (expect (fn [[x :as all]]
+            (expect vector? all)
+            (expect 1 x))
+          [1 2 3])
+```
+
 `more-of` can be used with `from-each` to provide functionality similar
 to `are` in `clojure.test` (but more powerful):
 
@@ -112,20 +135,42 @@ to `are` in `clojure.test` (but more powerful):
 ```
 
 Although this is more verbose for this basic example, remember that the
-`expected` value could also be a predicate function, a regex, a Spec, etc.
+`expected` value could also be a predicate function, a regex, a Spec, etc:
+
+```clojure
+  (s/def ::coll-of-ints (s/coll-of int?))
+
+  (defexpect more-than-are
+    (expect (more-of [expected actual]
+                     ::coll-of-ints actual
+                     expected actual)
+            (from-each [[expected start end]
+                        [[[0 1 2 3] 0 4]
+                         [empty?    0 0]
+                         [[1 2 3]   1 4]]]
+              [expected (range start end)])))
+```
+
+> Note: a Spec is only recognized as literal keyword in the "expected" position so it has to be directly in `more-of` rather than passed via `from-each`. This restriction will probably be lifted in a future release.
 
 `more-of` can also be used with `more->` to provide succinct tests on Clojure's `ex-info` exceptions:
 
 ```clojure
   (defexpect ex-info-tests
-    (expect (more-> clojure.lang.ExceptionInfo type
+    (expect (more-> clojure.lang.ExceptionInfo     type
+                    #"boo"                         ex-message
                     (more-of {:keys [status responseCode]}
                              409 status
                              4001110 responseCode) ex-data)
             (throw (ex-info "boo" {:status 409 :responseCode 4001110}))))
 ```
 
-In this example, the exception is threaded into `type` and the predicate is a class, and it is also threaded into `ex-data` and the predicate is a `more-of` expression that destructures that data and matches parts of it.
+In this example, the exception is threaded into `type` and the predicate is a class,
+it is threaded into `ex-message` and the predicate is a regex,
+and it is also threaded into `ex-data` and the predicate is a `more-of` expression that destructures that data and matches parts of it.
+
+Another good use of `more-of` is for expectations on
+[**Side Effects**](/doc/side-effects.md).
 
 # Further Reading
 
