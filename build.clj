@@ -4,7 +4,7 @@
    Run individual round of tests:
 
    clojure -T:build run-tests
-   clojure -T:build run-tests :aliases '[:master]'
+   clojure -T:build run-tests :aliases '[:1.12]'
 
    Run multi-version tests:
 
@@ -52,7 +52,7 @@
   (reduce (fn [opts alias]
             (run-tests (assoc opts :aliases [alias])))
           opts
-          (cond-> [:1.9 :1.10 :1.11 :master :humane]
+          (cond-> [:1.9 :1.10 :1.11 :1.12 :humane]
             (:cljs opts)
             (conj :cljs)))
   opts)
