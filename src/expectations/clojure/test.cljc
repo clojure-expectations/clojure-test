@@ -155,6 +155,48 @@
                                      (clojure.string/replace b in-both ""))
        "\n"))
 
+(defn ^:no-doc =?-impl
+  "Perform comparison of expected vs actual, build :expected and :actual forms."
+  [{:keys [e e# a a# conform?]}]
+  (cond conform?
+        [(s/valid? e# a#)
+         (s/explain-str e# a#)
+         (list 's/valid? e a)
+         (list 'not (list 's/valid? e a#))]
+        (fn? e#)
+        [(e# a#)
+         (str a " did not satisfy " e "\n")
+         (list e a)
+         (list 'not (list e a#))]
+        (isa? (type e#)
+              #?(:clj java.util.regex.Pattern
+                      :cljs (type #"regex")))
+        [(some? (re-find e# a#))
+         (str (pr-str a#) " did not match " (pr-str e#) "\n")
+         (list 're-find e a)
+         (list 'not (list 're-find e# a#))]
+        #?(:clj (and (class? e#) (class? a#))
+                :cljs false) ; maybe figure this out later
+        [(isa? a# e#) ; (expect parent child)
+         (str a# " is not derived from " e# "\n")
+         (list 'isa? a e)
+         (list 'not (list 'isa? a# e#))]
+        #?(:clj (class? e#)
+                :cljs false) ; maybe figure this out later
+        [(instance? e# a#) ; (expect klazz object)
+         (str a#
+              #?(:clj (str " (" (class a#) ")"))
+              " is not an instance of " e# "\n")
+         (list 'instance? e a)
+         #?(:clj (class a#))]
+        :else
+        [(= e# a#)
+         (when (and (string? e#) (string? a#) (not= e# a#))
+           (let [[_# _# in-both#] (str-diff e# a#)]
+             (str-msg e# a# in-both#)))
+         (list '= e a)
+         (list 'not= e# a#)]))
+
 ;; smart equality extension to clojure.test assertion -- if the expected form
 ;; is a predicate (function) then the assertion is equivalent to (is (e a))
 ;; rather than (is (= e a)) and we need the type check done at runtime, not
@@ -169,47 +211,9 @@
     `(let [e# ~e
            a# ~a
            f# ~form'
-           valid?# (when ~conform? s/valid?)
-           explain-str?# (when ~conform? s/explain-str)
-           [r# m# ef# af#]
-           (cond ~conform?
-                 [(valid?# e# a#)
-                  (explain-str?# e# a#)
-                  (list '~'s/valid? '~e '~a)
-                  (list '~'not (list '~'s/valid? '~e a#))]
-                 (fn? e#)
-                 [(e# a#)
-                  (str '~a " did not satisfy " '~e "\n")
-                  (list '~e '~a)
-                  (list '~'not (list '~e a#))]
-                 (isa? (type e#)
-                       #?(:clj java.util.regex.Pattern
-                          :cljs (type #"regex")))
-                 [(some? (re-find e# a#))
-                  (str (pr-str a#) " did not match " (pr-str e#) "\n")
-                  (list '~'re-find '~e '~a)
-                  (list '~'not (list '~'re-find e# a#))]
-                 #?(:clj (and (class? e#) (class? a#))
-                    :cljs false) ; maybe figure this out later
-                 [(isa? a# e#) ; (expect parent child)
-                  (str a# " is not derived from " e# "\n")
-                  (list '~'isa? '~a '~e)
-                  (list '~'not (list '~'isa? a# e#))]
-                 #?(:clj (class? e#)
-                    :cljs false) ; maybe figure this out later
-                 [(instance? e# a#) ; (expect klazz object)
-                  (str a#
-                       #?(:clj (str " (" (class a#) ")"))
-                       " is not an instance of " e# "\n")
-                  (list '~'instance? '~e '~a)
-                  #?(:clj (class a#))]
-                 :else
-                 [(= e# a#)
-                  (when (and (string? e#) (string? a#) (not= e# a#))
-                    (let [[_# _# in-both#] (str-diff e# a#)]
-                      (str-msg e# a# in-both#)))
-                  (list '~'= '~e '~a)
-                  (list '~'not= e# a#)])
+           [r# m# ef# af#] (=?-impl {:e '~e :e# e#
+                                     :a '~a :a# a#
+                                     :conform? ~conform?})
            humane?# (and humane-test-output? (not (fn? e#)) (not ~conform?))]
        (if r#
          (t/do-report {:type :pass, :message ~msg,
@@ -218,7 +222,7 @@
                                                    a#)})
          (t/do-report
           {:type :fail,
-           :message (if m# (if ~msg (str ~msg "\n" m#) m#) ~msg)
+           :message (if m# (if-let [msg# ~msg] (str msg# "\n" m#) m#) ~msg)
            :diffs (if humane?#
                     [[a# (take 2 (data/diff e# a#))]]
                     [])
@@ -303,8 +307,8 @@
    (let [within (if (and (sequential? e')
                          (symbol? (first e'))
                          (= "expect" (name (first e'))))
-                  `(pr-str '~e')
-                  `(pr-str (list '~'expect '~e' '~a)))
+                  (pr-str e')
+                  (pr-str (list 'expect e' a)))
          msg' `(str/join
                 "\n"
                 (cond-> []
@@ -313,7 +317,7 @@
                   ~(not= e e')
                   (conj (str "  within: " ~within))
                   :else
-                  (conj (str (pr-str '~a) "\n"))))]
+                  (conj ~(str (pr-str a) "\n"))))]
      (cond
        (and (sequential? a)
             (symbol? (first a))
