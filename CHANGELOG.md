@@ -6,6 +6,9 @@
 
 Only accretive/fixative changes will be made from now on.
 
+* 2.1.next in progress
+  * PR [#40](https://github.com/clojure-expectations/clojure-test/pull/40) [@NoahTheDuke](https://github.com/NoahTheDuke) reduces the amount of code generated for `?=` (and, in turn, for `more-of`), allowing for more complex tests.
+
 * 2.1.208 -- 2024-11-21
   * Address [#39](https://github.com/clojure-expectations/clojure-test/issues/39) by ignoring qualifier on Expectations' macros. This is potentially breaking but is often required during migration to another test framework, as you may have to use aliased names to avoid collisions (to LazyTest, for example).
   * Address [#36](https://github.com/clojure-expectations/clojure-test/issues/36) by expanding `side-effects` documentation, and mentioning `with-redefs`.
