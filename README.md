@@ -93,21 +93,20 @@ What follows is an example REPL session showing some of what this library provid
 (defexpect regex-1
   (expect #"foo" "It's foobar!"))
 
-;; since that has only a single expectation, it can be written more succinctly:
-
-(defexpect regex-2 #"foo" "It's foobar!")
-
 ;; the expected outcome can be an exception type:
 
-(defexpect divide-by-zero ArithmeticException (/ 12 0))
+(defexpect divide-by-zero
+  (expect ArithmeticException (/ 12 0)))
 
 ;; the expected outcome can be a predicate:
 
-(defexpect no-elements empty? (list))
+(defexpect no-elements
+  (expect empty? (list)))
 
 ;; the expected outcome can be a type:
 
-(defexpect named String (name :foo))
+(defexpect named
+  (expect String (name :foo)))
 
 ;; the expected outcome can be a Spec:
 
@@ -151,7 +150,7 @@ nil
 If the test passes, nothing is printed, and `nil` is returned. Let's look at a failing test:
 
 ```clojure
-user=> (defexpect inequality (* 2 21) (+ 13 13 13))
+user=> (defexpect inequality (expect (* 2 21) (+ 13 13 13)))
 #'user/inequality
 user=> (inequality)
 
@@ -167,7 +166,7 @@ that allows for Expectations style of predicate-or-equality testing (based on
 whether the "expected" expression resolves to a function or some other value):
 
 ```clojure
-user=> (defexpect not-at-all-odd odd? (+ 1 1))
+user=> (defexpect not-at-all-odd (expect odd? (+ 1 1)))
 #'user/not-at-all-odd
 user=> (not-at-all-odd)
 

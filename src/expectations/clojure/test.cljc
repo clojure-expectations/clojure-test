@@ -445,16 +445,14 @@
 
 (defmacro defexpect
   "Given a name (a symbol that may include metadata) and a test body,
-  produce a standard `clojure.test` test var (using `deftest`).
-
-  `(defexpect name expected actual)` is a special case shorthand for
-  `(defexpect name (expect expected actual))` provided as an easy way to migrate
-  legacy Expectation tests to the 'clojure.test' compatibility version."
+  produce a standard `clojure.test` test var (using `deftest`)."
   [n & body]
   (if (and (= (count body) 2)
            (not (some contains-expect? body)))
       ;; treat (defexpect my-name pred (expr)) as a special case
-      `(t/deftest ~n (expect ~@body))
+      `(t/deftest ~n (do
+                       (println "DEPRECATED: implicit 'expect' in defexpect" '~n)
+                       (expect ~@body)))
     ;; #13 match deftest behavior starting in 2.0.0
     `(t/deftest ~n ~@body)))
 

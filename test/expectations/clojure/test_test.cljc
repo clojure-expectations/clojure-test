@@ -191,7 +191,7 @@
 
 (def ^:private control (atom 0))
 ;; this will succeed on its own
-(sut/defexpect control-test-1 zero? @control)
+(sut/defexpect control-test-1 (sut/expect zero? @control))
 ;; then retest with a different control value
 (deftest control-test-2
   (try

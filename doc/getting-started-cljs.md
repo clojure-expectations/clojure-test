@@ -124,12 +124,12 @@ Classes are all different in ClojureScript, and in some cases things
 that would be a class in Clojure are different in ClojureScript.  For
 instance, lists are a class:
 ```clojure
-(defexpect class-test cljs.core/List '(a b c))
+(defexpect class-test (expect cljs.core/List '(a b c)))
 ```
 and this test passes.  Strings, however, don't have an easily
 discoverable type or class, and are better handled with a predicate:
 ```clojure
-(defexpect string-class-test string? "abc")
+(defexpect string-class-test (expect string? "abc"))
 ```
 In general, the classes in ClojureScript will not be the same as
 the classes in Clojure.  You can do this to write a test that
@@ -139,7 +139,7 @@ will work in both environments:
 ```
 but you cannot write this:
 ```
-(defexpect bad-both-class-test (type "abc") (type "def"))
+(defexpect bad-both-class-test (expect (type "abc") (type "def")))
 ```
 because `(type "abc")` yields something that tests positive as a
 `fn?`, causing expectations to think it is a predicate.  Which,
@@ -151,12 +151,12 @@ Exceptions are very different in ClojureScript from Clojure.
 
 The Clojure example:
 ```clojure
-(defexpect divide-by-zero ArithmeticException (/ 12 0))
+(defexpect divide-by-zero (expect ArithmeticException (/ 12 0)))
 ```
 doesn't even throw an exception -- it returns `##Inf`.
 You can do this for that situation:
 ```clojure
-(defexpect divide-by-zero ##Inf (/ 12 0))
+(defexpect divide-by-zero (expect ##Inf (/ 12 0)))
 ```
 but be careful putting `##Inf` in a reader conditional, as some versions of
 Clojure don't handle that well.  But all of this is a bit off-topic,
@@ -168,7 +168,7 @@ Clojurecript to distinguish things that can be thrown from anything
 else.  The only exception supported in `expectations/clojure-test`
 in ClojureScript is where the exception is: `js/Error`.  For example:
 ```clojure
-(defexpect exception js/Error (count 5))
+(defexpect exception (expect js/Error (count 5)))
 ```
 will pass, because `(count 5)` throws `js/Error`.
 
