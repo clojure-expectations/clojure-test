@@ -449,10 +449,8 @@
   [n & body]
   (if (and (= (count body) 2)
            (not (some contains-expect? body)))
-      ;; treat (defexpect my-name pred (expr)) as a special case
-      `(t/deftest ~n (do
-                       (println "DEPRECATED: implicit 'expect' in defexpect" '~n)
-                       (expect ~@body)))
+    (throw (ex-info (str "defexpect " n " should contain at least one 'expect' form")
+                    {:name n, :body body}))
     ;; #13 match deftest behavior starting in 2.0.0
     `(t/deftest ~n ~@body)))
 

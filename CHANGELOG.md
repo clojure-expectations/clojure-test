@@ -6,6 +6,10 @@
 
 Only accretive/fixative changes will be made from now on.
 
+* 2.3.next in progress
+  * Address [#42](https://github.com/clojure-expectations/clojure-test/issues/42) by removing support for the implicit `expect` form of `defexpect`. This was deprecated in 2.2.214. In 2.3.next, an exception is thrown.
+  * Updated dev/test dependencies.
+
 * 2.2.214 -- 2024-12-13
   * Address [#41](https://github.com/clojure-expectations/clojure-test/issues/41) by deprecating the implicit `expect` form of `defexpect` and printing an obnoxious warning when it is used. This form of `defexpect` will be removed in a future release!
   * PR [#40](https://github.com/clojure-expectations/clojure-test/pull/40) [@NoahTheDuke](https://github.com/NoahTheDuke) reduces the amount of code generated for `?=` (and, in turn, for `more-of`), allowing for more complex tests.
