@@ -223,3 +223,6 @@
 
 (deftest issue-19-regex-test
   (is (sut/expect (re-pattern "\\d+") "1000")))
+
+#_ ; #42 throw exception at macro expansion time:
+(sut/defexpect issue-42 string? "explode")
