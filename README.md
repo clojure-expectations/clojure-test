@@ -63,6 +63,18 @@ Works in self-hosted ClojureScript (specifically,
 [`planck`](https://planck-repl.org)).  See
 [Getting Started with ClojureScript](/doc/getting-started-cljs.md) for details.
 
+> I consider Expectations to be mature and stable, but at this point somewhat in
+maintenance mode. I have started migrating several of my own projects to
+[LazyTest](https://github.com/noahtheduke/lazytest) which is actively maintained
+and provides better reporting and a more expressive test DSL. LazyTest has
+a [`lazytest.extensions.expectations`](https://cljdoc.org/d/io.github.noahtheduke/lazytest/CURRENT/api/lazytest.extensions.expectations)
+namespace that provides a fairly complete replacement for Expectations on
+Clojure (no ClojureScript support) so it's fairly easy to migrate from Expectations
+to LazyTest. Note that LazyTest is **not** compatible with `clojure.test`
+tooling -- it has its own test runner and reporting -- which may color your
+decision to, especially if you rely on Cursive's built-in test runner (or
+Calva's -- although custom REPL snippets mitigate that, at least for me).
+
 ## Example REPL Session
 
 What follows is an example REPL session showing some of what this library provides. For more detailed documentation, start with [Getting Started](/doc/getting-started.md) and work your way through the sections listed there.
